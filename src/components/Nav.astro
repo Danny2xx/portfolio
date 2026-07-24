@@ -1,0 +1,51 @@
+---
+import { profile } from "../data/content";
+import Logo from "./Logo.astro";
+import Settings from "./Settings.astro";
+---
+
+<header class="nav">
+  <div class="nav__inner feed">
+    <a class="wordmark" href="/#top" aria-label={`${profile.name} — home`}>
+      <Logo class="wordmark__mark" size={20} />
+    </a>
+
+    <div class="nav__right">
+      <Settings />
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: var(--z-sticky);
+    view-transition-name: nav;
+    background: color-mix(in oklab, var(--bg) 78%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 720;
+    letter-spacing: -0.01em;
+    font-size: 0.98rem;
+  }
+  .wordmark__mark {
+    display: block;
+    color: var(--ink);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wordmark:hover .wordmark__mark { transform: scale(1.08); }
+  .nav__right { display: flex; align-items: center; gap: 0.9rem; }
+</style>

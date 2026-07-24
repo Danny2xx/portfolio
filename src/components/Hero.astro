@@ -1,0 +1,143 @@
+---
+import { profile } from "../data/content";
+
+// render **bold** spans inside bio paragraphs
+function fmt(s: string) {
+  return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+---
+
+<section class="hero" id="top">
+  <div class="feed">
+    <div class="hero__id">
+      <div class="avatar" data-reveal>
+        <img src="/vector.png" alt={`Illustrated portrait of ${profile.name}`} width="76" height="76" />
+      </div>
+      <div class="hero__name" data-reveal>
+        <h1>
+          {profile.name}
+          <span class="verify" title="Verified">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path class="verify__seal" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z" />
+              <path class="verify__check" d="M10.54 16.2 6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
+            </svg>
+          </span>
+        </h1>
+        <p class="hero__title mono">{profile.title}</p>
+      </div>
+    </div>
+
+    <div class="hero__bio">
+      <p class="hero__statement" data-reveal>{profile.headline}</p>
+      {profile.bio.map((p) => <p set:html={fmt(p)} data-reveal />)}
+
+      <p class="hero__open" data-reveal>
+        <span class="dot" aria-hidden="true"></span>
+        {profile.status}
+        <span class="hero__loc">· {profile.location}</span>
+        <a class="hero__mailto" href={`mailto:${profile.email}`}>{profile.email}</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+
+  .hero__id {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+  }
+  .avatar {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface-2);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  .avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    transform: scale(1.12);
+  }
+  :global(.reveal-ready) .avatar { transform: translateY(14px) scale(0.86); }
+  :global(.reveal-ready) .avatar.is-in { transform: none; }
+  .hero__name h1 {
+    font-size: clamp(1.2rem, 1rem + 1vw, 1.5rem);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    letter-spacing: -0.025em;
+  }
+  .verify {
+    display: inline-flex;
+    flex: none;
+    width: 0.82em;
+    height: 0.82em;
+    transform: translateY(0.06em);
+  }
+  .verify svg { width: 100%; height: 100%; display: block; }
+  .verify__seal { fill: var(--primary); }
+  .verify__check { fill: var(--on-primary); }
+  .hero__title {
+    color: var(--muted);
+    font-size: clamp(0.7rem, 0.66rem + 0.2vw, 0.78rem);
+    letter-spacing: 0.02em;
+    margin-top: 0.3rem;
+  }
+
+  .hero__bio {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .hero__bio > :global(p:not(.hero__statement):not(.hero__open)) { max-width: 61ch; }
+  .hero__bio :global(strong) { color: var(--ink); font-weight: 640; }
+  .hero__statement {
+    max-width: 17ch;
+    color: var(--ink);
+    font-size: clamp(1.8rem, 1.25rem + 2.4vw, 2.65rem);
+    font-weight: 650;
+    line-height: 1.04;
+    letter-spacing: -0.038em;
+    text-wrap: balance;
+    margin-bottom: 0.15rem;
+  }
+
+  .hero__open {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink);
+  }
+  .hero__loc { color: var(--faint); }
+  .hero__open .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--good); box-shadow: 0 0 10px var(--good);
+  }
+  .hero__mailto {
+    color: var(--primary);
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .hero__mailto:hover { color: var(--primary-hi); }
+
+</style>

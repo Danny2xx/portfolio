@@ -1,0 +1,80 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import Dock from "../../components/Dock.astro";
+import { profile } from "../../data/content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("writing", ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
+---
+
+<Base title={`${post.data.title} — ${profile.name}`} description={post.data.description}>
+  <Nav />
+  <main id="top" class="page">
+    <article class="feed">
+      <a class="back" href="/writing">← All notes</a>
+
+      <header class="post__head">
+        <span class="label">Writing</span>
+        <h1>{post.data.title}</h1>
+        <time class="post__date mono" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <footer class="post__foot">
+        <a href="/writing">← All notes</a>
+        <a href={`mailto:${profile.email}`}>Reply by email →</a>
+      </footer>
+    </article>
+  </main>
+  <Footer />
+  <Dock />
+</Base>
+
+<style>
+  .page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+  .back { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin-bottom: 2rem; }
+  .back:hover { color: var(--ink); }
+
+  .post__head { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2rem; }
+  .post__head h1 { font-size: clamp(1.5rem, 1.15rem + 1.6vw, 2rem); }
+  .post__date { font-size: 0.7rem; color: var(--faint); letter-spacing: 0.04em; }
+
+  .prose { max-width: 68ch; color: var(--ink); font-size: 0.95rem; line-height: 1.72; }
+  .prose :global(p) { margin: 0 0 1.15rem; color: var(--muted); }
+  .prose :global(h2) { font-size: 1.05rem; font-weight: 600; margin: 2.2rem 0 0.8rem; color: var(--ink); letter-spacing: -0.01em; }
+  .prose :global(strong) { color: var(--ink); font-weight: 600; }
+  .prose :global(em) { font-style: italic; }
+  .prose :global(a) { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .prose :global(a:hover) { color: var(--primary-hi); }
+  .prose :global(ul), .prose :global(ol) { margin: 0 0 1.15rem; padding-left: 1.3rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.45rem; }
+  .prose :global(li) { padding-left: 0.2rem; }
+  .prose :global(li::marker) { color: var(--primary); }
+  .prose :global(code) {
+    font-family: var(--font-mono); font-size: 0.86em; color: var(--ink);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 0.1em 0.35em;
+  }
+  .prose :global(blockquote) {
+    margin: 1.4rem 0; padding: 0.2rem 0 0.2rem 1.1rem;
+    border-left: 2px solid var(--border-strong); color: var(--faint); font-style: italic;
+  }
+
+  .post__foot {
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: 0.78rem;
+  }
+  .post__foot a { color: var(--primary); }
+  .post__foot a:hover { color: var(--primary-hi); }
+</style>

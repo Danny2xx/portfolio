@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Dock from "../components/Dock.astro";
+import { profile, now } from "../data/content";
+---
+
+<Base title={`Now — ${profile.name}`} description="What Daniel Iyalekhue is focused on right now.">
+  <Nav />
+  <main id="top" class="page">
+    <div class="feed">
+      <a class="back" href="/">← Back to portfolio</a>
+
+      <header class="page__head">
+        <span class="label">Now</span>
+        <h1>What I'm focused on</h1>
+        <p class="page__sub mono">updated {now.updated}</p>
+      </header>
+
+      <dl class="now">
+        {now.items.map((it) => (
+          <div class="now__row">
+            <dt class="now__label mono">{it.label}</dt>
+            <dd class="now__text">{it.text}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <p class="page__foot">
+        This is a <a href="https://nownownow.com/about" target="_blank" rel="noreferrer">now page</a>,
+        a snapshot rather than a status feed. <a href="/#contact">Say hello →</a>
+      </p>
+    </div>
+  </main>
+  <Footer />
+  <Dock />
+</Base>
+
+<style>
+  .page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+  .back {
+    display: inline-block; font-family: var(--font-mono); font-size: 0.72rem;
+    color: var(--muted); margin-bottom: 2rem;
+  }
+  .back:hover { color: var(--ink); }
+
+  .page__head { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2.4rem; }
+  .page__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
+  .page__sub { font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+
+  .now { margin: 0; display: flex; flex-direction: column; }
+  .now__row {
+    display: grid; grid-template-columns: 6.5rem 1fr; gap: 1.2rem;
+    padding: 1.15rem 0; border-top: 1px solid var(--border);
+  }
+  .now__row:first-child { border-top: 0; }
+  .now__label { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); padding-top: 0.15rem; }
+  .now__text { margin: 0; color: var(--ink); font-size: 0.95rem; line-height: 1.6; max-width: 60ch; }
+
+  .page__foot { margin-top: 2.6rem; color: var(--muted); font-size: 0.86rem; }
+  .page__foot a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+  .page__foot a:hover { color: var(--primary-hi); }
+
+  @media (max-width: 520px) {
+    .now__row { grid-template-columns: 1fr; gap: 0.4rem; }
+    .now__label { padding-top: 0; }
+  }
+</style>

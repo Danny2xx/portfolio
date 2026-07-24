@@ -1,0 +1,122 @@
+---
+import * as si from "simple-icons";
+
+// Curated + ordered to span AI · ML · web · software engineering.
+const items: { key: string; label: string }[] = [
+  { key: "siPython", label: "Python" },
+  { key: "siTypescript", label: "TypeScript" },
+  { key: "siPytorch", label: "PyTorch" },
+  { key: "siTensorflow", label: "TensorFlow" },
+  { key: "siScikitlearn", label: "scikit-learn" },
+  { key: "siHuggingface", label: "Hugging Face" },
+  { key: "siLangchain", label: "LangChain" },
+  { key: "siOllama", label: "Ollama" },
+  { key: "siPandas", label: "pandas" },
+  { key: "siNumpy", label: "NumPy" },
+  { key: "siReact", label: "React" },
+  { key: "siNextdotjs", label: "Next.js" },
+  { key: "siAstro", label: "Astro" },
+  { key: "siTailwindcss", label: "Tailwind" },
+  { key: "siNodedotjs", label: "Node.js" },
+  { key: "siFastapi", label: "FastAPI" },
+  { key: "siDocker", label: "Docker" },
+  { key: "siPostgresql", label: "Postgres" },
+  { key: "siSupabase", label: "Supabase" },
+  { key: "siGithub", label: "GitHub" },
+  { key: "siVercel", label: "Vercel" },
+];
+
+// relative luminance — dark brand colors fall back to ink so they bloom visibly
+function lum(hex: string) {
+  const h = hex.replace("#", "");
+  const c = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const f = (v: number) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+}
+
+const icons = items
+  .map((it) => {
+    const ic = (si as Record<string, any>)[it.key];
+    if (!ic) return null;
+    const hex = "#" + ic.hex;
+    return { label: it.label, path: ic.path, color: lum(hex) < 0.2 ? "var(--ink)" : hex };
+  })
+  .filter((x): x is { label: string; path: string; color: string } => x !== null);
+---
+
+<ul class="stack-icons" role="list">
+  {icons.map((ic) => (
+    <li class="ico" style={`--c:${ic.color}`} data-bloom>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d={ic.path} />
+      </svg>
+      <span class="ico__label mono">{ic.label}</span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .stack-icons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    gap: 0.25rem;
+  }
+  .ico {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.7rem 0.3rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .ico svg {
+    fill: var(--faint);
+    transition: fill 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ico__label {
+    font-size: 0.58rem;
+    letter-spacing: 0.01em;
+    color: var(--faint);
+    transition: color 0.2s ease;
+    text-align: center;
+  }
+  /* desktop: monochrome at rest, brand colour on hover */
+  @media (hover: hover) {
+    .ico:hover { background: var(--surface); border-color: var(--border); }
+    .ico:hover svg { fill: var(--c); transform: translateY(-2px) scale(1.08); }
+    .ico:hover .ico__label { color: var(--ink); }
+  }
+  /* touch: bloom to colour as each icon scrolls into view (see script) */
+  .ico.is-bloom svg { fill: var(--c); }
+  .ico.is-bloom .ico__label { color: var(--muted); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ico svg { transition: fill 0.2s ease; }
+  }
+</style>
+
+<script>
+  // Only touch devices (no hover) get the scroll-bloom; desktop uses :hover.
+  if (window.matchMedia("(hover: none)").matches) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            (e.target as HTMLElement).classList.add("is-bloom");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.3 },
+    );
+    document.querySelectorAll<HTMLElement>(".ico[data-bloom]").forEach((el, i) => {
+      el.style.transitionDelay = `${Math.min(i * 28, 320)}ms`;
+      io.observe(el);
+    });
+  }
+</script>

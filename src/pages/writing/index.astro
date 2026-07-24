@@ -1,0 +1,71 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import Dock from "../../components/Dock.astro";
+import { profile } from "../../data/content";
+
+const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
+---
+
+<Base title={`Writing — ${profile.name}`} description="Notes on AI engineering, building, and what I'm learning.">
+  <Nav />
+  <main id="top" class="page">
+    <div class="feed">
+      <a class="back" href="/">← Back to portfolio</a>
+
+      <header class="page__head">
+        <span class="label">Writing</span>
+        <h1>Notes</h1>
+        <p class="page__sub">Working notes on AI engineering, building, and what I'm learning.</p>
+      </header>
+
+      {posts.length === 0 ? (
+        <p class="empty">First post landing soon.</p>
+      ) : (
+        <ul class="posts">
+          {posts.map((post) => (
+            <li class="post">
+              <a class="post__link" href={`/writing/${post.id}`}>
+                <div class="post__top">
+                  <h2 class="post__title">{post.data.title}</h2>
+                  <time class="post__date mono" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+                </div>
+                <p class="post__desc">{post.data.description}</p>
+                <span class="post__go mono">read →</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </main>
+  <Footer />
+  <Dock />
+</Base>
+
+<style>
+  .page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+  .back { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin-bottom: 2rem; }
+  .back:hover { color: var(--ink); }
+  .page__head { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2rem; }
+  .page__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
+  .page__sub { font-size: 0.9rem; color: var(--muted); max-width: 56ch; }
+
+  .empty { color: var(--faint); font-family: var(--font-mono); font-size: 0.85rem; padding: 2rem 0; }
+  .posts { list-style: none; margin: 0; padding: 0; }
+  .post { border-top: 1px solid var(--border); }
+  .post:last-child { border-bottom: 1px solid var(--border); }
+  .post__link { display: block; padding: 1.3rem 0.2rem; transition: padding-left 0.25s cubic-bezier(0.16,1,0.3,1); }
+  .post__link:hover { padding-left: 0.6rem; }
+  .post__top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .post__title { font-size: 1.02rem; font-weight: 600; transition: color 0.2s ease; }
+  .post__link:hover .post__title { color: var(--primary-hi); }
+  .post__date { font-size: 0.7rem; color: var(--faint); white-space: nowrap; }
+  .post__desc { color: var(--muted); margin-top: 0.35rem; font-size: 0.88rem; max-width: 64ch; }
+  .post__go { display: inline-block; margin-top: 0.6rem; font-size: 0.72rem; color: var(--primary); }
+</style>

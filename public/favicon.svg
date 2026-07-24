@@ -1,0 +1,15 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Daniel Iyalekhue">
+  <rect width="512" height="512" rx="112" fill="#141414"/>
+  <defs>
+    <mask id="fav-di" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="white"/>
+      <path d="M171 183H222C273 183 309 215 309 256C309 297 273 329 222 329H171V183Z" fill="black"/>
+      <path d="M78 405L194 291L217 314L101 428Z" fill="black"/>
+      <path d="M356 190L434 138L434 168L356 220Z" fill="black"/>
+    </mask>
+  </defs>
+  <g mask="url(#fav-di)">
+    <path fill="#ffffff" d="M104 128H220C310 128 377 184 377 256C377 328 310 384 220 384H104V128Z"/>
+    <rect x="361" y="128" width="63" height="256" fill="#ffffff"/>
+  </g>
+</svg>

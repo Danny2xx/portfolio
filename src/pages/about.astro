@@ -1,0 +1,138 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Dock from "../components/Dock.astro";
+import { profile, journey, stack, credentials, currently, howIWork } from "../data/content";
+---
+
+<Base title={`About — ${profile.name}`}>
+  <Nav />
+  <main id="top" class="about">
+    <div class="feed">
+      <a class="back" href="/">← Back to portfolio</a>
+
+      <header class="about__head">
+        <span class="label">About me</span>
+        <h1>My journey</h1>
+      </header>
+
+      <div class="prose">
+        {journey.map((p) => <p>{p}</p>)}
+      </div>
+
+      <div class="now" data-reveal>
+        <span class="now__tag mono">● currently</span>
+        <p>{currently}</p>
+      </div>
+
+      <hr class="rule sec" />
+
+      <span class="label">Tech stack</span>
+      <div class="stack">
+        {stack.map((g) => (
+          <div class="stack__group">
+            <span class="stack__name mono">{g.group}</span>
+            <ul class="stack__items">
+              {g.items.map((it) => <li class="chip">{it}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <hr class="rule sec" />
+
+      <span class="label">Education &amp; certifications</span>
+      <ul class="creds">
+        {credentials.map((c) => (
+          <li class="cred">
+            <span class="cred__line">{c.line}</span>
+            {c.detail && <span class="cred__detail mono">{c.detail}</span>}
+          </li>
+        ))}
+      </ul>
+
+      <hr class="rule sec" />
+
+      <span class="label">How I work</span>
+      <ul class="principles">
+        {howIWork.map((h, i) => (
+          <li class="principle">
+            <span class="principle__n mono">{String(i + 1).padStart(2, "0")}</span>
+            <span>{h}</span>
+          </li>
+        ))}
+      </ul>
+
+    </div>
+  </main>
+  <Footer />
+  <Dock />
+</Base>
+
+<style>
+  .about { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+
+  .back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    transition: color 0.18s ease;
+  }
+  .back:hover { color: var(--ink); }
+
+  .about__head { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .about__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
+
+  .prose { display: flex; flex-direction: column; gap: 0.8rem; max-width: 64ch; color: var(--muted); font-size: 0.9rem; }
+
+  .now {
+    margin-top: 1.6rem;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--surface);
+    max-width: 64ch;
+  }
+  .now__tag { font-size: 0.7rem; letter-spacing: 0.06em; color: var(--good); text-transform: uppercase; }
+  .now p { margin-top: 0.5rem; color: var(--ink); }
+
+  .sec { margin-block: clamp(2.4rem, 5vw, 3.2rem); }
+  .label + * { margin-top: 1.3rem; }
+
+  /* tech stack (grouped) */
+  .stack { display: flex; flex-direction: column; gap: 1.4rem; }
+  .stack__group { display: grid; grid-template-columns: 8rem 1fr; gap: 1.2rem; align-items: start; }
+  .stack__name { font-size: 0.72rem; letter-spacing: 0.04em; color: var(--faint); padding-top: 0.4rem; }
+  .stack__items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    font-size: 0.75rem; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 7px; padding: 0.32rem 0.6rem;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+  }
+  .chip:hover { border-color: var(--primary); transform: translateY(-1px); }
+  @media (max-width: 540px) { .stack__group { grid-template-columns: 1fr; gap: 0.6rem; } .stack__name { padding-top: 0; } }
+
+  /* credentials */
+  .creds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  .cred { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .cred__line { font-weight: 560; }
+  .cred__detail { font-size: 0.78rem; color: var(--faint); }
+
+  /* principles */
+  .principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  .principle { display: grid; grid-template-columns: 2rem 1fr; gap: 0.8rem; align-items: baseline; color: var(--ink); }
+  .principle__n { color: var(--primary); font-size: 0.8rem; }
+
+  /* testimonials */
+  .quotes { display: flex; flex-direction: column; gap: 1.5rem; }
+  .quote { margin: 0; }
+  .quote blockquote { margin: 0; font-size: 0.98rem; line-height: 1.55; color: var(--ink); }
+  .quote blockquote::before { content: "“"; color: var(--faint); }
+  .quote blockquote::after { content: "”"; color: var(--faint); }
+  .quote figcaption { margin-top: 0.6rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+  .quote__name { font-weight: 600; font-size: 0.92rem; }
+  .quote__role { font-size: 0.76rem; color: var(--faint); }
+</style>

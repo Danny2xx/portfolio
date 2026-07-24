@@ -1,0 +1,70 @@
+---
+import { labIntro } from "../data/content";
+import Tokenizer from "./Tokenizer.tsx";
+import TemperatureLab from "./TemperatureLab.tsx";
+---
+
+<section class="section">
+  <div class="section__head" data-reveal>
+    <span class="label">Lab · live</span>
+    <p class="section__intro">{labIntro}</p>
+  </div>
+
+  <article class="demo" data-reveal>
+    <div class="demo__head">
+      <h3 class="demo__title">How an LLM reads text</h3>
+      <span class="demo__meta mono">tokenizer · interactive</span>
+    </div>
+    <p class="demo__desc">
+      Language models don't read words, they read <em>tokens</em>. Type below and watch the
+      real GPT tokenizer (cl100k_base) split your text, live, in your browser.
+    </p>
+    <div class="demo__stage">
+      <Tokenizer client:visible />
+    </div>
+  </article>
+
+  <article class="demo" data-reveal>
+    <div class="demo__head">
+      <h3 class="demo__title">Sampling temperature</h3>
+      <span class="demo__meta mono">softmax · interactive</span>
+    </div>
+    <p class="demo__desc">
+      How a model picks its next token. Drag the temperature and watch the distribution
+      sharpen or flatten. It's the same control behind “deterministic” and “creative” output.
+    </p>
+    <div class="demo__stage">
+      <TemperatureLab client:visible />
+    </div>
+  </article>
+</section>
+
+<style>
+  .section { padding-block: clamp(3rem, 7vw, 5rem); }
+  .section__head { margin-bottom: 1.8rem; }
+  .section__intro { color: var(--muted); margin-top: 0.7rem; max-width: 58ch; }
+
+  .demo {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 1.3rem 1.35rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .demo--ghost { background: transparent; border-style: dashed; }
+  .demo__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .demo__title { font-size: 1rem; font-weight: 600; }
+  .demo__meta { font-size: 0.68rem; color: var(--faint); letter-spacing: 0.04em; }
+  .demo__desc { color: var(--muted); margin-top: 0.45rem; font-size: 0.86rem; max-width: 60ch; }
+  .demo__desc em { color: var(--ink); font-style: italic; }
+  .demo__stage { margin-top: 1.4rem; }
+  .demo__launch {
+    display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.1rem;
+    font: inherit; font-size: 0.88rem; font-weight: 560; cursor: pointer;
+    color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--border-strong); border-radius: 10px; padding: 0.55rem 0.9rem;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+  }
+  .demo__launch span[aria-hidden] { color: var(--accent); }
+  .demo__launch:hover { border-color: var(--primary); transform: translateY(-1px); }
+</style>

@@ -1,0 +1,192 @@
+---
+// Tabbed content region. The hero stays persistent above; switching a tab
+// swaps the panel below (like the reference site), with hash-deep-linking.
+// Progressive enhancement: with no JS, every panel is visible (nothing is
+// gated behind a class), so crawlers and no-JS users get the full page.
+const tabs = [
+  { id: "about", label: "About" },
+  { id: "projects", label: "Projects" },
+  { id: "lab", label: "Lab" },
+  { id: "contact", label: "Contact" },
+];
+---
+
+<section class="region" id="tabs" aria-label="Portfolio sections">
+  <div class="tabs">
+    <div class="feed">
+      <div class="tabs__inner" role="tablist" aria-label="Sections">
+        {tabs.map((t, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${t.id}`}
+            class="tab"
+            data-tab={t.id}
+            aria-controls={`panel-${t.id}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div role="tabpanel" id="panel-about" class="panel is-active" aria-labelledby="tab-about" tabindex="0">
+      <slot name="about" />
+    </div>
+    <div role="tabpanel" id="panel-projects" class="panel" aria-labelledby="tab-projects" tabindex="0">
+      <slot name="projects" />
+    </div>
+    <div role="tabpanel" id="panel-lab" class="panel" aria-labelledby="tab-lab" tabindex="0">
+      <slot name="lab" />
+    </div>
+    <div role="tabpanel" id="panel-contact" class="panel" aria-labelledby="tab-contact" tabindex="0">
+      <slot name="contact" />
+    </div>
+  </div>
+</section>
+
+<!-- Set active panel from the URL hash BEFORE paint, so there's no flash. -->
+<script is:inline>
+  (() => {
+    const valid = ["about", "projects", "lab", "contact"];
+    const hash = location.hash.replace("#", "");
+    const active = valid.includes(hash) ? hash : "about";
+    document.documentElement.classList.add("tabs-js");
+    document.querySelectorAll(".panel").forEach((p) =>
+      p.classList.toggle("is-active", p.id === "panel-" + active),
+    );
+    document.querySelectorAll(".tab").forEach((t) => {
+      const on = t.dataset.tab === active;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+    });
+  })();
+</script>
+
+<style>
+  .tabs {
+    position: sticky;
+    top: 56px;
+    z-index: calc(var(--z-sticky) - 1);
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .tabs__inner {
+    display: flex;
+    gap: 0.3rem;
+    padding-block: 0.4rem;
+  }
+  .tab {
+    flex: 1;
+    appearance: none;
+    background: none;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: center;
+    padding: 0.6rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .tab:hover { color: var(--ink); background: var(--surface); }
+  .tab[aria-selected="true"] {
+    color: var(--ink);
+    background: var(--surface-2);
+    font-weight: 600;
+  }
+
+  /* With JS, show only the active panel. Without JS, all panels show. */
+  :global(html.tabs-js) .panel:not(.is-active) { display: none; }
+
+  :global(html.tabs-js) .panel.is-active {
+    animation: panel-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.tabs-js) .panel.is-active { animation: none; }
+  }
+</style>
+
+<script>
+  const valid = ["about", "projects", "lab", "contact"] as const;
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".tab"));
+  const panels = new Map(
+    Array.from(document.querySelectorAll<HTMLElement>(".panel")).map((p) => [
+      p.id.replace("panel-", ""),
+      p,
+    ]),
+  );
+  const region = document.getElementById("tabs");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function reveal(panel: HTMLElement) {
+    // A just-shown panel was display:none, so its reveal items never fired.
+    panel.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el, i) => {
+      el.style.transitionDelay = reduce ? "0ms" : `${Math.min(i * 45, 260)}ms`;
+      el.classList.add("is-in");
+    });
+  }
+
+  function activate(id: string, opts: { scroll?: boolean; focus?: boolean } = {}) {
+    if (!valid.includes(id as any)) id = "about";
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === id;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+    });
+    panels.forEach((p, key) => p.classList.toggle("is-active", key === id));
+    const panel = panels.get(id);
+    if (panel) reveal(panel);
+
+    if (history.replaceState) history.replaceState(null, "", `#${id}`);
+
+    if (opts.scroll && region) {
+      const top = region.getBoundingClientRect().top + window.scrollY - 56;
+      if (window.scrollY > top - 4) {
+        window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
+      }
+    }
+    if (opts.focus) panels.get(id)?.focus({ preventScroll: true });
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => activate(tab.dataset.tab!, { scroll: true }));
+    tab.addEventListener("keydown", (e) => {
+      const i = tabs.indexOf(tab);
+      let j = -1;
+      if (e.key === "ArrowRight") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = tabs.length - 1;
+      if (j >= 0) {
+        e.preventDefault();
+        const next = tabs[j];
+        next.focus();
+        activate(next.dataset.tab!);
+      }
+    });
+  });
+
+  // Deep links from anywhere (dock, footer) that point at a tab id.
+  window.addEventListener("hashchange", () => {
+    const id = location.hash.replace("#", "");
+    if (valid.includes(id as any)) activate(id, { scroll: true });
+  });
+
+  // Reveal the initial active panel's content.
+  const initial = location.hash.replace("#", "");
+  reveal(panels.get(valid.includes(initial as any) ? initial : "about")!);
+</script>

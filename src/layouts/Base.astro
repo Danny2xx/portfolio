@@ -1,0 +1,80 @@
+---
+import "../styles/global.css";
+import { profile } from "../data/content";
+import CommandPalette from "../components/CommandPalette.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${profile.name} — ${profile.title}`,
+  description = "AI Engineer, Software Engineer and Full-Stack Developer. Live demos, real systems, end-to-end.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Set theme before paint to avoid a flash. Honors saved choice, else light. -->
+    <script is:inline>
+      (() => {
+        try {
+          const el = document.documentElement;
+          // light is the default; only switch if the user chose dark before
+          const saved = localStorage.getItem("theme");
+          el.dataset.theme = saved === "dark" ? "dark" : "light";
+          // accessibility preferences
+          if (localStorage.getItem("a11y-contrast") === "high") el.dataset.contrast = "high";
+          if (localStorage.getItem("a11y-font") === "dyslexic") el.dataset.font = "dyslexic";
+          if (localStorage.getItem("a11y-motion") === "reduced") el.dataset.motion = "reduced";
+          const ts = localStorage.getItem("a11y-textscale");
+          if (ts) el.style.setProperty("--ts", ts);
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <slot />
+    <CommandPalette />
+
+    <!-- Opt into scroll-reveal only when JS + motion are allowed. -->
+    <script>
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduce) {
+        document.body.classList.add("reveal-ready");
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                (e.target as HTMLElement).classList.add("is-in");
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+        );
+        document.querySelectorAll("[data-reveal]").forEach((el, i) => {
+          (el as HTMLElement).style.transitionDelay = `${Math.min(i * 40, 240)}ms`;
+          io.observe(el);
+        });
+      }
+    </script>
+  </body>
+</html>

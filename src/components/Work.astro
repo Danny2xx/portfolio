@@ -1,0 +1,148 @@
+---
+import { getCollection } from "astro:content";
+import { projects, profile } from "../data/content";
+
+// map project display-name -> case-study slug (only published ones)
+const studies = await getCollection("caseStudies", ({ data }) => !data.draft);
+const studyByProject = new Map(studies.map((s) => [s.data.project, s.id]));
+
+// deterministic signal-trace path per card index — a small instrument motif
+// standing in for a screenshot until real assets land.
+function trace(seed: number) {
+  const pts: string[] = [];
+  const n = 26;
+  for (let i = 0; i <= n; i++) {
+    const x = (i / n) * 320;
+    const y =
+      46 +
+      Math.sin(i * 0.55 + seed * 1.3) * (10 + (seed % 3) * 5) +
+      Math.sin(i * 0.21 + seed) * 9;
+    pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  return "M" + pts.join(" L");
+}
+---
+
+<section class="section">
+  <div class="feed">
+    <div class="section__head section__head--row" data-reveal>
+      <span class="label">Selected work</span>
+      <a class="work__all mono" href={profile.links.github} target="_blank" rel="noreferrer">
+        all on GitHub →
+      </a>
+    </div>
+
+    <div class="work">
+      {projects.map((p, i) => (
+        <article class="card" data-reveal>
+          {p.shot ? (
+            <div class="card__shot">
+              <img src={p.shot} alt={`${p.name} screenshot`} loading="lazy" width="1400" height="800" />
+              <span class="card__idx card__idx--onshot mono">{String(i + 1).padStart(2, "0")}</span>
+            </div>
+          ) : (
+            <div class="card__preview" aria-hidden="true">
+              <svg viewBox="0 0 320 92" preserveAspectRatio="none" class="card__trace">
+                <defs>
+                  <linearGradient id={`g${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.28" />
+                    <stop offset="100%" stop-color="var(--primary)" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path d={`${trace(i + 1)} L320,92 L0,92 Z`} fill={`url(#g${i})`} />
+                <path d={trace(i + 1)} fill="none" stroke="var(--primary)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+              </svg>
+              <span class="card__idx mono">{String(i + 1).padStart(2, "0")}</span>
+            </div>
+          )}
+
+          <div class="card__body">
+            <div class="card__top">
+              <div class="card__title">
+                <h3 class="card__name">{p.name}</h3>
+                <span class="card__kind mono">{p.kind}</span>
+              </div>
+              <div class="card__links">
+                {p.repo && (
+                  <a class="card__lnk mono" href={p.repo} target="_blank" rel="noreferrer" aria-label={`${p.name} source`}>code</a>
+                )}
+                {p.href && (
+                  <a class="card__lnk mono" href={p.href} target="_blank" rel="noreferrer">visit →</a>
+                )}
+                {studyByProject.has(p.name) && (
+                  <a class="card__lnk card__lnk--go mono" href={`/work/${studyByProject.get(p.name)}`}>case study →</a>
+                )}
+              </div>
+            </div>
+            <p class="card__blurb">{p.blurb}</p>
+            <ul class="card__tags">
+              {p.tags.map((t) => <li class="tag mono">{t}</li>)}
+            </ul>
+          </div>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .section { padding-block: clamp(3rem, 7vw, 5rem); }
+  .section__head { margin-bottom: 1.6rem; }
+  .section__head--row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .work__all { font-size: 0.72rem; color: var(--primary); transition: color 0.18s ease; }
+  .work__all:hover { color: var(--primary-hi); }
+
+  .work { display: flex; flex-direction: column; gap: 1rem; }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s ease;
+  }
+  .card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    box-shadow: 0 24px 50px -34px var(--glow-primary);
+  }
+
+  .card__preview {
+    position: relative;
+    height: 74px;
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--bg) 50%, var(--surface)), var(--surface)),
+      repeating-linear-gradient(90deg, transparent 0 31px, color-mix(in oklab, var(--border) 60%, transparent) 31px 32px);
+    border-bottom: 1px solid var(--border);
+  }
+  .card__trace { width: 100%; height: 100%; display: block; }
+  .card:hover .card__trace path { filter: drop-shadow(0 0 6px var(--glow-primary)); }
+  .card__idx {
+    position: absolute; top: 0.55rem; right: 0.7rem;
+    font-size: 0.7rem; color: var(--faint); letter-spacing: 0.1em;
+  }
+
+  .card__shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .card__shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .card:hover .card__shot img { transform: scale(1.03); }
+  .card__idx--onshot { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+
+  .card__body { padding: 1.1rem 1.2rem 1.2rem; }
+  .card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .card__name { font-size: 0.96rem; font-weight: 600; }
+  .card__kind { display: block; margin-top: 0.2rem; font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+  .card__links { display: inline-flex; gap: 0.8rem; flex: none; }
+  .card__lnk { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.02em; transition: color 0.18s ease; }
+  .card__lnk:hover { color: var(--ink); }
+  .card__lnk--go { color: var(--primary); }
+  .card__lnk--go:hover { color: var(--primary-hi); }
+
+  .card__blurb { color: var(--muted); margin-top: 0.45rem; font-size: 0.86rem; max-width: 60ch; }
+  .card__tags { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.9rem 0 0; padding: 0; }
+  .tag {
+    font-size: 0.7rem; letter-spacing: 0.02em; color: var(--faint);
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.22rem 0.5rem;
+  }
+</style>

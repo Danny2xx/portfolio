@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Daniel DI Monogram Logo</title>
+  <desc id="desc">A minimalist black geometric DI monogram logo for a portfolio website.</desc>
+  <defs>
+    <mask id="di-cutouts" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect width="512" height="512" fill="white"/>
+      <!-- Inner counter of the D -->
+      <path d="M171 183H222C273 183 309 215 309 256C309 297 273 329 222 329H171V183Z" fill="black"/>
+      <!-- Diagonal cut through the D -->
+      <path d="M78 405L194 291L217 314L101 428Z" fill="black"/>
+      <!-- Diagonal notch through the I -->
+      <path d="M356 190L434 138L434 168L356 220Z" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Optional background: transparent by default. Add a white rect here if needed. -->
+  <g mask="url(#di-cutouts)">
+    <!-- D mark -->
+    <path fill="#111111" d="M104 128H220C310 128 377 184 377 256C377 328 310 384 220 384H104V128Z"/>
+    <!-- I mark -->
+    <rect x="361" y="128" width="63" height="256" fill="#111111"/>
+  </g>
+</svg>
