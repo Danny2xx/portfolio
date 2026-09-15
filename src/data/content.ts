@@ -141,6 +141,14 @@ export const projects: Project[] = [
     shot: "/shots/aquasense.png",
   },
   {
+    name: "AccessOps COCO AI",
+    kind: "Computer Vision · Accessibility",
+    blurb:
+      "An image-captioning model that generates alt-text for accessibility. An end-to-end COCO pipeline from CNN+LSTM baselines through transfer learning and RL fine-tuning, with a human-reroute deployment policy and measured BLEU-4 gains at each stage.",
+    tags: ["TensorFlow", "CNN+LSTM", "COCO", "FastAPI", "Next.js"],
+    repo: "https://github.com/Danny2xx/accessops-coco-ai",
+  },
+  {
     name: "DocSage",
     kind: "Document AI · RAG",
     blurb:
@@ -153,6 +161,7 @@ export const projects: Project[] = [
     blurb:
       "An AI writing workspace for academic work. It reads your samples, the brief, the rubric and your approved sources, then produces structured, referenced drafts with citations, confidence labels and DOCX/PDF export.",
     tags: ["Next.js", "FastAPI", "PostgreSQL", "ChromaDB", "GPT-4o"],
+    repo: "https://github.com/Danny2xx/draft-dna",
   },
   {
     name: "RepoLens AI",
