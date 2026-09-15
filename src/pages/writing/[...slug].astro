@@ -1,9 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import Nav from "../../components/Nav.astro";
-import Footer from "../../components/Footer.astro";
-import Dock from "../../components/Dock.astro";
 import { profile } from "../../data/content";
 
 export async function getStaticPaths() {
@@ -16,23 +13,18 @@ const { Content } = await render(post);
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
 ---
 
-<Base title={`${post.data.title} · ${profile.name}`} description={post.data.description}>
-  <Nav />
+<Base title={`${post.data.title} · ${profile.name}`} description={post.data.description} page="sub">
   <main id="main" class="page">
-    <article class="feed">
+    <article class="wrap wrap--narrow">
       <a class="back" href="/writing">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
         All notes
       </a>
 
-      <header class="head">
-        <h1 class="page__title">{post.data.title}</h1>
-        <time class="date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-      </header>
+      <h1 class="page__title display">{post.data.title}</h1>
+      <time class="date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
 
-      <div class="prose">
-        <Content />
-      </div>
+      <div class="prose"><Content /></div>
 
       <footer class="foot">
         <a class="link" href="/writing">All notes</a>
@@ -40,15 +32,18 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
       </footer>
     </article>
   </main>
-  <Footer />
-  <Dock />
 </Base>
 
 <style>
-  .head { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
-  .date { font-size: 0.82rem; color: var(--faint); }
+  .date { display: block; margin-top: 1.2rem; font-size: 0.9rem; color: var(--faint); }
+  .prose { margin-top: clamp(2.5rem, 6vw, 3.5rem); }
   .foot {
-    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-    margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3.5rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
   }
 </style>

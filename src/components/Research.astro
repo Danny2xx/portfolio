@@ -1,0 +1,227 @@
+---
+import { profile, publications, awards, alsoRecognised } from "../data/content";
+import SectionHead from "./SectionHead.astro";
+---
+
+<section class="section" id="research">
+  <div class="wrap">
+    <SectionHead
+      title="Research and recognition"
+      desc="Peer-reviewed work on making enterprise AI verifiable, and three competition wins in 2026."
+    />
+
+    {publications.map((p) => (
+      <article class="paper">
+        <a class="paper__cover" href={p.pdf} target="_blank" rel="noreferrer" data-reveal aria-label={`Read ${p.title} (PDF)`}>
+          <img src={p.thumb} alt="" width="720" height="1017" loading="lazy" />
+          <span class="paper__open">Read the PDF</span>
+        </a>
+
+        <div class="paper__main" data-reveal style="--d: 120ms">
+          <p class="paper__venue">
+            <span class="badge">{p.status}</span>
+            <span>{p.venue}</span>
+          </p>
+          <h3 class="paper__title">{p.title}</h3>
+          <p class="paper__authors">
+            {p.authors.map((a, i) => (
+              <><span class:list={[{ "paper__me": a === profile.name }]}>{a}</span>{i < p.authors.length - 1 && ", "}</>
+            ))}
+          </p>
+          <p class="paper__aff">{p.affiliations}</p>
+          <p class="paper__summary">{p.summary}</p>
+
+          <div class="findings">
+            {p.findings.map((f) => (
+              <figure class="finding" data-reveal>
+                <figcaption class="finding__cap">
+                  <span class="finding__label">{f.label}</span>
+                  <span class="finding__note">{f.note}</span>
+                </figcaption>
+                {f.bars.map((b) => (
+                  <div class:list={["bar", { "bar--strong": b.strong }]}>
+                    <span class="bar__name">{b.name}</span>
+                    <span class="bar__val">{b.display}</span>
+                    <span class="bar__track"><span class="bar__fill" style={`--v: ${b.value.toFixed(3)}`}></span></span>
+                  </div>
+                ))}
+              </figure>
+            ))}
+          </div>
+
+          <p class="paper__links">
+            <a class="btn btn--hl" href={p.pdf} target="_blank" rel="noreferrer">Read the paper</a>
+            <span class="paper__meta">PDF, {p.pages} pages</span>
+          </p>
+        </div>
+      </article>
+    ))}
+
+    <div class="awards">
+      <h3 class="sub" data-reveal>Competition results</h3>
+      <ol class="awards__list" data-stagger>
+        {awards.map((a) => (
+          <li class="award">
+            <p class="award__place">{a.place}</p>
+            <div class="award__main">
+              <h4 class="award__event">{a.event}</h4>
+              {a.detail && <p class="award__detail">{a.detail}</p>}
+            </div>
+            <div class="award__side">
+              <p class="award__date">{a.date}</p>
+              <p class="award__links">
+                {a.proof && <a class="link" href={a.proof} target="_blank" rel="noreferrer">Certificate</a>}
+                {a.href && <a class="link" href={a.href} target="_blank" rel="noreferrer">Announcement</a>}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      {alsoRecognised.length > 0 && (
+        <ul class="also" data-reveal>
+          {alsoRecognised.map((m) => (
+            <li><span class="also__what">{m.what}</span> <span class="also__detail">{m.detail}</span></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .paper {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 2.5rem;
+    align-items: start;
+  }
+
+  .paper__cover {
+    position: relative;
+    grid-column: 1 / span 4;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 4.6;
+    border-radius: 8px;
+    background: oklch(1 0 0);
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--line);
+    rotate: -2deg;
+    transition: rotate 0.8s var(--ease-out), translate 0.8s var(--ease-out);
+  }
+  .paper__cover img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .paper__cover:hover { rotate: 0deg; translate: 0 -6px; }
+  .paper__open {
+    position: absolute;
+    left: 50%;
+    bottom: 1.1rem;
+    translate: -50% 8px;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 620;
+    color: var(--on-hl);
+    background: var(--hl);
+    opacity: 0;
+    transition: opacity 0.35s ease, translate 0.5s var(--ease-out);
+  }
+  .paper__cover:hover .paper__open,
+  .paper__cover:focus-visible .paper__open { opacity: 1; translate: -50% 0; }
+  :global(:root[data-theme="dark"]) .paper__cover img { filter: brightness(0.94); }
+
+  .paper__main { grid-column: 6 / -1; }
+  .paper__venue { display: flex; align-items: center; gap: 0.7rem; font-size: 0.92rem; color: var(--muted); }
+  .paper__title {
+    margin-top: 1.1rem;
+    font-size: clamp(1.6rem, 1.05rem + 1.7vw, 2.55rem);
+    font-stretch: 106%;
+    font-weight: 660;
+    line-height: 1.08;
+    letter-spacing: -0.028em;
+  }
+  .paper__authors { margin-top: 1.1rem; color: var(--muted); }
+  .paper__me { color: var(--ink); font-weight: 640; }
+  .paper__aff { font-size: 0.88rem; color: var(--faint); }
+  .paper__summary { max-width: 60ch; margin-top: 1.4rem; color: var(--muted); font-size: 1.02rem; }
+
+  .findings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 2rem; margin-top: 2.2rem; }
+  .finding { margin: 0; padding-top: 1.1rem; border-top: 1px solid var(--line); }
+  .finding__cap { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.4rem; }
+  .finding__label { font-weight: 640; }
+  .finding__note { font-size: 0.82rem; color: var(--faint); line-height: 1.4; }
+  .bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 0.8rem; row-gap: 0.35rem; margin-top: 0.85rem; font-size: 0.86rem; }
+  .bar__name { color: var(--muted); }
+  .bar__val { font: 500 0.86rem/1.4 var(--font-mono); color: var(--muted); }
+  .bar__track { grid-column: 1 / -1; height: 8px; overflow: hidden; border-radius: 99px; background: var(--surface-2); }
+  .bar__fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--line-strong);
+    transform-origin: left;
+    transform: scaleX(var(--v));
+    transition: transform 1.5s var(--ease-out) 0.25s;
+  }
+  .bar--strong .bar__name, .bar--strong .bar__val { color: var(--ink); }
+  .bar--strong .bar__fill { background: var(--hl); }
+  :global(.motion) .finding:not(.is-in) .bar__fill { transform: scaleX(0); }
+
+  .paper__links { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 2.2rem; }
+  .paper__meta { font-size: 0.88rem; color: var(--faint); }
+
+  /* awards */
+  .awards { margin-top: clamp(5rem, 11vw, 8rem); }
+  .sub { font-size: clamp(1.3rem, 1.05rem + 0.8vw, 1.75rem); font-stretch: 110%; font-weight: 680; letter-spacing: -0.025em; }
+  .awards__list { list-style: none; margin: 1.5rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .award {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0.6rem;
+    padding-block: clamp(1.5rem, 3.5vw, 2.2rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .award__place {
+    grid-column: 1 / span 3;
+    font-size: clamp(1.7rem, 1.1rem + 2vw, 2.9rem);
+    font-stretch: 120%;
+    font-weight: 740;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    transition: color 0.35s ease;
+  }
+  .award:hover .award__place { color: var(--hl-text); }
+  .award__main { grid-column: 4 / span 6; }
+  .award__event { font-size: 1.15rem; font-weight: 640; font-stretch: 104%; line-height: 1.3; }
+  .award__detail { max-width: 58ch; margin-top: 0.45rem; color: var(--muted); }
+  .award__side { grid-column: 10 / -1; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; text-align: right; }
+  .award__date { font-size: 0.9rem; color: var(--faint); }
+  .award__links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.3rem 1rem; font-size: 0.88rem; }
+
+  .also { list-style: none; display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.6rem 0 0; padding: 0; }
+  .also li {
+    padding: 0.5rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .also__what { color: var(--ink); }
+  .also__detail { color: var(--faint); }
+
+  @media (max-width: 900px) {
+    .paper__cover { grid-column: 1 / -1; width: min(20rem, 72%); }
+    .paper__main { grid-column: 1 / -1; }
+    .award__place, .award__main, .award__side { grid-column: 1 / -1; }
+    .award__side { align-items: flex-start; text-align: left; }
+    .award__links { justify-content: flex-start; }
+  }
+  @media (max-width: 600px) {
+    .findings { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .paper__cover { rotate: none; transition: none; }
+    .bar__fill { transition: none; }
+  }
+</style>

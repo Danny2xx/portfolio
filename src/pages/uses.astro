@@ -1,67 +1,18 @@
 ---
-import Base from "../layouts/Base.astro";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
-import Dock from "../components/Dock.astro";
-import { profile, uses } from "../data/content";
+// The tools list now lives in the About section on the home page.
+const target = "/#about";
 ---
 
-<Base title={`Uses · ${profile.name}`} description="The languages, tools and stack Daniel Iyalekhue works in.">
-  <Nav />
-  <main id="main" class="page">
-    <div class="feed">
-      <a class="back" href="/">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Portfolio
-      </a>
-
-      <header class="head">
-        <h1 class="page__title">What I build with</h1>
-        <p class="page__sub">The tools I reach for day to day, on real projects.</p>
-      </header>
-
-      <div class="uses">
-        {uses.map((g) => (
-          <section class="uses__group">
-            <h2 class="uses__name">{g.group}</h2>
-            <ul class="uses__list">
-              {g.items.map((it) => (
-                <li class="uses__item">
-                  <span class="uses__tool">{it.name}</span>
-                  {it.note && <span class="uses__note">{it.note}</span>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
-
-      <p class="page__foot">
-        <span>Inspired by <a class="link" href="https://uses.tech" target="_blank" rel="noreferrer">uses.tech</a>.</span>
-        <a class="link" href="/#projects">See it in the work</a>
-      </p>
-    </div>
-  </main>
-  <Footer />
-  <Dock />
-</Base>
-
-<style>
-  .head { margin-bottom: clamp(2rem, 5vw, 2.6rem); }
-  .uses__group {
-    display: grid;
-    grid-template-columns: 8.25rem 1fr;
-    gap: 1.25rem;
-    padding: 1.2rem 0;
-    border-top: 1px solid var(--border);
-    align-items: start;
-  }
-  .uses__name { font-size: 0.92rem; font-weight: 600; line-height: 1.6; }
-  .uses__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
-  .uses__item { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
-  .uses__tool { font-size: 0.92rem; color: var(--ink); }
-  .uses__note { font-size: 0.8rem; color: var(--faint); }
-  @media (max-width: 520px) {
-    .uses__group { grid-template-columns: 1fr; gap: 0.5rem; }
-  }
-</style>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Uses · Daniel Iyalekhue</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={`https://danieliyalekhue.com${target}`} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p><a href={target}>Continue to the About section</a></p>
+  </body>
+</html>

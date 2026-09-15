@@ -1,35 +1,61 @@
 ---
-import { profile } from "../data/content";
+// Floating section dock: the site's primary navigation. On the home page it
+// tracks the section in view with a highlighter pill; elsewhere it links home.
+import Logo from "./Logo.astro";
+
+interface Props {
+  page?: "home" | "sub";
+}
+const { page = "home" } = Astro.props;
+const base = page === "home" ? "" : "/";
+
+const items = [
+  { id: "work", label: "Work" },
+  { id: "experience", label: "Experience" },
+  { id: "research", label: "Research" },
+  { id: "about", label: "About" },
+  { id: "lab", label: "Lab" },
+  { id: "contact", label: "Contact" },
+];
+
+const icons: Record<string, string> = {
+  work: '<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
+  experience: '<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6V7M3.5 12.5h17"/>',
+  research: '<path d="M7 3.5h7l4 4v13H7z" stroke-linejoin="round"/><path d="M14 3.5v4h4M9.5 12.5h5M9.5 16h5" stroke-linecap="round"/>',
+  about: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.6-3.6 3.4-5.8 7-5.8s6.4 2.2 7 5.8" stroke-linecap="round"/>',
+  lab: '<path d="M9.5 3.5h5M10.5 3.5v5.2l-5.1 8.9a2 2 0 0 0 1.7 2.9h9.8a2 2 0 0 0 1.7-2.9l-5.1-8.9V3.5M7.6 14.5h8.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  contact: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/>',
+};
 ---
 
-<nav class="dock" aria-label="Quick actions">
-  <a class="dock__btn" href="#top" aria-label="Top" data-tip="Top">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M6 10v9.5h12V10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<nav class="dock" aria-label="Sections" data-dock data-page={page}>
+  <a class="dock__round" href={`${base}#top`} aria-label="Back to top">
+    <Logo size={17} />
   </a>
-  <a class="dock__btn" href="/about" aria-label="About me" data-tip="About me">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-  </a>
-  <button type="button" class="dock__btn" data-open-cmdk aria-label="Command palette (⌘K)" data-tip="Commands ⌘K">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M9 6a2.5 2.5 0 1 0-2.5 2.5H9V6ZM9 6v12m0-12h6M9 18a2.5 2.5 0 1 1-2.5-2.5H9V18Zm6-12a2.5 2.5 0 1 1 2.5 2.5H15V6Zm0 12v-12m0 12a2.5 2.5 0 1 0 2.5-2.5H15V18Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-  </button>
-  <a class="dock__btn dock__btn--accent" href={`mailto:${profile.email}`} aria-label="Email me" data-tip="Email me">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </a>
-  <a class="dock__btn" href={profile.links.github} target="_blank" rel="noreferrer" aria-label="GitHub" data-tip="GitHub">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-  </a>
-  <span class="dock__div" aria-hidden="true"></span>
-  <button class="dock__btn dock-theme" type="button" aria-label="Toggle theme" data-tip="Theme">
-    <svg class="dock__sun" viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><g stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
-    <svg class="dock__moon" viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+  <span class="dock__sep" aria-hidden="true"></span>
+
+  <div class="dock__links" data-links>
+    <span class="dock__pill" aria-hidden="true" data-pill></span>
+    {items.map((it) => (
+      <a class="dock__link" href={`${base}#${it.id}`} data-id={it.id}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" set:html={icons[it.id]} />
+        <span class="dock__label">{it.label}</span>
+      </a>
+    ))}
+  </div>
+
+  <span class="dock__sep" aria-hidden="true"></span>
+  <button class="dock__round dock-theme" type="button" aria-label="Switch colour theme">
+    <svg class="dock__sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round"/></svg>
+    <svg class="dock__moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke-linejoin="round"/></svg>
   </button>
 </nav>
 
 <style>
   .dock {
     position: fixed;
-    bottom: clamp(0.9rem, 3vw, 1.6rem);
     left: 50%;
+    bottom: max(1rem, env(safe-area-inset-bottom));
     transform: translateX(-50%);
     z-index: var(--z-dock);
     view-transition-name: dock;
@@ -37,103 +63,154 @@ import { profile } from "../data/content";
     align-items: center;
     gap: 0.2rem;
     padding: 0.35rem;
-    border-radius: 99px;
-    border: 1px solid var(--dock-border);
+    border-radius: 999px;
     background: var(--dock-bg);
-    box-shadow: 0 22px 50px -22px oklch(0 0 0 / 0.5),
-                0 1px 0 oklch(1 0 0 / 0.08) inset;
+    border: 1px solid var(--dock-line);
+    box-shadow: 0 24px 60px -24px oklch(0 0 0 / 0.6);
+    color: var(--dock-ink);
   }
-  .dock__btn {
-    position: relative;
+
+  .dock__round {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
     border: 0;
     border-radius: 50%;
-    background: transparent;
-    color: var(--dock-ink);
+    background: none;
+    color: var(--dock-ink-hi);
     cursor: pointer;
-    transition: color 0.18s ease, background 0.18s ease,
-                transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background-color 0.2s ease, transform 0.35s var(--ease-out);
   }
-  .dock__btn svg { width: 16px; height: 16px; }
-  .dock__btn:hover {
-    color: var(--dock-ink-hi);
-    background: var(--dock-surface);
-    transform: translateY(-3px) scale(1.06);
-  }
-  .dock__btn:active { transform: translateY(-1px) scale(0.96); }
-  .dock__btn--accent { color: var(--primary); }
-  .dock__btn--accent:hover { color: var(--on-primary); background: var(--primary); }
+  .dock__round:hover { background: var(--dock-surface); }
+  .dock__round:active { transform: scale(0.92); }
 
-  .dock__div { width: 1px; height: 22px; background: var(--dock-border); margin-inline: 0.15rem; }
+  .dock__sep { width: 1px; height: 20px; margin-inline: 0.15rem; background: var(--dock-line); }
 
-  /* tooltip */
-  .dock__btn::after {
-    content: attr(data-tip);
+  .dock__links { position: relative; display: flex; align-items: center; }
+  .dock__pill {
     position: absolute;
-    bottom: calc(100% + 9px);
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    font-size: 0.72rem;
-    font-weight: 500;
-    white-space: nowrap;
-    padding: 0.28rem 0.5rem;
-    border-radius: 6px;
-    background: var(--dock-surface);
-    border: 1px solid var(--dock-border);
-    color: var(--dock-ink-hi);
+    inset: 0;
+    border-radius: 999px;
+    background: var(--hl);
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
+    clip-path: inset(0 var(--r, 100%) 0 var(--l, 0) round 999px);
+    transition: clip-path 0.6s var(--ease-out), opacity 0.3s ease;
   }
-  .dock__btn:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .dock__pill.is-on { opacity: 1; }
 
-  :root[data-theme="dark"] .dock__moon { display: none; }
-  :root[data-theme="light"] .dock__sun { display: none; }
+  .dock__link {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 560;
+    font-stretch: 104%;
+    white-space: nowrap;
+    color: var(--dock-ink);
+    transition: color 0.3s ease;
+  }
+  .dock__link:hover { color: var(--dock-ink-hi); }
+  .dock__link[aria-current="true"] { color: var(--on-hl); }
+  .dock__link svg { display: none; }
 
+  :global(:root[data-theme="dark"]) .dock__moon { display: none; }
+  :global(:root[data-theme="light"]) .dock__sun { display: none; }
+
+  @media (max-width: 760px) {
+    .dock__link { width: 40px; padding: 0; }
+    .dock__link svg { display: block; }
+    .dock__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .dock__btn:hover { transform: none; }
+    .dock__pill { transition: none; }
   }
-  /* JS magnify drives transform inline; smooth it. */
-  .dock.is-mag .dock__btn { transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s ease, background 0.18s ease; }
 </style>
 
 <script>
-  // Theme toggling lives here now (the nav toggle was removed).
-  function applyTheme(theme: string) {
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem("theme", theme); } catch {}
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#ffffff" : "#1a1a1a");
-  }
-  (window as any).__toggleTheme = () => {
-    applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
-  };
-  document.addEventListener("click", (e) => {
-    if ((e.target as HTMLElement).closest(".dock-theme")) (window as any).__toggleTheme();
-  });
+  const dock = document.querySelector<HTMLElement>("[data-dock]");
+  if (dock) {
+    const box = dock.querySelector<HTMLElement>("[data-links]")!;
+    const pill = dock.querySelector<HTMLElement>("[data-pill]")!;
+    const links = Array.from(dock.querySelectorAll<HTMLAnchorElement>(".dock__link"));
 
-  // macOS-style dock magnify: nearby icons scale with cursor proximity.
-  const dock = document.querySelector<HTMLElement>(".dock");
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (dock && !reduce.matches && window.matchMedia("(hover: hover)").matches) {
-    const btns = Array.from(dock.querySelectorAll<HTMLElement>(".dock__btn"));
-    const SIGMA = 52; // px falloff
-    const BOOST = 0.34; // max extra scale
-    dock.addEventListener("pointermove", (e) => {
-      dock.classList.add("is-mag");
-      for (const b of btns) {
-        const r = b.getBoundingClientRect();
-        const d = e.clientX - (r.left + r.width / 2);
-        const f = Math.exp(-(d * d) / (2 * SIGMA * SIGMA));
-        const s = 1 + BOOST * f;
-        b.style.transform = `translateY(${(-7 * f).toFixed(2)}px) scale(${s.toFixed(3)})`;
+    const setActive = (id: string | null) => {
+      let active: HTMLAnchorElement | undefined;
+      for (const link of links) {
+        if (link.dataset.id === id) {
+          link.setAttribute("aria-current", "true");
+          active = link;
+        } else link.removeAttribute("aria-current");
       }
-    });
-    dock.addEventListener("pointerleave", () => {
-      dock.classList.remove("is-mag");
-      for (const b of btns) b.style.transform = "";
-    });
+      if (!active) return pill.classList.remove("is-on");
+      pill.style.setProperty("--l", `${active.offsetLeft}px`);
+      pill.style.setProperty("--r", `${box.clientWidth - active.offsetLeft - active.offsetWidth}px`);
+      pill.classList.add("is-on");
+    };
+
+    if (dock.dataset.page === "home") {
+      const sections = links
+        .map((l) => document.getElementById(l.dataset.id!))
+        .filter((s): s is HTMLElement => s !== null);
+      let current: string | null | undefined;
+      const pick = () => {
+        const line = window.innerHeight * 0.45;
+        let id: string | null = null;
+        for (const s of sections) {
+          const r = s.getBoundingClientRect();
+          if (r.top <= line && r.bottom > line) id = s.id;
+        }
+        if (id !== current) {
+          current = id;
+          setActive(id);
+        }
+      };
+      let queued = false;
+      window.addEventListener(
+        "scroll",
+        () => {
+          if (!queued) {
+            queued = true;
+            requestAnimationFrame(() => {
+              queued = false;
+              pick();
+            });
+          }
+        },
+        { passive: true },
+      );
+      window.addEventListener("resize", () => {
+        current = undefined;
+        pick();
+      });
+      pick();
+    }
+
+    // Theme toggle (also used by anything calling window.__toggleTheme)
+    const applyTheme = (theme: string) => {
+      document.documentElement.dataset.theme = theme;
+      try {
+        localStorage.setItem("theme", theme);
+      } catch {}
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", theme === "light" ? "#fbfbfb" : "#121310");
+    };
+    (window as any).__toggleTheme = () =>
+      applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+    dock.querySelector(".dock-theme")?.addEventListener("click", () => (window as any).__toggleTheme());
   }
 </script>

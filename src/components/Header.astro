@@ -1,0 +1,89 @@
+---
+import { profile } from "../data/content";
+import Logo from "./Logo.astro";
+import Settings from "./Settings.astro";
+---
+
+<header class="hdr" data-hdr>
+  <div class="wrap hdr__in">
+    <a class="hdr__brand" href="/#top" aria-label={`${profile.name}, home`}>
+      <Logo size={22} />
+      <span class="hdr__name">{profile.name}</span>
+    </a>
+
+    <div class="hdr__right">
+      <p class="hdr__status"><span class="light" aria-hidden="true"></span>{profile.status}</p>
+      {profile.cvUrl && (
+        <a class="hdr__cv" href={profile.cvUrl} target="_blank" rel="noreferrer">Résumé</a>
+      )}
+      <Settings />
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: var(--z-header);
+    view-transition-name: header;
+    border-bottom: 1px solid transparent;
+    transition: transform 0.6s var(--ease-out), background-color 0.35s ease, border-color 0.35s ease;
+  }
+  .hdr.is-scrolled { background: var(--bg); border-bottom-color: var(--line); }
+  .hdr.is-hidden { transform: translateY(-101%); }
+
+  .hdr__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 64px; }
+  .hdr__brand { display: inline-flex; align-items: center; gap: 0.65rem; color: var(--ink); }
+  .hdr__brand :global(svg) { transition: transform 0.5s var(--ease-out); }
+  .hdr__brand:hover :global(svg) { transform: rotate(-8deg); }
+  .hdr__name { font-weight: 620; font-stretch: 108%; letter-spacing: -0.01em; }
+
+  .hdr__right { display: flex; align-items: center; gap: 1.2rem; }
+  .hdr__status { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.84rem; color: var(--muted); }
+  .hdr__cv {
+    font-size: 0.88rem;
+    font-weight: 560;
+    text-decoration: underline;
+    text-decoration-color: var(--hl-text);
+    text-underline-offset: 0.26em;
+    transition: text-decoration-thickness 0.2s ease;
+  }
+  .hdr__cv:hover { text-decoration-thickness: 2px; }
+
+  @media (max-width: 760px) {
+    .hdr__status { display: none; }
+  }
+</style>
+
+<script>
+  // Solid once you scroll; tucks away while reading down, returns on the way up.
+  const hdr = document.querySelector<HTMLElement>("[data-hdr]");
+  if (hdr) {
+    let last = window.scrollY;
+    let queued = false;
+    const update = () => {
+      queued = false;
+      const y = window.scrollY;
+      let hidden = hdr.classList.contains("is-hidden");
+      if (y <= 160) hidden = false;
+      else if (y > last + 4) hidden = true;
+      else if (y < last - 4) hidden = false;
+      if (hdr.querySelector('[aria-expanded="true"]')) hidden = false;
+      hdr.classList.toggle("is-scrolled", y > 8);
+      hdr.classList.toggle("is-hidden", hidden);
+      last = y;
+    };
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
+  }
+</script>

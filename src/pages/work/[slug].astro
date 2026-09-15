@@ -1,0 +1,181 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Pipeline from "../../components/Pipeline.astro";
+import { projects, profile } from "../../data/content";
+
+export async function getStaticPaths() {
+  return projects.map((p, i) => ({ params: { slug: p.slug }, props: { index: i } }));
+}
+
+const { index } = Astro.props;
+const p = projects[index];
+const next = projects[(index + 1) % projects.length];
+
+const studies = await getCollection("caseStudies", ({ data }) => !data.draft);
+const study = studies.find((s) => s.data.project === p.name);
+const Content = study ? (await render(study)).Content : null;
+---
+
+<Base title={`${p.name} · ${profile.name}`} description={p.tagline} page="sub">
+  <main id="main" class="page">
+    <div class="wrap">
+      <a class="back" href="/#work">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        All work
+      </a>
+
+      <header class="ph">
+        <p class="ph__kind">{p.kind}{p.role && <span class="ph__role"> · {p.role}</span>}</p>
+        <h1 class="ph__title display" style={`view-transition-name: title-${p.slug}`}>{p.name}</h1>
+        <p class="ph__tagline">{p.tagline}</p>
+        <div class="ph__actions">
+          {p.href && <a class="btn btn--hl" href={p.href} target="_blank" rel="noreferrer">Open live site</a>}
+          {p.repo && <a class="btn btn--ghost" href={p.repo} target="_blank" rel="noreferrer">View source</a>}
+          {p.note && <span class="badge badge--line">{p.note}</span>}
+        </div>
+      </header>
+
+      {p.shot && (
+        <figure class="ph__shot" data-reveal>
+          <img src={p.shot} alt={`${p.name} interface`} width="1400" height="800" />
+        </figure>
+      )}
+
+      <div class="pb">
+        <div class="pb__main">
+          <section class="blk" data-reveal>
+            <h2 class="blk__title">What it is</h2>
+            <p class="blk__lead">{p.blurb}</p>
+          </section>
+
+          {p.highlights && p.highlights.length > 0 && (
+            <section class="blk" data-reveal>
+              <h2 class="blk__title">Engineering decisions</h2>
+              <ul class="notes">
+                {p.highlights.map((h) => <li>{h}</li>)}
+              </ul>
+            </section>
+          )}
+
+          {p.facts && p.facts.length > 0 && (
+            <section class="blk" data-reveal>
+              <h2 class="blk__title">Measured</h2>
+              <dl class="facts">
+                {p.facts.map((f) => (
+                  <div class="facts__row">
+                    <dt>{f.label}</dt>
+                    <dd>{f.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              {p.caveat && <p class="caveat">{p.caveat}</p>}
+            </section>
+          )}
+        </div>
+
+        <aside class="pb__side">
+          <section class="side" data-reveal>
+            <h2 class="side__title">How it works</h2>
+            <Pipeline steps={p.pipeline} size="lg" />
+          </section>
+          <section class="side" data-reveal>
+            <h2 class="side__title">Built with</h2>
+            <p class="side__stack">{p.stack.join(", ")}</p>
+          </section>
+        </aside>
+      </div>
+
+      {Content && (
+        <section class="study" data-reveal>
+          <h2 class="study__title display">Case study</h2>
+          <div class="prose"><Content /></div>
+        </section>
+      )}
+
+      <a class="nextp" href={`/work/${next.slug}`}>
+        <span class="nextp__label">Next project</span>
+        <span class="nextp__name display">{next.name}</span>
+        <span class="nextp__tag">{next.tagline}</span>
+      </a>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .ph { max-width: 62rem; }
+  .ph__kind { color: var(--faint); font-size: 0.98rem; }
+  .ph__title { margin-top: 1rem; font-size: clamp(2.8rem, 1.2rem + 6.4vw, 5.75rem); }
+  .ph__tagline {
+    max-width: 40ch;
+    margin-top: 1.5rem;
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .ph__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 2.2rem; }
+
+  .ph__shot {
+    margin: clamp(3rem, 7vw, 5rem) 0 0;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1px var(--line), var(--shadow-lg);
+  }
+  .ph__shot img { display: block; width: 100%; height: auto; }
+
+  .pb {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 3rem var(--col-gap);
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+  }
+  .pb__main { grid-column: 1 / span 7; display: flex; flex-direction: column; gap: clamp(2.5rem, 5vw, 3.5rem); }
+  .pb__side { grid-column: 9 / -1; display: flex; flex-direction: column; gap: var(--col-gap); }
+
+  .blk__title { font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.6rem); font-stretch: 110%; font-weight: 680; letter-spacing: -0.025em; }
+  .blk__lead { margin-top: 1rem; font-size: 1.1rem; line-height: 1.7; color: var(--muted); }
+
+  .notes { list-style: none; margin: 1.2rem 0 0; padding: 0; }
+  .notes li { padding: 1.1rem 0; border-top: 1px solid var(--line); color: var(--muted); }
+
+  .facts { margin: 1.2rem 0 0; }
+  .facts__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.6rem 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; font: 500 1rem/1.4 var(--font-mono); color: var(--ink); white-space: nowrap; }
+  .caveat { margin-top: 1.2rem; padding: 1rem 1.15rem; border-radius: 12px; background: var(--surface); color: var(--faint); font-size: 0.9rem; }
+
+  .side { padding: 1.5rem; border-radius: 18px; background: var(--bg-raise); box-shadow: inset 0 0 0 1px var(--line); }
+  .side__title { margin-bottom: 1.1rem; font-size: 0.95rem; font-weight: 640; color: var(--faint); }
+  .side__stack { color: var(--muted); }
+
+  .study { margin-top: clamp(4rem, 9vw, 6rem); padding-top: clamp(3rem, 6vw, 4rem); border-top: 1px solid var(--line); }
+  .study__title { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.2rem); margin-bottom: 2rem; }
+
+  .nextp {
+    display: block;
+    margin-top: clamp(5rem, 10vw, 8rem);
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .nextp__label { display: block; font-size: 0.9rem; color: var(--faint); }
+  .nextp__name {
+    display: block;
+    margin-top: 0.7rem;
+    font-size: clamp(2.2rem, 1rem + 4.6vw, 4.5rem);
+    transition: color 0.3s ease, transform 0.6s var(--ease-out);
+  }
+  .nextp:hover .nextp__name { color: var(--hl-text); transform: translateX(8px); }
+  .nextp__tag { display: block; max-width: 44ch; margin-top: 0.9rem; color: var(--muted); }
+
+  @media (max-width: 1000px) {
+    .pb__main, .pb__side { grid-column: 1 / -1; }
+  }
+</style>

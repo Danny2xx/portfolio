@@ -1,9 +1,12 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   SINGLE SOURCE OF TRUTH for all site content. Sourced from Daniel's CV
-   (public/cv/daniel-iyalekhue-cv.pdf). Editing here updates the whole site.
+   SINGLE SOURCE OF TRUTH for all site content.
 
-   Inline markup in `profile.bio`, `journey` and notes: **bold** and
-   [link text](https://url) are supported (see src/lib/inline.ts).
+   Facts come from Daniel's CV (public/cv/daniel-iyalekhue-cv.pdf) and, for
+   projects, from the code in each repo. Project metrics are copied from the
+   repos' own report files; never round them up or add ones that don't exist.
+
+   Inline markup in `journey`: **bold** and [link](https://url) (src/lib/inline.ts).
+   Hero copy: [[source-id]] inserts a numbered citation to `heroSources`.
    ────────────────────────────────────────────────────────────────────────── */
 
 export const profile = {
@@ -18,16 +21,49 @@ export const profile = {
     github: "https://github.com/Danny2xx",
     linkedin: "https://www.linkedin.com/in/daniel-iyalekhue-3a48121b8/",
   },
-  bio: [
-    "That means the whole path from raw data to a decision someone can act on: retrieval, evaluation, predictive models, and the APIs and interfaces around them.",
-    "I'm finishing an MSc in Artificial Intelligence at Birmingham City University, where I co-authored [a paper on grounded enterprise agents](#research) accepted at ICACIN 2026. This summer I was the sole engineer on a crypto trading R&D prototype at Blockchain Advisors, and I build LLM reporting pipelines for [Carril Agency](https://www.carrilagency.com).",
-  ],
 };
 
-/* ── My journey (the /about page) ────────────────────────────────────────── */
+/* ── Hero: every claim cites its evidence ────────────────────────────────── */
+export const heroIntro = {
+  lede: "I'm Daniel, an AI / ML engineer in Birmingham. I co-authored a paper on grounded enterprise agents, accepted at ICACIN 2026 [[paper]], took first place at BCU's AI Day Hackathon [[hackathon]], and helped build AquaSense, a live wastewater forecasting platform [[aquasense]].",
+  sub: "Now finishing an MSc in Artificial Intelligence at Birmingham City University [[cv]], and looking for a full-time role.",
+};
+
+export const heroSources: { id: string; title: string; detail: string; type: string; href: string }[] = [
+  {
+    id: "paper",
+    title: "Substrate or Architecture?",
+    detail: "Accepted paper, ICACIN 2026",
+    type: "PDF",
+    href: "/papers/icacin-2026-substrate-or-architecture.pdf",
+  },
+  {
+    id: "hackathon",
+    title: "First place certificate",
+    detail: "AI Day Hackathon, BCU, June 2026",
+    type: "PDF",
+    href: "/awards/ai-at-bcu-day-first-prize.pdf",
+  },
+  {
+    id: "aquasense",
+    title: "AquaSense AI",
+    detail: "Live compliance dashboard",
+    type: "Live",
+    href: "https://aquasense-lake.vercel.app/dashboard",
+  },
+  {
+    id: "cv",
+    title: "Curriculum vitae",
+    detail: "Education, roles and projects",
+    type: "PDF",
+    href: "/cv/daniel-iyalekhue-cv.pdf",
+  },
+];
+
+/* ── My journey (About) ──────────────────────────────────────────────────── */
 export const journey: string[] = [
   "I started in full-stack web development: client websites, Figma files turned into responsive interfaces, and the analytics and performance work that comes with shipping to real users.",
-  "Then I moved toward data and AI. Data science work at 10Analytics and a mentored programme at Amdari, then applied AI/ML engineering at Carril Agency: LLM tools, RAG systems and NLP pipelines that turn live data into something useful.",
+  "Then I moved toward data and AI. Data science at 10Analytics, a mentored programme at Amdari, then applied AI/ML engineering at Carril Agency: LLM tools, RAG systems and NLP pipelines that turn live data into something useful.",
   "Now I'm finishing an MSc in Artificial Intelligence at Birmingham City University. With classmates and Beeswift, a Birmingham manufacturer, I co-authored a paper on evaluating grounded enterprise agents that was accepted at ICACIN 2026.",
   "Alongside the engineering I've co-founded four ventures, three of them operating businesses. That's where I learned to price, pitch and ship to a fixed deadline with limited resources.",
 ];
@@ -39,6 +75,7 @@ export type Job = {
   org: string;
   orgUrl?: string;
   place?: string;
+  current?: boolean;
   note: string;
 };
 
@@ -48,7 +85,7 @@ export const experience: Job[] = [
     role: "AI / Software Engineer Intern",
     org: "Blockchain Advisors Ltd",
     place: "Remote, UK",
-    note: "Sole engineer on a multi-venue crypto trading bot R&D prototype. I owned the platform architecture, market data ingestion, strategy framework and backtester across a fixed ten-week delivery window.",
+    note: "R&D engineering on a multi-venue crypto trading bot prototype: platform architecture, market data ingestion, the strategy framework and the backtester, delivered in a fixed ten-week window.",
   },
   {
     range: "Sep 2024 – now",
@@ -56,6 +93,7 @@ export const experience: Job[] = [
     org: "Carril Agency",
     orgUrl: "https://www.carrilagency.com",
     place: "Dubai, remote",
+    current: true,
     note: "Built an AI reporting pipeline that pulls live Google Ads, Meta Ads and GA4 data through LangChain and the OpenAI API into a FastAPI backend. Also an NLP competitor-analysis tool (BERTopic, spaCy), a RAG content tool grounded in brand guidelines, and client sites including carrilagency.com and brau.ae.",
   },
   {
@@ -75,6 +113,12 @@ export const experience: Job[] = [
 ];
 
 /* ── Research ────────────────────────────────────────────────────────────── */
+export type Finding = {
+  label: string;
+  note: string;
+  bars: { name: string; value: number; display: string; strong?: boolean }[];
+};
+
 export type Publication = {
   title: string;
   authors: string[];
@@ -82,6 +126,7 @@ export type Publication = {
   venue: string;
   status: string;
   summary: string;
+  findings: Finding[];
   pdf: string;
   thumb: string;
   pages: number;
@@ -96,7 +141,25 @@ export const publications: Publication[] = [
     venue: "ICACIN 2026",
     status: "Accepted",
     summary:
-      "When an enterprise agent gets an answer wrong, is the retrieval at fault or the records it reads? We built a way to separate the two, testing a graph-grounded hybrid retriever on audited versions of a UK manufacturer's records. Graph grounding lifted citation validity from 0.20 to 0.89, while cleaning the records grew the answerable share of questions from 63% to 82%.",
+      "When an enterprise agent gets an answer wrong, is the retrieval at fault or the records it reads? We built an evaluation that separates the two, testing a graph-grounded hybrid retriever on audited versions of a UK manufacturer's records. Retrieval design and record quality turned out to improve reliability independently.",
+    findings: [
+      {
+        label: "Citation validity",
+        note: "Correct answers that cite the record they describe, averaged across data states",
+        bars: [
+          { name: "Dense retrieval", value: 0.201, display: "0.20" },
+          { name: "Graph-grounded hybrid", value: 0.892, display: "0.89", strong: true },
+        ],
+      },
+      {
+        label: "Answerable questions",
+        note: "Share of 60 test questions with a defensible answer in the records",
+        bars: [
+          { name: "Raw records", value: 38 / 60, display: "63%" },
+          { name: "Remediated records", value: 49 / 60, display: "82%", strong: true },
+        ],
+      },
+    ],
     pdf: "/papers/icacin-2026-substrate-or-architecture.pdf",
     thumb: "/papers/icacin-2026-page1.jpg",
     pages: 12,
@@ -152,126 +215,277 @@ export const alsoRecognised: { what: string; detail: string }[] = [
   { what: "Finalist, BCU Innovation Fest", detail: "Active n Me, 2021" },
 ];
 
-/* ── Skill stack (grouped, used on /about) ───────────────────────────────── */
+/* ── Full skill list (About) ─────────────────────────────────────────────── */
 export const stack: { group: string; items: string[] }[] = [
   { group: "Languages", items: ["Python", "TypeScript", "JavaScript", "SQL", "Java", "Bash"] },
-  { group: "LLMs and RAG", items: ["OpenAI API", "LangChain", "Ollama", "ChromaDB", "FAISS", "sentence-transformers", "RAGAS", "spaCy", "BERTopic"] },
+  { group: "LLMs and RAG", items: ["OpenAI API", "LangChain", "Ollama", "ChromaDB", "FAISS", "sentence-transformers", "BM25", "RAGAS", "spaCy", "BERTopic"] },
   { group: "ML and data", items: ["scikit-learn", "XGBoost", "LightGBM", "PyTorch", "TensorFlow / Keras", "Pandas", "NumPy"] },
-  { group: "Explainable AI", items: ["SHAP", "LIME", "Captum", "IBM AI Fairness 360", "Aequitas"] },
-  { group: "Computer vision", items: ["OpenCV", "YOLOv8", "ResNet", "EfficientNet", "Grad-CAM"] },
-  { group: "Frontend", items: ["Next.js", "React", "Tailwind", "Recharts"] },
-  { group: "Backend and MLOps", items: ["FastAPI", "Docker", "PostgreSQL", "Supabase", "Redis", "GitHub Actions", "MLflow", "Vercel"] },
+  { group: "Explainable AI", items: ["SHAP", "LIME", "Captum", "Integrated Gradients"] },
+  { group: "Computer vision", items: ["OpenCV", "YOLOv8", "MobileNetV2", "ResNet", "Grad-CAM"] },
+  { group: "Product and infra", items: ["Next.js", "React", "FastAPI", "PostgreSQL", "Supabase", "Docker", "GitHub Actions", "Vercel"] },
 ];
 
-/* ── Work / projects ─────────────────────────────────────────────────────── */
+/* ── Projects ────────────────────────────────────────────────────────────────
+   `featured` puts a project in the large grid ("xl" | "lg" | "md"); the rest
+   appear in the "More projects" index. Every project gets /work/<slug>.      */
+export type Step = { label: string; detail?: string };
 export type Project = {
+  slug: string;
   name: string;
   kind: string;
+  role?: string;
+  tagline: string;
   blurb: string;
+  pipeline: Step[];
+  highlights?: string[];
+  facts?: { label: string; value: string }[];
+  caveat?: string;
   stack: string[];
-  group: "ai" | "platform";
-  note?: string; // short proof line, e.g. a competition result
-  href?: string; // live site
-  repo?: string; // source
-  shot?: string; // real screenshot; projects with one get the featured treatment
+  note?: string;
+  href?: string;
+  repo?: string;
+  shot?: string;
+  featured?: "xl" | "lg" | "md";
 };
-
-export const projectGroups: { id: Project["group"]; label: string }[] = [
-  { id: "ai", label: "AI and machine learning" },
-  { id: "platform", label: "Full-stack and platforms" },
-];
 
 export const projects: Project[] = [
   {
+    slug: "aquasense-ai",
     name: "AquaSense AI",
-    kind: "Forecasting and compliance monitoring",
+    kind: "Wastewater compliance forecasting",
+    role: "Hackathon team project",
+    tagline: "Forecasts pollutant levels 30 minutes ahead and flags breach risk before it happens.",
     blurb:
-      "A wastewater compliance platform that streams plant sensor data, forecasts key water-quality indicators 30 minutes ahead, predicts breach risk, and turns the result into graded alerts, reports, drought context and data-quality views.",
-    stack: ["Next.js", "FastAPI", "scikit-learn", "Express", "SQLite", "Recharts"],
-    group: "ai",
+      "A compliance monitor for a food-processing plant's wastewater. It replays 5-minute sensor readings as a live stream, forecasts COD, BOD, TSS, ammonia and pH 30 minutes ahead, predicts breach risk, and turns the result into alerts, reports, drought context and data-quality views.",
+    pipeline: [
+      { label: "Sensor stream", detail: "8,640 simulated 5-minute readings replayed live" },
+      { label: "Feature pipeline", detail: "Lag and rolling features over a 120-minute buffer" },
+      { label: "Forecasts", detail: "RandomForest, XGBoost and ExtraTrees, 30 minutes ahead" },
+      { label: "Breach risk", detail: "HistGradientBoosting classifier" },
+      { label: "Compliance rules", detail: "Consent limits decide the current breach status" },
+      { label: "Dashboard", detail: "Next.js, Recharts and Leaflet, alerts in SQLite" },
+    ],
+    facts: [
+      { label: "Breach classifier ROC-AUC, validation", value: "0.986" },
+      { label: "Ammonia forecast MAE against a persistence baseline, test", value: "2.30 vs 3.18" },
+      { label: "Soft-sensor R² against lab values, COD / BOD / TSS", value: "0.91 / 0.88 / 0.97" },
+    ],
+    caveat:
+      "Built on simulated plant data. The validation set holds 12 breach windows and the test split holds none, so the classifier scores are an early signal rather than a field result.",
+    highlights: [
+      "A chronological train, validation and test split, with imputation fitted on training data only, so nothing from the future leaks into the model.",
+      "Walk-forward validation across four folds, alongside an incident holdout.",
+      "Rules decide whether a reading is a breach; the model's job is to predict the risk ahead of time.",
+    ],
+    stack: ["Next.js", "Express", "FastAPI", "scikit-learn", "XGBoost", "SQLite", "Recharts"],
     note: "Finalist, Unihack × BCU Innovation Fest 2026",
     href: "https://aquasense-lake.vercel.app/dashboard",
     repo: "https://github.com/Danny2xx/AQUASENSE-AI",
     shot: "/shots/aquasense.png",
+    featured: "xl",
   },
   {
+    slug: "accessops-coco-ai",
     name: "AccessOps COCO AI",
-    kind: "Computer vision for accessibility",
+    kind: "Image captioning for accessibility",
+    role: "MSc coursework",
+    tagline: "Writes alt-text for images, and sends the captions it's unsure about to a person.",
     blurb:
-      "An image-captioning model that writes alt-text. An end-to-end COCO pipeline from CNN+LSTM baselines through transfer learning and RL fine-tuning, with measured BLEU-4 gains at each stage and a policy that reroutes low-confidence captions to a human.",
-    stack: ["TensorFlow", "CNN+LSTM", "COCO", "FastAPI", "Next.js"],
-    group: "ai",
+      "A CNN+LSTM captioning model trained on MS COCO 2017 and improved stage by stage, from a scratch baseline through transfer learning to AdamW fine-tuning with beam search. A confidence policy decides which captions go straight out and which go to human review.",
+    pipeline: [
+      { label: "COCO 2017", detail: "118,287 training images, 591,753 captions" },
+      { label: "Image encoder", detail: "MobileNetV2, 1,280-dimension features" },
+      { label: "Caption decoder", detail: "LSTM, 30,000-word vocabulary" },
+      { label: "Fine-tuning", detail: "Transfer learning, AdamW, beam search" },
+      { label: "Confidence gate", detail: "Threshold 0.511 routes to auto or human review" },
+      { label: "Serving", detail: "FastAPI backend, React frontend" },
+    ],
+    facts: [
+      { label: "BLEU-4: scratch, transfer learning, AdamW with beam search", value: "0.169 → 0.219 → 0.247" },
+      { label: "BLEU-4 on the 20% most confident captions", value: "0.331" },
+      { label: "Reinforcement-learning fine-tuning (SCST)", value: "0.222, no gain" },
+    ],
+    highlights: [
+      "Negative results are reported, not hidden: reinforcement learning, retrieval refinement and an attention ablation all failed to beat the best model.",
+      "Confidence routing turns an average model into a useful one: the most confident fifth of captions scores far higher than the rest.",
+      "The routing threshold is read live and can be reloaded without redeploying, and model artifacts load from the Hugging Face Hub at startup.",
+    ],
+    stack: ["TensorFlow", "Keras", "MobileNetV2", "LSTM", "FastAPI", "React", "Vite"],
     repo: "https://github.com/Danny2xx/accessops-coco-ai",
+    featured: "lg",
   },
   {
+    slug: "docsage",
     name: "DocSage",
     kind: "Document question answering",
+    tagline: "Ask questions of your PDFs and get answers that cite the page they came from.",
     blurb:
-      "A production PDF RAG system. Upload documents, chunk and embed them locally, then ask questions in a streaming chat where every answer carries citations back to the page it came from.",
-    stack: ["FastAPI", "ChromaDB", "sentence-transformers", "GPT-4o-mini", "SSE"],
-    group: "ai",
+      "A local-first PDF question-answering system. It parses text, tables and scanned pages, retrieves with a hybrid of vector search and BM25, reranks with a cross-encoder, and streams an answer from a local model with inline citations and page numbers.",
+    pipeline: [
+      { label: "Parsing", detail: "PyMuPDF text, pdfplumber tables, Tesseract OCR" },
+      { label: "Chunking", detail: "800 characters, 150 overlap, tables kept whole" },
+      { label: "Embeddings", detail: "all-MiniLM-L6-v2 into ChromaDB" },
+      { label: "Hybrid retrieval", detail: "Vector and BM25, fused with reciprocal rank fusion" },
+      { label: "Reranking", detail: "MiniLM cross-encoder keeps the best 5" },
+      { label: "Answer", detail: "Ollama llama3.2:3b, streamed over SSE" },
+    ],
+    highlights: [
+      "Hybrid retrieval with reciprocal rank fusion, the same fusion idea used in the retriever from my ICACIN paper.",
+      "Scanned pages fall back to OCR, so image-only PDFs still answer.",
+      "Everything runs locally, and the prompt refuses when the answer isn't in the documents.",
+    ],
+    stack: ["FastAPI", "ChromaDB", "SQLite", "sentence-transformers", "BM25", "Ollama", "SSE"],
+    featured: "md",
   },
   {
+    slug: "draftdna",
     name: "DraftDNA",
     kind: "Citation-aware writing assistant",
+    tagline: "Drafts academic work that only cites the sources you approved.",
     blurb:
-      "A writing workspace for academic work. It reads your samples, the brief, the rubric and your approved sources, then drafts structured, referenced work with source-only citations, confidence labels and DOCX or PDF export.",
-    stack: ["Next.js", "FastAPI", "PostgreSQL", "ChromaDB", "GPT-4o"],
-    group: "ai",
+      "It learns a writer's style from samples, reads the brief, rubric and approved sources, and drafts sections whose citations are tagged by confidence, alongside a list of claims the sources don't support. Reference lists in Harvard, APA 7 or IEEE, with DOCX and PDF export.",
+    pipeline: [
+      { label: "Uploads", detail: "Samples, brief, rubric and sources parsed" },
+      { label: "Chunking", detail: "500 words, 50 overlap" },
+      { label: "Source store", detail: "ChromaDB, filtered per project" },
+      { label: "Drafting", detail: "OpenAI gpt-4.1, structured JSON" },
+      { label: "Checks", detail: "Confidence labels and unsupported claims" },
+      { label: "Export", detail: "Harvard, APA 7 or IEEE, as DOCX or PDF" },
+    ],
+    highlights: [
+      "Citations are restricted to the uploaded sources, and claims those sources don't support are listed back to the writer.",
+      "A mock AI mode runs the whole app with no API cost, which keeps development and demos free.",
+      "JWT authentication and Alembic migrations from the first commit.",
+    ],
+    stack: ["Next.js", "FastAPI", "ChromaDB", "OpenAI API", "python-docx", "ReportLab"],
     repo: "https://github.com/Danny2xx/draft-dna",
+    featured: "md",
   },
   {
+    slug: "trading-bot",
     name: "Multi-venue trading bot",
-    kind: "Sole engineer, Blockchain Advisors",
+    kind: "DeFi trading R&D",
+    role: "Blockchain Advisors internship",
+    tagline: "A paper-trading bot on Base where every order passes a risk manager with a kill switch.",
     blurb:
-      "A modular DeFi trading platform: market data ingestion, one strategy contract for rule-based, technical and ML strategies, a backtester that models fills, fees and slippage, and execution behind a risk manager with drawdown limits and a global kill switch.",
-    stack: ["Python", "TimescaleDB", "Redis", "CCXT", "web3.py", "Prometheus", "Grafana"],
-    group: "ai",
+      "An R&D trading bot for WETH/USDC and cbBTC/USDC on Base, routing through Aerodrome with a Uniswap v3 fallback. Rule-based, moving-average and ML strategies share one interface, every order passes risk checks, fills are simulated with fees and slippage, and swaps were tested on the Base Sepolia testnet.",
+    pipeline: [
+      { label: "Market data", detail: "DEX Screener, on-chain pool reads, CCXT" },
+      { label: "Market state", detail: "One shared shape, optional TimescaleDB" },
+      { label: "Strategies", detail: "Range, moving-average cross, logistic regression" },
+      { label: "Risk manager", detail: "Position, exposure, drawdown and daily-loss caps" },
+      { label: "Paper fills", detail: "Fees and slippage modelled" },
+      { label: "Live gate", detail: "web3.py signing, testnet only" },
+    ],
+    highlights: [
+      "Risk limits are enforced in code rather than in config, with a tested kill switch.",
+      "Per-user wallet keys are encrypted with Fernet, and a gas-aware guard skips trades that wouldn't pay for themselves.",
+      "Model inference runs as its own FastAPI service with Prometheus metrics, and CI enforces over 80% test coverage.",
+    ],
+    stack: ["Python", "web3.py", "CCXT", "FastAPI", "TimescaleDB", "Prometheus"],
+    featured: "lg",
   },
   {
-    name: "Loan-approval bias audit",
-    kind: "Responsible AI",
-    blurb:
-      "A loan-approval classifier audited for fairness across demographic groups with disparate impact and equal-opportunity difference, explained with SHAP, and written up with findings, limits and mitigations.",
-    stack: ["Python", "scikit-learn", "XGBoost", "SHAP", "AI Fairness 360", "Aequitas"],
-    group: "ai",
-  },
-  {
+    slug: "repolens-ai",
     name: "RepoLens AI",
-    kind: "Local-first developer tool",
+    kind: "Local-first code audit",
+    tagline: "Audits a codebase with static analysis and a local LLM, without letting the LLM set the score.",
     blurb:
-      "Drop in a codebase and it runs static analysis and a local-LLM code review through Ollama, then produces a readiness report with deterministic scoring, deduplicated issues and Markdown export.",
-    stack: ["Next.js", "FastAPI", "Ollama", "qwen2.5-coder", "Recharts"],
-    group: "ai",
+      "Upload a codebase ZIP and it detects the stack, runs npm audit, ESLint, tsc, ruff, bandit and gitleaks, sends code chunks to a local qwen2.5-coder model for review, then merges and deduplicates findings into deterministic readiness scores and a Markdown report.",
+    pipeline: [
+      { label: "Safe extraction", detail: "Zip-slip check and upload size limit" },
+      { label: "Stack detection", detail: "File scan across languages and frameworks" },
+      { label: "Static analysis", detail: "npm audit, ESLint, tsc, ruff, bandit, gitleaks" },
+      { label: "LLM review", detail: "Ollama qwen2.5-coder:7b, JSON output" },
+      { label: "Scoring", detail: "Deterministic: 100 minus 12, 6 or 2 per issue" },
+      { label: "Report", detail: "Markdown export and a Next.js dashboard" },
+    ],
+    highlights: [
+      "The LLM finds issues but never sets scores, so the same codebase always gets the same result.",
+      "Missing analysis tools degrade gracefully instead of failing the audit.",
+      "44 API tests, and Zod schemas shared between the web app and the API.",
+    ],
+    stack: ["Next.js", "FastAPI", "Ollama", "qwen2.5-coder", "Zod"],
   },
   {
-    name: "OPS Platform",
-    kind: "Manufacturing operations, B2B",
+    slug: "credit-bias-audit",
+    name: "Credit-scoring bias audit",
+    kind: "Explainable AI in fintech",
+    role: "MSc coursework",
+    tagline: "An XGBoost credit model explained with SHAP and LIME, then checked for bias across age, sex and nationality.",
     blurb:
-      "The foundation for an AI manufacturing-operations platform: a B2B dashboard, an RFQ workspace and a quote calculator on FastAPI and PostgreSQL, with SQLAlchemy models, Alembic migrations and seeded datasets.",
-    stack: ["Next.js", "FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "Docker"],
-    group: "platform",
+      "A credit-risk classifier on the UCI German Credit dataset, explained globally and per applicant with SHAP and LIME, then audited for disparate impact, error rates and risk scores across age, sex and foreign-worker groups.",
+    pipeline: [
+      { label: "German Credit data", detail: "1,000 applicants, 20 features" },
+      { label: "Balancing", detail: "Stratified split, SMOTE on training data only" },
+      { label: "Model", detail: "XGBoost against logistic regression, tree and forest" },
+      { label: "Explanations", detail: "SHAP, plus a plain-English rejection letter" },
+      { label: "Stability", detail: "LIME across five random seeds" },
+      { label: "Fairness", detail: "Disparate impact and error rates by group" },
+    ],
+    facts: [
+      { label: "XGBoost AUC", value: "0.764" },
+      { label: "Disparate impact, applicants aged 18–25", value: "0.72, fails the 80% rule" },
+      { label: "False positive rate, ages 18–25 against 36–50", value: "33.3% vs 12.8%" },
+    ],
+    highlights: [
+      "SMOTE is applied after the split, so synthetic samples never leak into evaluation.",
+      "SHAP showed the model leaning on sex and marital status, the fifth most influential of 20 features.",
+      "LIME's instability was measured rather than assumed, and small-group results carry explicit caveats.",
+    ],
+    stack: ["Python", "XGBoost", "scikit-learn", "SHAP", "LIME", "imbalanced-learn"],
   },
   {
+    slug: "aurafind",
     name: "AURAFIND",
     kind: "Recommendation engine",
+    tagline: "Describe a scent in plain words and get ranked matches, with the reasons shown.",
     blurb:
-      "Fragrance discovery from plain-language requests. It turns what you ask for into structured preferences and ranks a catalogue with transparent scoring and a deterministic fallback, so it never invents a product the database doesn't hold.",
-    stack: ["Next.js", "TypeScript", "Supabase", "OpenAI Responses API", "Vercel"],
-    group: "platform",
+      "Plain-language requests become structured preferences, then a catalogue is scored out of 100 on budget, notes, style, occasion, season and performance, and grouped into best overall, budget, premium and hidden-gem picks, each with its reasons.",
+    pipeline: [
+      { label: "Request", detail: "A description in plain language" },
+      { label: "Preferences", detail: "gpt-4.1-mini with a JSON schema, or a rule-based fallback" },
+      { label: "Catalogue", detail: "Supabase, or a local 100-fragrance file" },
+      { label: "Scoring", detail: "Out of 100, with a visible breakdown" },
+      { label: "Picks", detail: "Best overall, budget, premium, hidden gem" },
+    ],
+    highlights: [
+      "The LLM only parses the request; it never picks products, so it can't recommend one that doesn't exist.",
+      "Works with no API keys at all, through the fallback parser and the local catalogue.",
+      "Every recommendation shows how its score was made.",
+    ],
+    stack: ["Next.js", "TypeScript", "Supabase", "OpenAI Responses API"],
+  },
+  {
+    slug: "ops-platform",
+    name: "OPS Platform",
+    kind: "Manufacturing operations, B2B",
+    tagline: "The data and quoting foundation for a UK precision-engineering operations platform.",
+    blurb:
+      "Phase one of a planned AI manufacturing platform: a normalised PostgreSQL schema seeded with customers, materials, labour rates, RFQs and quotes, a FastAPI API, a quote calculator with exact decimal money handling, and a Next.js B2B dashboard.",
+    pipeline: [
+      { label: "Seed data", detail: "CSV loaders into PostgreSQL" },
+      { label: "Schema", detail: "SQLAlchemy models, Alembic migrations" },
+      { label: "API", detail: "FastAPI routes for the dashboard, RFQs and quotes" },
+      { label: "Quoting", detail: "Cost plus overhead plus margin, decimal rounding" },
+      { label: "Dashboard", detail: "Next.js KPI cards and RFQ workspace" },
+    ],
+    highlights: [
+      "Money is calculated with Decimal rounding end to end, never floats.",
+      "A normalised schema with foreign keys and enums, ready for the AI features planned next.",
+    ],
+    stack: ["Next.js", "FastAPI", "PostgreSQL", "SQLAlchemy", "Alembic", "Docker"],
   },
 ];
 
-/* ── Websites I've shipped (live sites, with screenshots) ────────────────── */
-export type Website = { name: string; kind: string; blurb: string; url: string; image: string; alt: string };
+/* ── Websites I've shipped ───────────────────────────────────────────────── */
+export type Website = { name: string; kind: string; url: string; image: string; alt: string };
 
 // TODO: confirm your role on hottake.
 export const websites: Website[] = [
   {
     name: "Carril Agency",
-    kind: "Agency site",
-    blurb:
-      "A branding, web and growth agency. I build and maintain the site, with custom JavaScript, GA4 and Meta Pixel integrations, and Core Web Vitals work.",
+    kind: "Build and maintenance",
     url: "https://www.carrilagency.com",
     image: "/shots/carril.jpg",
     alt: "Carril Agency homepage with a dark navy launch-to-growth hero",
@@ -279,7 +493,6 @@ export const websites: Website[] = [
   {
     name: "Nuclii",
     kind: "Co-founder and CTO",
-    blurb: "A platform to discover, host and book real-world events, pop-ups and experiences.",
     url: "https://nuclii.co.uk",
     image: "/shots/nuclii.jpg",
     alt: "Nuclii homepage introducing its local events and pop-ups platform",
@@ -287,144 +500,68 @@ export const websites: Website[] = [
   {
     name: "hottake",
     kind: "Markets product",
-    blurb: "A markets product, being rebuilt for its next version.",
     url: "https://hottake.markets",
     image: "/shots/hottake.jpg",
     alt: "hottake markets holding page with the message The next take is loading",
   },
 ];
 
-/* ── Lab: live, interactive demos ────────────────────────────────────────── */
+/* ── Lab ─────────────────────────────────────────────────────────────────── */
 export const labIntro =
   "Two small demos of how language models work. Both run in your browser, with no API calls.";
 
-/* ── Education and certifications (the /about page) ──────────────────────── */
+/* ── Education (About) ───────────────────────────────────────────────────── */
 export const credentials: { line: string; detail: string }[] = [
-  { line: "MSc Artificial Intelligence", detail: "Birmingham City University, Sep 2025 – Sep 2026" },
+  { line: "MSc Artificial Intelligence", detail: "Birmingham City University, 2025 – 2026" },
   { line: "BSc (Hons) Computer Science, 2:1", detail: "Birmingham City University, 2020 – 2023" },
   {
     line: "Certifications",
-    detail:
-      "IBM SkillsBuild: AI Fundamentals, Python for Data Science. Google Cloud: Responsible AI, Large Language Models. Kaggle: ML Explainability, Feature Engineering.",
+    detail: "IBM SkillsBuild, Google Cloud Skills Boost and Kaggle: AI fundamentals, responsible AI, LLMs, explainability.",
   },
 ];
 
-/* ── Ventures (the /about page) ──────────────────────────────────────────── */
+/* ── Ventures (About) ────────────────────────────────────────────────────── */
 export const ventures: { role: string; detail: string }[] = [
   {
     role: "Co-founder, Hillsville Farms, Hillsville Prime and 4Wheels.ng",
     detail:
-      "Took each from concept to an operating business, including a dealership model that marketed partner-owned inventory and earned per transaction, so it never had to hold stock.",
+      "Took each from concept to an operating business, including a dealership model that marketed partner-owned inventory, so it never had to hold stock.",
   },
   {
     role: "Co-founder and CTO, Nuclii",
-    detail:
-      "Took the venture through the BCU STEAM Hatchery accelerator: customer validation, business modelling, financial planning, go-to-market and pitching.",
+    detail: "Took the venture through the BCU STEAM Hatchery accelerator, from customer validation to pitching.",
   },
   {
     role: "Relay, through BSEEN",
-    detail:
-      "A hyperlocal student delivery marketplace, worked through customer validation, pricing, trust and the marketplace model.",
-  },
-  {
-    role: "Founder Institute Lagos",
-    detail: "Virtual founder programme in customer discovery, validation, business models and go-to-market.",
+    detail: "A hyperlocal student delivery marketplace, worked through validation, pricing and trust.",
   },
 ];
 
-/* ── /now page ───────────────────────────────────────────────────────────── */
+/* ── Right now (About) ───────────────────────────────────────────────────── */
 export const now = {
-  updated: "September 2026", // bump when you refresh this
+  updated: "September 2026",
   items: [
-    {
-      label: "Finishing",
-      text: "My MSc in Artificial Intelligence at Birmingham City University.",
-    },
-    {
-      label: "Working",
-      text: "AI / ML engineering at Carril Agency, on LLM reporting pipelines and NLP tooling over live marketing data.",
-    },
-    {
-      label: "Learning",
-      text: "Agent evaluation, retrieval quality with RAGAS, and how to make LLM systems explainable.",
-    },
-    {
-      label: "Open to",
-      text: "Full-time AI / ML or software engineering roles, in the UK or remote.",
-    },
+    { label: "Finishing", text: "My MSc in Artificial Intelligence." },
+    { label: "Working", text: "AI / ML engineering at Carril Agency." },
+    { label: "Learning", text: "Agent evaluation and retrieval quality." },
+    { label: "Open to", text: "Full-time AI / ML roles, UK or remote." },
   ],
 };
 
-/* ── /uses page ──────────────────────────────────────────────────────────── */
-export const uses: { group: string; items: { name: string; note?: string }[] }[] = [
-  {
-    group: "Languages",
-    items: [
-      { name: "Python", note: "ML, data, backends" },
-      { name: "TypeScript", note: "everything web" },
-      { name: "SQL" },
-      { name: "Bash" },
-    ],
-  },
-  {
-    group: "AI and ML",
-    items: [
-      { name: "OpenAI API" },
-      { name: "LangChain", note: "orchestration" },
-      { name: "Ollama", note: "local, open-weight models" },
-      { name: "ChromaDB and FAISS", note: "vector search" },
-      { name: "PyTorch" },
-      { name: "scikit-learn" },
-      { name: "RAGAS", note: "evaluation" },
-    ],
-  },
-  {
-    group: "Web",
-    items: [
-      { name: "Next.js" },
-      { name: "React" },
-      { name: "Astro", note: "this site" },
-      { name: "Tailwind" },
-    ],
-  },
-  {
-    group: "Backend and infra",
-    items: [
-      { name: "FastAPI" },
-      { name: "PostgreSQL" },
-      { name: "Supabase" },
-      { name: "Docker" },
-      { name: "GitHub Actions" },
-      { name: "Vercel" },
-    ],
-  },
-  {
-    group: "Data and viz",
-    items: [
-      { name: "Pandas and NumPy" },
-      { name: "Plotly and Matplotlib" },
-      { name: "Streamlit" },
-      { name: "Power BI" },
-    ],
-  },
-];
-
-/* ── "Currently" + "How I work" (the /about page) ────────────────────────── */
 export const currently =
-  "Finishing my MSc in Artificial Intelligence, building LLM reporting pipelines at Carril Agency, and looking for a full-time AI / ML engineering role.";
+  "Engineer, researcher and co-founder. The short version of how I got here, and how I work.";
 
 export const howIWork: string[] = [
   "Ship the whole thing. Model, evaluation, interface, deployment.",
   "Make it explainable. If I can't say why it works, it isn't done.",
   "Measure before I claim anything. Evals over vibes.",
-  "Design for the person using it, not the demo.",
+  "Report what didn't work. A failed experiment is still a result.",
 ];
 
 /* ── Recommendations (real, attributed words only; never write one for someone) ─
    `photo`: LinkedIn photos can't be pulled automatically (login wall, expiring
    URLs, and this site loads nothing from third parties). Save the person's photo
-   with their OK to public/people/<name>.jpg (square, ~160px) and set it here.
-   Without a photo, their initials are shown. */
+   with their OK to public/people/<name>.jpg (square, ~160px) and set it here. */
 export type Testimonial = {
   quote: string; // paragraphs separated by a blank line
   name: string;
@@ -450,12 +587,4 @@ Daniel is a focused, creative, and dependable person to work with. He has a stro
   //   linkedin: "https://www.linkedin.com/in/ifeoluwaolorunfemi/",
   //   photo: "/people/ifeoluwa-olorunfemi.jpg",
   // },
-];
-
-/* ── Where I'm most useful (the Contact tab) ─────────────────────────────── */
-export const strengths = [
-  "Normalising unrelated data sources into one schema an application can rely on.",
-  "Retrieval, evaluation, explainability and monitoring for ML and LLM systems.",
-  "Translating model behaviour into decisions non-technical stakeholders can act on.",
-  "Moving between engineering and commercial conversations, having pitched, priced and run ventures as well as built them.",
 ];

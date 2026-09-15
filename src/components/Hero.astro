@@ -1,155 +1,293 @@
 ---
-import { profile } from "../data/content";
-import { inline } from "../lib/inline";
+import { profile, heroIntro, heroSources } from "../data/content";
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+// "[[id]]" -> numbered citation chip pointing at its source
+const withCitations = (s: string) =>
+  esc(s).replace(/\s*\[\[([\w-]+)\]\]/g, (_m, id: string) => {
+    const n = heroSources.findIndex((src) => src.id === id) + 1;
+    if (n === 0) return "";
+    return `<a class="cite" href="#src-${n}" data-cite="${n}" aria-label="Source ${n}: ${esc(heroSources[n - 1].title)}">${n}</a>`;
+  });
 ---
 
-<section class="hero" id="top">
-  <div class="feed">
-    <div class="hero__id" data-reveal>
-      <div class="avatar">
-        <img src="/vector.png" alt={`Illustrated portrait of ${profile.name}`} width="96" height="96" />
-      </div>
-      <div class="hero__who">
-        <h1 class="hero__name">
-          {profile.name}
-          <span class="verify" title="Verified">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path class="verify__seal" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z" />
-              <path class="verify__check" d="M10.54 16.2 6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
-            </svg>
-          </span>
-        </h1>
-        <p class="hero__role">{profile.title}<span aria-hidden="true"> · </span>{profile.location}</p>
+<section class="hero" id="top" data-hero>
+  <div class="wrap">
+    <div class="hero__meta hero__fade">
+      <img class="hero__avatar" src="/vector.png" alt="" width="96" height="96" />
+      <div>
+        <p class="hero__name">{profile.name}</p>
+        <p class="hero__role">{profile.title} · {profile.location}</p>
       </div>
     </div>
 
-    <p class="hero__statement" data-reveal>{profile.headline}</p>
+    <h1 class="hero__title display">
+      <span class="sr-only">{profile.headline}</span>
+      <span class="hero__line" aria-hidden="true"><span>I build AI that</span></span>
+      <span class="hero__line" aria-hidden="true"><span>has to <mark class="hl-mark" data-manual>work after</mark></span></span>
+      <span class="hero__line" aria-hidden="true"><span><mark class="hl-mark" data-manual>the demo.</mark></span></span>
+    </h1>
 
-    <div class="hero__bio" data-reveal>
-      {profile.bio.map((p) => <p set:html={inline(p)} />)}
-    </div>
+    <div class="hero__grid">
+      <div class="hero__intro hero__fade" style="--d: 560ms">
+        <p class="hero__lede" set:html={withCitations(heroIntro.lede)} />
+        <p class="hero__sub" set:html={withCitations(heroIntro.sub)} />
+        <div class="hero__actions">
+          <a class="btn btn--hl" href="#work">See the work</a>
+          <a class="btn btn--ghost" href={`mailto:${profile.email}`}>Email me</a>
+        </div>
+      </div>
 
-    <div class="hero__actions" data-reveal>
-      <a class="btn btn--solid" href={`mailto:${profile.email}`}>Email me</a>
-      {profile.cvUrl && (
-        <a class="btn btn--line" href={profile.cvUrl} target="_blank" rel="noreferrer">
-          Résumé <span class="hero__pdf">PDF</span>
-        </a>
-      )}
-      <span class="hero__status">
-        <span class="light" aria-hidden="true"></span>
-        {profile.status}
-      </span>
+      <aside class="sources hero__fade" style="--d: 700ms" aria-labelledby="sources-title">
+        <div class="sources__head">
+          <h2 class="sources__title" id="sources-title">Sources</h2>
+          <p class="sources__hint">Each numbered claim links to its evidence.</p>
+        </div>
+        <ol class="sources__list">
+          {heroSources.map((s, i) => (
+            <li class="source" id={`src-${i + 1}`} data-source={i + 1}>
+              <a class="source__link" href={s.href} target="_blank" rel="noreferrer">
+                <span class="source__n">{i + 1}</span>
+                <span class="source__body">
+                  <span class="source__title">{s.title}</span>
+                  <span class="source__detail">{s.detail}</span>
+                </span>
+                <span class="source__type">{s.type}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </aside>
     </div>
   </div>
+
+  <svg class="wire" aria-hidden="true" data-wire><path></path></svg>
 </section>
 
 <style>
-  .hero { padding-top: clamp(6rem, 11vw, 7.75rem); padding-bottom: clamp(2.2rem, 5vw, 3rem); }
+  /* bottom padding keeps the last source and the buttons clear of the dock */
+  .hero { position: relative; padding-top: clamp(6.5rem, 11vw, 8.5rem); padding-bottom: clamp(6rem, 11vw, 8rem); }
 
-  .hero__id { display: flex; align-items: center; gap: 0.8rem; }
-  .avatar {
-    flex: none;
+  .hero__meta { display: flex; align-items: center; gap: 0.8rem; }
+  .hero__avatar {
     width: 46px;
     height: 46px;
     border-radius: 50%;
-    overflow: hidden;
-    position: relative;
-    background: var(--surface-2);
-  }
-  .avatar img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
     object-fit: cover;
-    object-position: center 30%;
-    transform: scale(1.12);
+    object-position: center 28%;
+    background: var(--surface-2);
+    box-shadow: 0 0 0 1px var(--line);
   }
-  .hero__name {
+  .hero__name { font-weight: 620; font-stretch: 106%; line-height: 1.3; }
+  .hero__role { font-size: 0.88rem; color: var(--muted); line-height: 1.3; }
+
+  .hero__title { margin-top: clamp(2.2rem, 5vw, 3.4rem); font-size: clamp(2.85rem, 0.8rem + 7.4vw, 6rem); }
+  .hero__line { display: block; overflow: hidden; padding-block: 0.06em 0.12em; margin-block: -0.06em -0.12em; }
+  .hero__line > span { display: block; }
+  .hero .hl-mark { --hl-delay: 760ms; }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 3rem;
+    align-items: end;
+    margin-top: clamp(2.4rem, 5vw, 3.6rem);
+  }
+  .hero__intro { grid-column: 1 / span 6; }
+  .sources { grid-column: 8 / -1; }
+
+  .hero__lede { max-width: 38rem; font-size: clamp(1.12rem, 1rem + 0.45vw, 1.32rem); line-height: 1.55; color: var(--ink); }
+  .hero__sub { max-width: 36rem; margin-top: 1rem; color: var(--muted); }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+
+  /* citation chips (rendered via set:html, so global) */
+  .hero :global(.cite) {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.4em;
+    height: 1.4em;
+    margin-left: 0.22em;
+    padding: 0 0.3em;
+    border-radius: 5px;
+    vertical-align: 0.28em;
+    font: 600 0.6em/1 var(--font-mono);
+    color: var(--on-hl);
+    background: var(--hl);
+    transition: box-shadow 0.25s ease, transform 0.35s var(--ease-out);
+  }
+  .hero :global(.cite:hover),
+  .hero :global(.cite.is-lit) { box-shadow: 0 0 0 4px var(--hl-soft); transform: translateY(-1px); }
+
+  /* sources */
+  .sources__head {
     display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .sources__title { font-size: 0.95rem; font-weight: 620; font-stretch: 106%; }
+  .sources__hint { font-size: 0.8rem; color: var(--faint); text-align: right; }
+  .sources__list { list-style: none; margin: 0; padding: 0; }
+  .source__link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.98rem;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
+    gap: 0.9rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
   }
-  .verify { display: inline-flex; flex: none; width: 0.95em; height: 0.95em; }
-  .verify svg { width: 100%; height: 100%; display: block; }
-  .verify__seal { fill: var(--ink); }
-  .verify__check { fill: var(--bg); }
-  .hero__role { color: var(--muted); font-size: 0.84rem; line-height: 1.35; }
-
-  .hero__statement {
-    margin-top: clamp(1.7rem, 4.5vw, 2.4rem);
-    max-width: 17ch;
-    font-size: clamp(1.8rem, 1.2rem + 2.4vw, 2.55rem);
-    font-weight: 600;
-    line-height: 1.06;
-    letter-spacing: -0.034em;
-    text-wrap: balance;
-  }
-
-  .hero__bio {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    margin-top: 1.1rem;
-    max-width: 58ch;
+  .source__n {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 6px;
+    font: 500 0.78rem/1 var(--font-mono);
     color: var(--muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   }
+  .source__body { min-width: 0; transition: transform 0.5s var(--ease-out); }
+  .source__title { display: block; font-weight: 600; line-height: 1.35; }
+  .source__detail { display: block; font-size: 0.82rem; color: var(--faint); line-height: 1.35; }
+  .source__type {
+    padding: 0.32rem 0.55rem;
+    border-radius: 999px;
+    font: 500 0.7rem/1 var(--font-mono);
+    color: var(--faint);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .source__link:hover .source__n,
+  .source.is-lit .source__n { background: var(--hl); color: var(--on-hl); box-shadow: none; }
+  .source__link:hover .source__body,
+  .source.is-lit .source__body { transform: translateX(5px); }
 
-  .hero__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.55rem;
-    margin-top: 1.6rem;
-  }
-  .hero__pdf { font-size: 0.72rem; font-weight: 500; color: var(--faint); }
-  .hero__status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin-left: 0.6rem;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-
-  /* availability light: a small signal lamp with a slow halo */
-  .light {
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--primary);
-  }
-  .light::after {
-    content: "";
-    position: absolute;
-    inset: -4px;
-    border-radius: 50%;
-    border: 1px solid var(--primary);
+  /* the connector drawn between a citation and its source */
+  .wire {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: visible;
+    pointer-events: none;
+    z-index: var(--z-wire);
     opacity: 0;
-    animation: halo 2.6s var(--ease-out) infinite;
+    transition: opacity 0.25s ease;
   }
-  @keyframes halo {
-    0% { transform: scale(0.45); opacity: 0.8; }
-    100% { transform: scale(1.5); opacity: 0; }
-  }
+  .wire.is-on { opacity: 1; }
+  .wire path { fill: none; stroke: var(--hl-text); stroke-width: 1.5; stroke-linecap: round; }
 
-  /* entrance: identity first, then the statement, then the rest */
-  :global(.reveal-ready) .hero__id { transition-delay: 0ms !important; }
-  :global(.reveal-ready) .hero__statement { transition-delay: 70ms !important; }
-  :global(.reveal-ready) .hero__bio { transition-delay: 140ms !important; }
-  :global(.reveal-ready) .hero__actions { transition-delay: 210ms !important; }
-
-  @media (max-width: 480px) {
-    .hero__status { margin-left: 0; margin-top: 0.35rem; width: 100%; }
+  /* load choreography */
+  :global(.motion) .hero__line > span { transform: translateY(112%); transition: transform 1.15s var(--ease-out); }
+  :global(.motion) .hero__line:nth-child(3) > span { transition-delay: 90ms; }
+  :global(.motion) .hero__line:nth-child(4) > span { transition-delay: 180ms; }
+  :global(.motion) .hero.is-in .hero__line > span { transform: none; }
+  :global(.motion) .hero__fade {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    transition-delay: var(--d, 0ms);
   }
-  @media (prefers-reduced-motion: reduce) {
-    .light::after { animation: none; }
+  :global(.motion) .hero.is-in .hero__fade { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    .hero__intro, .sources { grid-column: 1 / -1; }
   }
 </style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
+  if (hero) {
+    const start = () => {
+      hero.classList.add("is-in");
+      hero.querySelectorAll(".hl-mark").forEach((m) => m.classList.add("is-in"));
+    };
+    if (document.documentElement.classList.contains("motion")) {
+      const fonts = document.fonts?.ready ?? Promise.resolve();
+      Promise.race([fonts, new Promise((r) => setTimeout(r, 700))]).then(() => requestAnimationFrame(start));
+    } else start();
+
+    const wire = hero.querySelector<SVGSVGElement>("[data-wire]")!;
+    const path = wire.querySelector("path")!;
+    const wide = window.matchMedia("(min-width: 901px) and (pointer: fine)");
+    let active: string | null = null;
+
+    const light = (n: string | null) => {
+      hero.querySelectorAll(".cite.is-lit, .source.is-lit").forEach((el) => el.classList.remove("is-lit"));
+      if (n) hero.querySelectorAll(`.cite[data-cite="${n}"], .source[data-source="${n}"]`).forEach((el) => el.classList.add("is-lit"));
+    };
+
+    const draw = (animate: boolean) => {
+      if (!active || !wide.matches) return wire.classList.remove("is-on");
+      const a = hero.querySelector(`.cite[data-cite="${active}"]`);
+      const b = hero.querySelector(`#src-${active} .source__n`);
+      if (!a || !b) return;
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      const x1 = ra.right + 6, y1 = ra.top + ra.height / 2;
+      const x2 = rb.left - 8, y2 = rb.top + rb.height / 2;
+      const dx = Math.max(40, (x2 - x1) * 0.5);
+      path.setAttribute("d", `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
+      if (animate && document.documentElement.classList.contains("motion")) {
+        const len = path.getTotalLength();
+        path.style.transition = "none";
+        path.style.strokeDasharray = `${len}`;
+        path.style.strokeDashoffset = `${len}`;
+        path.getBoundingClientRect();
+        path.style.transition = "stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+        path.style.strokeDashoffset = "0";
+      }
+      wire.classList.add("is-on");
+    };
+
+    const on = (n: string) => {
+      if (n === active) return;
+      active = n;
+      light(n);
+      draw(true);
+    };
+    const off = () => {
+      active = null;
+      light(null);
+      wire.classList.remove("is-on");
+    };
+    const keyOf = (el: Element | null) => {
+      const t = el?.closest<HTMLElement>(".cite, .source");
+      return t ? (t.dataset.cite ?? t.dataset.source ?? null) : null;
+    };
+
+    hero.addEventListener("pointerover", (e) => {
+      const n = keyOf(e.target as Element);
+      if (n) on(n);
+    });
+    hero.addEventListener("pointerout", (e) => {
+      const from = keyOf(e.target as Element);
+      const to = keyOf(e.relatedTarget as Element | null);
+      if (from && from !== to) off();
+    });
+    hero.addEventListener("focusin", (e) => {
+      const n = keyOf(e.target as Element);
+      if (n) on(n);
+    });
+    hero.addEventListener("focusout", off);
+    window.addEventListener("scroll", () => active && draw(false), { passive: true });
+
+    // Citation click: on desktop open the evidence; on touch, jump to it and flash.
+    hero.addEventListener("click", (e) => {
+      const cite = (e.target as Element).closest<HTMLAnchorElement>(".cite");
+      if (!cite) return;
+      const n = cite.dataset.cite!;
+      if (wide.matches) {
+        e.preventDefault();
+        const href = hero.querySelector<HTMLAnchorElement>(`#src-${n} .source__link`)?.href;
+        if (href) window.open(href, "_blank", "noopener");
+        return;
+      }
+      light(n);
+      window.setTimeout(() => active !== n && light(null), 1800);
+    });
+  }
+</script>

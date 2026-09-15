@@ -1,9 +1,6 @@
 ---
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
-import Nav from "../../components/Nav.astro";
-import Footer from "../../components/Footer.astro";
-import Dock from "../../components/Dock.astro";
 import { profile } from "../../data/content";
 
 const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
@@ -12,31 +9,26 @@ const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 ---
 
-<Base title={`Writing · ${profile.name}`} description="Notes on AI engineering, building, and what I'm learning.">
-  <Nav />
+<Base title={`Writing · ${profile.name}`} description="Notes on AI engineering, building, and what I'm learning." page="sub">
   <main id="main" class="page">
-    <div class="feed">
+    <div class="wrap wrap--narrow">
       <a class="back" href="/">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Portfolio
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        Home
       </a>
 
-      <header class="head">
-        <h1 class="page__title">Notes</h1>
-        <p class="page__sub">Working notes on AI engineering, building, and what I'm learning.</p>
-      </header>
+      <h1 class="page__title display">Notes</h1>
+      <p class="page__sub">Working notes on AI engineering, building, and what I'm learning.</p>
 
       {posts.length === 0 ? (
         <p class="empty">First post landing soon.</p>
       ) : (
-        <ul class="posts">
+        <ul class="posts" data-stagger>
           {posts.map((post) => (
-            <li class="post">
-              <a class="post__link" href={`/writing/${post.id}`}>
-                <div class="post__top">
-                  <h2 class="post__title">{post.data.title}</h2>
-                  <time class="post__date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-                </div>
+            <li>
+              <a class="post" href={`/writing/${post.id}`}>
+                <time class="post__date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+                <h2 class="post__title">{post.data.title}</h2>
                 <p class="post__desc">{post.data.description}</p>
               </a>
             </li>
@@ -45,27 +37,21 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
       )}
     </div>
   </main>
-  <Footer />
-  <Dock />
 </Base>
 
 <style>
-  .head { margin-bottom: clamp(1.8rem, 5vw, 2.4rem); }
-  .empty { color: var(--faint); padding: 2rem 0; }
-  .posts { list-style: none; margin: 0; padding: 0; }
-  .post { border-top: 1px solid var(--border); }
-  .post:last-child { border-bottom: 1px solid var(--border); }
-  .post__link { display: block; padding: 1.2rem 0; }
-  .post__top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .empty { margin-top: 3rem; color: var(--faint); }
+  .posts { list-style: none; margin: clamp(2.5rem, 6vw, 4rem) 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .post { display: block; padding-block: 1.6rem; border-bottom: 1px solid var(--line); }
+  .post__date { font-size: 0.86rem; color: var(--faint); }
   .post__title {
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 0.24em;
-    transition: text-decoration-color 0.2s ease;
+    margin-top: 0.5rem;
+    font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem);
+    font-stretch: 108%;
+    font-weight: 660;
+    letter-spacing: -0.025em;
+    transition: color 0.3s ease, transform 0.5s var(--ease-out);
   }
-  .post__link:hover .post__title { text-decoration-color: var(--primary); }
-  .post__date { font-size: 0.8rem; color: var(--faint); white-space: nowrap; }
-  .post__desc { color: var(--muted); margin-top: 0.3rem; max-width: 62ch; }
+  .post:hover .post__title { color: var(--hl-text); transform: translateX(6px); }
+  .post__desc { max-width: 58ch; margin-top: 0.5rem; color: var(--muted); }
 </style>

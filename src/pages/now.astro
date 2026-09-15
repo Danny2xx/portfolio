@@ -1,60 +1,18 @@
 ---
-import Base from "../layouts/Base.astro";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
-import Dock from "../components/Dock.astro";
-import { profile, now } from "../data/content";
+// "Now" is part of the About section on the home page.
+const target = "/#about";
 ---
 
-<Base title={`Now · ${profile.name}`} description="What Daniel Iyalekhue is focused on right now.">
-  <Nav />
-  <main id="main" class="page">
-    <div class="feed">
-      <a class="back" href="/">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Portfolio
-      </a>
-
-      <header class="head">
-        <h1 class="page__title">What I'm focused on</h1>
-        <p class="page__sub">Updated {now.updated}.</p>
-      </header>
-
-      <dl class="now">
-        {now.items.map((it) => (
-          <div class="now__row">
-            <dt class="now__label">{it.label}</dt>
-            <dd class="now__text">{it.text}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <p class="page__foot">
-        <span>
-          This is a <a class="link" href="https://nownownow.com/about" target="_blank" rel="noreferrer">now page</a>,
-          a snapshot rather than a status feed.
-        </span>
-        <a class="link" href="/#contact">Say hello</a>
-      </p>
-    </div>
-  </main>
-  <Footer />
-  <Dock />
-</Base>
-
-<style>
-  .head { margin-bottom: clamp(2rem, 5vw, 2.6rem); }
-  .now { margin: 0; }
-  .now__row {
-    display: grid;
-    grid-template-columns: 8.25rem 1fr;
-    gap: 1.25rem;
-    padding: 1.1rem 0;
-    border-top: 1px solid var(--border);
-  }
-  .now__label { font-size: 0.92rem; font-weight: 600; }
-  .now__text { margin: 0; color: var(--muted); font-size: 0.95rem; max-width: 60ch; }
-  @media (max-width: 520px) {
-    .now__row { grid-template-columns: 1fr; gap: 0.25rem; }
-  }
-</style>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Now · Daniel Iyalekhue</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={`https://danieliyalekhue.com${target}`} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p><a href={target}>Continue to the About section</a></p>
+  </body>
+</html>

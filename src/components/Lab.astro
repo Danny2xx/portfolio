@@ -1,55 +1,57 @@
 ---
 import { labIntro } from "../data/content";
+import SectionHead from "./SectionHead.astro";
 import Tokenizer from "./Tokenizer.tsx";
 import TemperatureLab from "./TemperatureLab.tsx";
 ---
 
-<section class="sec" id="demos" data-reveal>
-  <div class="sec__head">
-    <h2 class="sec__title">Lab</h2>
-    <span class="sec__aside">Runs in your browser</span>
+<section class="section" id="lab">
+  <div class="wrap">
+    <SectionHead title="Lab" desc={labIntro} />
+
+    <div class="lab">
+      <article class="demo" data-reveal>
+        <header>
+          <p class="demo__kind">Tokenizer</p>
+          <h3 class="demo__title">How a language model reads text</h3>
+          <p class="demo__desc">
+            Models see text as tokens: chunks of characters from a fixed vocabulary. Type below and
+            watch cl100k_base, the tokenizer behind GPT-4, split it up.
+          </p>
+        </header>
+        <Tokenizer client:visible />
+      </article>
+
+      <article class="demo" data-reveal style="--d: 120ms">
+        <header>
+          <p class="demo__kind">Softmax</p>
+          <h3 class="demo__title">Sampling temperature</h3>
+          <p class="demo__desc">
+            Before picking its next token, a model scores every candidate. Temperature sets how
+            sharply those scores become probabilities. Drag it and watch the odds tighten or spread.
+          </p>
+        </header>
+        <TemperatureLab client:visible />
+      </article>
+    </div>
   </div>
-  <p class="sec__intro">{labIntro}</p>
-
-  <article class="demo">
-    <div class="demo__head">
-      <h3 class="demo__title">How a language model reads text</h3>
-      <span class="demo__meta">Tokenizer</span>
-    </div>
-    <p class="demo__desc">
-      Models see text as tokens: chunks of characters from a fixed vocabulary. Type below and
-      watch cl100k_base, the tokenizer behind GPT-4, split it up.
-    </p>
-    <div class="demo__stage">
-      <Tokenizer client:visible />
-    </div>
-  </article>
-
-  <article class="demo">
-    <div class="demo__head">
-      <h3 class="demo__title">Sampling temperature</h3>
-      <span class="demo__meta">Softmax</span>
-    </div>
-    <p class="demo__desc">
-      Before picking its next token, a model scores every candidate. Temperature sets how
-      sharply those scores become probabilities. Drag it and watch the odds tighten or spread.
-    </p>
-    <div class="demo__stage">
-      <TemperatureLab client:visible />
-    </div>
-  </article>
 </section>
 
 <style>
+  .lab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--col-gap); align-items: start; }
   .demo {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: clamp(1rem, 3vw, 1.35rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border-radius: 22px;
+    background: var(--bg-raise);
+    box-shadow: inset 0 0 0 1px var(--line);
   }
-  .demo + .demo { margin-top: 1rem; }
-  .demo__head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-  .demo__title { font-size: 0.95rem; font-weight: 600; }
-  .demo__meta { font-size: 0.78rem; color: var(--faint); white-space: nowrap; }
-  .demo__desc { color: var(--muted); margin-top: 0.4rem; max-width: 60ch; }
-  .demo__stage { margin-top: 1.2rem; }
+  .demo__kind { font: 500 0.78rem/1 var(--font-mono); color: var(--hl-text); }
+  .demo__title { margin-top: 0.7rem; font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.8rem); font-stretch: 110%; font-weight: 680; letter-spacing: -0.025em; }
+  .demo__desc { max-width: 52ch; margin-top: 0.65rem; color: var(--muted); }
+  @media (max-width: 900px) {
+    .lab { grid-template-columns: 1fr; }
+  }
 </style>

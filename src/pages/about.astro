@@ -1,122 +1,18 @@
 ---
-import Base from "../layouts/Base.astro";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
-import Dock from "../components/Dock.astro";
-import { profile, journey, stack, credentials, ventures, currently, howIWork } from "../data/content";
-import { inline } from "../lib/inline";
-
-// "Lead sentence. The rest." -> bold lead
-const split = (s: string) => {
-  const i = s.indexOf(". ");
-  return i === -1 ? { lead: s, rest: "" } : { lead: s.slice(0, i + 1), rest: s.slice(i + 2) };
-};
+// The old /about page now lives as a section on the home page.
+const target = "/#about";
 ---
 
-<Base title={`About · ${profile.name}`} description="Daniel Iyalekhue's journey into AI engineering, his ventures, education and how he works.">
-  <Nav />
-  <main id="main" class="page">
-    <div class="feed">
-      <a class="back" href="/">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Portfolio
-      </a>
-
-      <header class="head">
-        <h1 class="page__title">About me</h1>
-        <p class="page__sub">{currently}</p>
-      </header>
-
-      <section class="blk" data-reveal>
-        <h2 class="blk__title">My journey</h2>
-        <div class="journey">
-          {journey.map((p) => <p set:html={inline(p)} />)}
-        </div>
-      </section>
-
-      <section class="blk" data-reveal>
-        <h2 class="blk__title">How I work</h2>
-        <ul class="principles">
-          {howIWork.map((h) => {
-            const { lead, rest } = split(h);
-            return <li><strong>{lead}</strong>{rest && ` ${rest}`}</li>;
-          })}
-        </ul>
-      </section>
-
-      <section class="blk" data-reveal>
-        <h2 class="blk__title">Ventures</h2>
-        <ul class="list">
-          {ventures.map((v) => (
-            <li>
-              <h3>{v.role}</h3>
-              <p>{v.detail}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="blk" data-reveal>
-        <h2 class="blk__title">Education</h2>
-        <ul class="list">
-          {credentials.map((c) => (
-            <li>
-              <h3>{c.line}</h3>
-              <p>{c.detail}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="blk" data-reveal>
-        <h2 class="blk__title">Tech stack</h2>
-        <dl class="stack">
-          {stack.map((g) => (
-            <div>
-              <dt>{g.group}</dt>
-              <dd>{g.items.join(", ")}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <p class="page__foot">
-        <a class="link" href="/#research">Read my research</a>
-        {profile.cvUrl && <a class="link" href={profile.cvUrl} target="_blank" rel="noreferrer">Download my CV</a>}
-        <a class="link" href={`mailto:${profile.email}`}>Email me</a>
-      </p>
-    </div>
-  </main>
-  <Footer />
-  <Dock />
-</Base>
-
-<style>
-  .head { margin-bottom: clamp(2rem, 5vw, 2.8rem); }
-
-  .blk {
-    display: grid;
-    grid-template-columns: 8.25rem 1fr;
-    gap: 1.25rem;
-    padding-block: clamp(1.7rem, 4vw, 2.2rem);
-    border-top: 1px solid var(--border);
-  }
-  .blk__title { font-size: 0.92rem; font-weight: 600; line-height: 1.5; }
-
-  .journey { display: flex; flex-direction: column; gap: 0.85rem; max-width: 60ch; color: var(--muted); font-size: 0.95rem; }
-
-  .principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; color: var(--muted); max-width: 60ch; }
-  .principles strong { color: var(--ink); font-weight: 600; }
-
-  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.05rem; }
-  .list h3 { font-size: 0.92rem; font-weight: 600; line-height: 1.45; }
-  .list p { color: var(--muted); margin-top: 0.15rem; max-width: 58ch; }
-
-  .stack { margin: 0; display: flex; flex-direction: column; gap: 0.8rem; }
-  .stack dt { font-size: 0.8rem; color: var(--faint); }
-  .stack dd { margin: 0; color: var(--ink); max-width: 60ch; }
-
-  @media (max-width: 600px) {
-    .blk { grid-template-columns: 1fr; gap: 0.8rem; }
-  }
-</style>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>About · Daniel Iyalekhue</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={`https://danieliyalekhue.com${target}`} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body>
+    <p><a href={target}>Continue to the About section</a></p>
+  </body>
+</html>

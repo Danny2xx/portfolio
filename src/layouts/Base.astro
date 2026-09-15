@@ -1,80 +1,77 @@
 ---
 import "../styles/global.css";
 import { profile } from "../data/content";
-import CommandPalette from "../components/CommandPalette.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Dock from "../components/Dock.astro";
 
 interface Props {
   title?: string;
   description?: string;
+  page?: "home" | "sub";
 }
 
 const {
-  title = `${profile.name} · ${profile.title}`,
+  title = `${profile.name} · AI / ML Engineer`,
   description = "Daniel Iyalekhue, AI / ML engineer in Birmingham, UK. Retrieval, evaluation, predictive models and the products around them. Co-author of an ICACIN 2026 paper.",
+  page = "home",
 } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyalekhue.com");
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#121310" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Set theme before paint to avoid a flash. Honors saved choice, else light. -->
+    <!-- Theme, a11y prefs and motion opt-in, set before paint so nothing flashes. -->
     <script is:inline>
       (() => {
+        const el = document.documentElement;
+        let theme = "dark";
         try {
-          const el = document.documentElement;
-          // light is the default; only switch if the user chose dark before
-          const saved = localStorage.getItem("theme");
-          el.dataset.theme = saved === "dark" ? "dark" : "light";
-          // accessibility preferences
+          if (localStorage.getItem("theme") === "light") theme = "light";
           if (localStorage.getItem("a11y-contrast") === "high") el.dataset.contrast = "high";
           if (localStorage.getItem("a11y-font") === "dyslexic") el.dataset.font = "dyslexic";
           if (localStorage.getItem("a11y-motion") === "reduced") el.dataset.motion = "reduced";
           const ts = localStorage.getItem("a11y-textscale");
           if (ts) el.style.setProperty("--ts", ts);
         } catch (_) {}
+        el.dataset.theme = theme;
+        const reduce =
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches || el.dataset.motion === "reduced";
+        if (!reduce) {
+          el.classList.add("motion");
+          // failsafe: if the motion script never runs, show everything
+          setTimeout(() => { if (!window.__motion) el.classList.remove("motion"); }, 3000);
+        }
       })();
     </script>
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
+    <Header />
     <slot />
-    <CommandPalette />
+    <Footer />
+    <Dock page={page} />
 
-    <!-- Opt into scroll-reveal only when JS + motion are allowed. -->
     <script>
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!reduce) {
-        document.body.classList.add("reveal-ready");
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                (e.target as HTMLElement).classList.add("is-in");
-                io.unobserve(e.target);
-              }
-            }
-          },
-          { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
-        );
-        document.querySelectorAll("[data-reveal]").forEach((el, i) => {
-          (el as HTMLElement).style.transitionDelay = `${Math.min(i * 40, 240)}ms`;
-          io.observe(el);
-        });
-      }
+      import "../scripts/motion";
     </script>
   </body>
 </html>

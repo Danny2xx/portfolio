@@ -1,198 +1,234 @@
 ---
-import { getCollection } from "astro:content";
-import { projects, projectGroups, websites, profile, type Project } from "../data/content";
+import { projects, websites } from "../data/content";
+import SectionHead from "./SectionHead.astro";
+import Pipeline from "./Pipeline.astro";
 
-// project display-name -> case-study slug (published only)
-const studies = await getCollection("caseStudies", ({ data }) => !data.draft);
-const studyByProject = new Map(studies.map((s) => [s.data.project, s.id]));
-
-type Lnk = { label: string; href: string; ext: boolean };
-const linksFor = (p: Project): Lnk[] =>
-  [
-    p.href ? { label: "Live site", href: p.href, ext: true } : null,
-    studyByProject.has(p.name) ? { label: "Case study", href: `/work/${studyByProject.get(p.name)}`, ext: false } : null,
-    p.repo ? { label: "Source", href: p.repo, ext: true } : null,
-  ].filter((l): l is Lnk => l !== null);
-
-// projects with a real screenshot get the large treatment; the rest are an index
-const featured = projects.filter((p) => p.shot);
-const indexed = projects.filter((p) => !p.shot);
+const featured = projects.filter((p) => p.featured);
+const more = projects.filter((p) => !p.featured);
 ---
 
-<section class="sec" id="work" data-reveal>
-  <div class="sec__head">
-    <h2 class="sec__title">Selected work</h2>
-    <a class="sec__aside link link--quiet" href={profile.links.github} target="_blank" rel="noreferrer">All repositories</a>
-  </div>
+<section class="section" id="work">
+  <div class="wrap">
+    <SectionHead
+      title="Selected work"
+      desc={`${projects.length} systems, from research prototypes to live dashboards. Each one opens into how it works and what it scored.`}
+    />
 
-  {featured.map((p) => {
-    const primary = p.href ?? p.repo;
-    return (
-      <article class="feature">
-        {primary ? (
-          <a class="shot" href={primary} target="_blank" rel="noreferrer" tabindex="-1" aria-hidden="true">
-            <img src={p.shot} alt="" width="1400" height="800" loading="lazy" />
-          </a>
-        ) : (
-          <div class="shot"><img src={p.shot} alt="" width="1400" height="800" loading="lazy" /></div>
-        )}
-        <div class="feature__body">
-          <div class="feature__top">
-            <h3 class="proj__name proj__name--lg">{p.name}</h3>
-            {p.note && <span class="proj__note">{p.note}</span>}
+    <div class="grid">
+      {featured.map((p, i) => (
+        <article class:list={["card", `card--${p.featured}`]} data-reveal style={`--d: ${(i % 2) * 110}ms`}>
+          <div class:list={["card__visual", { "card__visual--shot": !!p.shot }]}>
+            {p.shot ? (
+              <img class="card__shot" src={p.shot} alt="" width="1400" height="800" loading="lazy" />
+            ) : (
+              <Pipeline steps={p.pipeline} />
+            )}
           </div>
-          <p class="proj__kind">{p.kind}</p>
-          <p class="proj__blurb">{p.blurb}</p>
-          <p class="proj__stack">{p.stack.join(", ")}</p>
-          <p class="proj__links">
-            {linksFor(p).map((l) => (
-              <a class="link" href={l.href} {...(l.ext ? { target: "_blank", rel: "noreferrer" } : {})}>{l.label}</a>
-            ))}
-          </p>
-        </div>
-      </article>
-    );
-  })}
-
-  {projectGroups.map((g) => {
-    const items = indexed.filter((p) => p.group === g.id);
-    return (
-      items.length > 0 && (
-        <div class="group">
-          <h3 class="group__title">{g.label}</h3>
-          <ul class="projs">
-            {items.map((p) => {
-              const links = linksFor(p);
-              return (
-                <li class="proj">
-                  <div class="proj__head">
-                    <h4 class="proj__name">{p.name}</h4>
-                    <p class="proj__kind">{p.kind}</p>
-                  </div>
-                  <div class="proj__main">
-                    {p.note && <p class="proj__note">{p.note}</p>}
-                    <p class="proj__blurb">{p.blurb}</p>
-                    <p class="proj__stack">{p.stack.join(", ")}</p>
-                    {links.length > 0 && (
-                      <p class="proj__links">
-                        {links.map((l) => (
-                          <a class="link" href={l.href} {...(l.ext ? { target: "_blank", rel: "noreferrer" } : {})}>{l.label}</a>
-                        ))}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )
-    );
-  })}
-</section>
-
-{websites.length > 0 && (
-  <section class="sec" id="websites" data-reveal>
-    <div class="sec__head">
-      <h2 class="sec__title">Websites</h2>
-      <span class="sec__aside">{websites.length} live</span>
-    </div>
-    <div class="sites">
-      {websites.map((site, i) => (
-        <article class:list={["site", { "site--lead": i === 0 }]}>
-          <a class="shot" href={site.url} target="_blank" rel="noreferrer" aria-label={`Visit ${site.name}`}>
-            <img src={site.image} alt={site.alt} width="1400" height="800" loading="lazy" />
-          </a>
-          <div class="site__meta">
-            <h3 class="site__name">
-              <a class="link" href={site.url} target="_blank" rel="noreferrer">{site.name}</a>
+          <div class="card__body">
+            <p class="card__kind">{p.kind}</p>
+            <h3 class="card__title" style={`view-transition-name: title-${p.slug}`}>
+              <a class="card__link" href={`/work/${p.slug}`}>{p.name}</a>
             </h3>
-            <span class="site__kind">{site.kind}</span>
+            <p class="card__tagline">{p.tagline}</p>
+            {p.note && <p class="card__note"><span class="badge badge--line">{p.note}</span></p>}
+            <div class="card__foot">
+              <span class="card__stack">{p.stack.slice(0, 4).join(" · ")}</span>
+              <span class="card__go" aria-hidden="true">View project</span>
+            </div>
           </div>
-          <p class="site__blurb">{site.blurb}</p>
         </article>
       ))}
     </div>
-  </section>
-)}
+
+    {more.length > 0 && (
+      <div class="more" data-reveal>
+        <h3 class="sub">More projects</h3>
+        <ul class="rows">
+          {more.map((p) => (
+            <li>
+              <a class="row" href={`/work/${p.slug}`}>
+                <span class="row__name" style={`view-transition-name: title-${p.slug}`}>{p.name}</span>
+                <span class="row__kind">{p.kind}</span>
+                <span class="row__tag">{p.tagline}</span>
+                <span class="row__go" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3.5 10.5 8 6 12.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {websites.length > 0 && (
+      <div class="sites" data-reveal>
+        <h3 class="sub">Websites I've shipped</h3>
+        <div class="sites__track">
+          {websites.map((s) => (
+            <a class="site" href={s.url} target="_blank" rel="noreferrer">
+              <span class="site__frame">
+                <img src={s.image} alt={s.alt} width="1400" height="800" loading="lazy" />
+              </span>
+              <span class="site__meta">
+                <span class="site__name">{s.name}</span>
+                <span class="site__kind">{s.kind}</span>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
 
 <style>
-  /* screenshots: framed, quiet, slow zoom on hover */
-  .shot {
-    display: block;
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--col-gap); }
+
+  .card {
     position: relative;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    border-radius: 10px;
-    aspect-ratio: 16 / 9;
-    background: var(--surface-2);
-    box-shadow: 0 0 0 1px var(--border);
-    transition: box-shadow 0.3s ease;
+    border-radius: 22px;
+    background: var(--bg-raise);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: box-shadow 0.45s ease, transform 0.7s var(--ease-out);
   }
-  .shot img {
-    display: block;
+  .card:hover { box-shadow: inset 0 0 0 1px var(--line-strong), var(--shadow-lg); transform: translateY(-5px); }
+  .card:has(.card__link:focus-visible) { outline: 2px solid var(--hl-text); outline-offset: 4px; }
+
+  .card--xl { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .card--lg { grid-column: span 7; }
+  .card--md { grid-column: span 5; }
+
+  .card__visual {
+    position: relative;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .card__visual--shot { padding: 0; min-height: 22rem; }
+  .card--xl .card__visual { grid-column: 1 / span 7; border-bottom: 0; border-right: 1px solid var(--line); min-height: 28rem; }
+  .card__shot {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: top left;
-    transition: transform 0.7s var(--ease-out);
+    transition: transform 1.2s var(--ease-out);
   }
-  a.shot:hover { box-shadow: 0 0 0 1px var(--border-strong), 0 22px 40px -28px oklch(0 0 0 / 0.35); }
-  a.shot:hover img { transform: scale(1.018); }
+  .card:hover .card__shot { transform: scale(1.035); }
 
-  /* featured project */
-  .feature { margin-bottom: 0.4rem; }
-  .feature__body { margin-top: 1rem; }
-  .feature__top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.8rem; }
-
-  .proj__name { font-size: 0.95rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
-  .proj__name--lg { font-size: 1.08rem; }
-  .proj__note { font-size: 0.78rem; font-weight: 600; color: var(--primary-hi); }
-  .proj__kind { font-size: 0.8rem; color: var(--faint); line-height: 1.4; margin-top: 0.1rem; }
-  .proj__blurb { color: var(--muted); max-width: 60ch; margin-top: 0.45rem; }
-  .proj__stack { font-size: 0.8rem; color: var(--faint); margin-top: 0.45rem; max-width: 60ch; }
-  .proj__links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin-top: 0.6rem; font-size: 0.84rem; }
-
-  /* index of the rest */
-  .group { margin-top: clamp(2.2rem, 5vw, 2.8rem); }
-  .group__title {
-    font-size: 0.84rem;
-    font-weight: 500;
-    color: var(--muted);
-    padding-bottom: 0.7rem;
-    border-bottom: 1px solid var(--border-strong);
+  .card__body { display: flex; flex: 1; flex-direction: column; gap: 0.65rem; padding: clamp(1.5rem, 3vw, 2.25rem); }
+  .card--xl .card__body { grid-column: 8 / -1; justify-content: center; padding: clamp(2rem, 4vw, 3.25rem); }
+  .card__kind { font-size: 0.84rem; color: var(--faint); }
+  .card__title { font-size: clamp(1.65rem, 1.1rem + 1.5vw, 2.4rem); font-stretch: 112%; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .card--xl .card__title { font-size: clamp(2.1rem, 1.2rem + 2.6vw, 3.5rem); }
+  .card__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+  .card__link:focus-visible { outline: none; }
+  .card__tagline { max-width: 42ch; color: var(--muted); }
+  .card__note { margin-top: 0.2rem; }
+  .card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.3rem;
+    font-size: 0.82rem;
   }
-  .projs { list-style: none; margin: 0; padding: 0; }
-  .proj {
+  .card__stack { color: var(--faint); }
+  .card__go {
+    flex: none;
+    padding-bottom: 2px;
+    font-weight: 620;
+    color: var(--ink);
+    background: linear-gradient(var(--hl-text), var(--hl-text)) no-repeat 0 100% / 0% 2px;
+    transition: background-size 0.5s var(--ease-out);
+  }
+  .card:hover .card__go { background-size: 100% 2px; }
+
+  /* sub-blocks */
+  .sub { font-size: clamp(1.3rem, 1.05rem + 0.8vw, 1.75rem); font-stretch: 110%; font-weight: 680; letter-spacing: -0.025em; }
+
+  .more { margin-top: clamp(4rem, 9vw, 6.5rem); }
+  .rows { list-style: none; margin: 1.5rem 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .row {
+    position: relative;
     display: grid;
-    grid-template-columns: 11.5rem 1fr;
-    gap: 1.25rem;
-    padding: 1.15rem 0;
-    border-bottom: 1px solid var(--border);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: baseline;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line);
   }
-  .proj:last-child { border-bottom: 0; padding-bottom: 0; }
-  .proj__main .proj__note { margin-bottom: -0.2rem; }
-  .proj__main .proj__blurb { margin-top: 0; }
-  .proj__main .proj__note + .proj__blurb { margin-top: 0.45rem; }
-  @media (max-width: 600px) {
-    .proj { grid-template-columns: 1fr; gap: 0.45rem; }
+  .row::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(-1 * var(--gutter) / 2);
+    border-radius: 14px;
+    background: var(--surface);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: -1;
   }
+  .row:hover::before { opacity: 1; }
+  .row__name {
+    display: inline-block;
+    grid-column: 1 / span 4;
+    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.7rem);
+    font-stretch: 110%;
+    font-weight: 680;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    transition: transform 0.5s var(--ease-out), color 0.3s ease;
+  }
+  .row:hover .row__name { transform: translateX(6px); color: var(--hl-text); }
+  .row__kind { grid-column: 5 / span 3; font-size: 0.88rem; color: var(--faint); }
+  .row__tag { grid-column: 8 / span 4; color: var(--muted); }
+  .row__go { grid-column: 12; justify-self: end; color: var(--faint); transition: transform 0.5s var(--ease-out), color 0.3s ease; }
+  .row:hover .row__go { transform: translateX(4px); color: var(--ink); }
 
-  /* websites: one wide, then a pair */
-  .sites { display: grid; grid-template-columns: 1fr 1fr; gap: 1.9rem 1.2rem; }
-  .site--lead { grid-column: 1 / -1; }
-  .site .shot { aspect-ratio: 16 / 10.5; }
-  .site--lead .shot { aspect-ratio: 16 / 8.2; }
-  .site__meta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.2rem 0.8rem; margin-top: 0.8rem; }
-  .site__name { font-size: 0.92rem; font-weight: 600; }
-  .site__kind { font-size: 0.8rem; color: var(--faint); }
-  .site__blurb { color: var(--muted); margin-top: 0.25rem; font-size: 0.84rem; max-width: 56ch; }
-  @media (max-width: 600px) {
-    .sites { grid-template-columns: 1fr; }
-    .site .shot, .site--lead .shot { aspect-ratio: 16 / 10.5; }
+  .sites { margin-top: clamp(4rem, 9vw, 6.5rem); }
+  .sites__track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--col-gap); margin-top: 1.5rem; }
+  .site { display: block; }
+  .site__frame {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 16 / 10.5;
+    border-radius: 16px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--line);
   }
+  .site__frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 1s var(--ease-out); }
+  .site:hover .site__frame img { transform: scale(1.04); }
+  .site__meta { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.85rem; font-size: 0.9rem; }
+  .site__name { font-weight: 620; }
+  .site__kind { color: var(--faint); }
 
+  @media (max-width: 900px) {
+    .card--xl, .card--lg, .card--md { grid-column: 1 / -1; }
+    .card--xl { display: flex; flex-direction: column; }
+    .card--xl .card__visual { min-height: 0; aspect-ratio: 16 / 10; border-right: 0; border-bottom: 1px solid var(--line); }
+    .card__visual--shot { min-height: 0; aspect-ratio: 16 / 10; }
+    .row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.3rem; }
+    .row__name { grid-column: 1; }
+    .row__go { grid-column: 2; grid-row: 1; }
+    .row__kind, .row__tag { grid-column: 1 / -1; }
+    .row::before { inset: 0 -0.6rem; }
+    .sites__track {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: 82%;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 0.5rem;
+      scrollbar-width: none;
+    }
+    .site { scroll-snap-align: start; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .shot img { transition: none; }
-    a.shot:hover img { transform: none; }
+    .card, .card__shot, .site__frame img, .row__name, .row__go { transition: none; }
   }
 </style>

@@ -1,71 +1,83 @@
 # Design
 
-Visual system for Daniel Iyalekhue's portfolio. Register: **brand**. Rebuilt 2026-09-15 to
-remove the patterns that read as AI-generated. Tokens live in `src/styles/global.css`; this
-file explains the intent so changes stay on-system.
+Visual system for Daniel Iyalekhue's portfolio. Register: **brand**. Rebuilt 2026-09-16 as a
+full frontend overhaul. Tokens live in `src/styles/global.css`; this file explains the intent so
+changes stay on-system.
 
-**Reference:** a Braun calculator. Graphite and white, with exactly one coloured key. The
-page is quiet so the one live colour means something.
+## The idea: "Grounded"
+
+Daniel's research is about AI answers that cite their evidence, so the site behaves the same way.
+The hero makes claims and every claim carries a numbered citation; hovering one draws a line to
+the source it came from (the paper PDF, the certificate, the live dashboard, the CV). Key phrases
+are marked with a highlighter, as if someone read the page and marked what matters.
+
+Reference points: a marked-up printed document, and the single coloured key on a Braun calculator.
 
 ## Colour
 
-OKLCH. Neutrals are chroma 0 (no warm or cool tint). Strategy: **restrained, one signal**.
+OKLCH. Dark is the default, light mirrors it. Neutrals carry a whisper of the highlighter hue
+(chroma ≤ 0.008) so the greys never look blue.
 
-| Token | Light | Dark | Use |
+| Token | Dark (default) | Light | Use |
 |---|---|---|---|
-| `--bg` | `oklch(1 0 0)` | `oklch(0.155 0 0)` | page |
-| `--surface` / `--surface-2` | `0.977` / `0.955` | `0.195` / `0.235` | wells, hover, demo stages |
-| `--border` / `--border-strong` | `0.915` / `0.84` | `0.285` / `0.38` | hairlines |
-| `--ink` | `oklch(0.2 0 0)` | `oklch(0.955 0 0)` | headings, primary text |
-| `--muted` | `oklch(0.44 0 0)` | `oklch(0.76 0 0)` | body copy |
-| `--faint` | `oklch(0.53 0 0)` | `oklch(0.64 0 0)` | dates, meta (still ≥4.5:1) |
-| `--primary` | `oklch(0.6 0.2 34)` | `oklch(0.7 0.18 38)` | **signal** fills, underlines, indicators |
-| `--primary-hi` | `oklch(0.5 0.18 34)` | `oklch(0.78 0.15 42)` | signal used **as text** |
+| `--bg` / `--bg-raise` | `0.155` / `0.18` | `0.985` / `1` | page, raised panels |
+| `--surface` / `--surface-2` | `0.2` / `0.245` | `0.962` / `0.935` | wells, tracks |
+| `--line` / `--line-strong` | `0.285` / `0.38` | `0.89` / `0.78` | hairlines |
+| `--ink` / `--muted` / `--faint` | `0.965` / `0.78` / `0.64` | `0.17` / `0.4` / `0.5` | text ramp |
+| `--hl` | `oklch(0.91 0.19 118)` | `oklch(0.93 0.19 116)` | highlighter **fill** |
+| `--hl-text` | same as `--hl` | `oklch(0.47 0.12 125)` | the hue as **text or lines** |
+| `--on-hl` | `oklch(0.19 0.04 118)` | same | text on a highlighter fill |
 
-Signal is allowed on: link underlines, the active tab bar, focus rings, the availability light,
-status badges ("Accepted"), proof notes on projects, the top bar in the temperature demo, text
-selection. Nowhere else. No gradients, no glows. The dock is always dark (`--dock-*`).
+**Use `--hl` for fills and `--hl-text` for anything that is text, a line or a dot.** In light mode
+lime text on white fails contrast, which is why the two tokens differ there.
+
+Highlighter is allowed on: marked phrases, citation chips, the active dock pill, the availability
+light, status badges, the timeline progress rail, the strong bar in a comparison, and links'
+underlines. Nothing else. No gradients, no glows.
 
 ## Typography
 
-- **Hanken Grotesk** carries everything, with hierarchy from size and weight.
-- **Geist Mono** only where the text is literally code or data: token IDs, tokens, kbd, `code`.
-  Never for dates, labels, tags, links or titles.
-- Scale: body `0.875rem`; meta `0.78–0.8rem`; list titles `0.92–0.95rem` / 600; section titles
-  `1.05rem` / 600; hero statement `clamp(1.8rem, …, 2.55rem)` / 600 / `-0.034em`.
-- Sentence case everywhere. No uppercase tracked labels. Tabular numerals are on globally.
+- **Archivo Variable** carries everything, using its **width axis** (62–125%) as well as weight.
+  Display type sits at `font-stretch: 112%` and weight 700; body stays at 100%.
+- **Geist Mono** only where the text is code or data: pipeline step labels, token IDs, metric
+  values, citation numbers.
+- Body 0.9375rem / 1.62. Display headings `clamp()` up to 6rem, letter-spacing −0.035em.
+- Sentence case everywhere. No uppercase tracked labels.
 
 ## Layout
 
-- Single centred feed, `--feed-max: 46rem`.
-- Home content is `.sec` blocks separated by hairlines, each opening with a heading row
-  (`.sec__title` left, optional `.sec__aside` right). Not eyebrows, not numbers.
-- Résumé-style data uses a two-column grid (8.25rem label or date column + content) that stacks
-  under ~560px: experience, recognition, stack groups, /about blocks, /now, /uses.
-- Projects: one featured project with a real screenshot, then an index of rows grouped by type.
-  Websites: one wide screenshot, then a pair. **No generated placeholder art**. A project without
-  a real screenshot is a text row.
-- Containers (bordered boxes) only for the interactive Lab demos.
+- 12-column grid inside `.wrap` (max 78rem). Sections are `.section`, separated by a hairline.
+- Section headers (`SectionHead.astro`) put a big display title on the left and a short
+  description on the right, so every section starts the same way and reads at a glance.
+- One scrolling home: Hero → Work → Experience → Research → About → Lab → Contact. **Each project
+  has its own page** at `/work/<slug>`; nothing is hidden behind tabs.
+- Work uses mixed card sizes (`xl` / `lg` / `md`) plus a compact index of the rest, so the grid
+  never reads as repeated identical cards.
 
-## Components and patterns
+## Signature components
 
-- `.link`: ink text + half-strength signal underline; underline thickens on hover.
-- `.btn--solid` (ink fill) for the primary action, `.btn--line` for the secondary one. 8px radius.
-- Research entry: first-page thumbnail + status badge + title + authors (Daniel in ink/600) +
-  plain-language summary + "Read the paper".
-- Recommendation: first paragraph as a large lead quote, the rest muted, attribution with photo
-  or initials and a LinkedIn link.
-- Dock: floating dark pill, magnify on hover, owns the theme toggle.
+- **Citations** (`Hero.astro`): `[[source-id]]` in the copy becomes a numbered chip. Hover, focus
+  or tap lights the matching source; on wide screens an SVG wire is drawn between the two.
+- **Pipeline** (`Pipeline.astro`): a project's architecture as a live trace. Steps light in order
+  while on screen, with a rail that fills. Fully lit and static when motion is off. This is the
+  honest alternative to decorative placeholder art for projects with no screenshot.
+- **Highlighter** (`.hl-mark`): sweeps a phrase from 0 to 100% width as it enters the viewport.
+- **Dock** (`Dock.astro`): the primary navigation, floating bottom-centre. Text labels on desktop,
+  icons under 760px, with a highlighter pill that slides via `clip-path` to the section in view.
+- **Header** (`Header.astro`): thin, hides on scroll down, returns on scroll up.
 
 ## Motion
 
-Ease-out expo (`--ease-out`). Hero entrance staggers identity → statement → bio → actions.
-Sections reveal once as blocks (content is visible without JS). Tab underline scales in. Slow
-2% zoom on screenshot hover. Availability light has a slow halo. Every animation has a
-reduced-motion path, and the a11y panel can force reduced motion.
+Lenis smooth scrolling (fine pointers only), reveal-on-enter, and scroll-linked progress, all in
+`src/scripts/motion.ts`. The hero choreographs: identity, then headline lines rising behind masks,
+then the highlighter sweep, then intro and sources.
+
+**Content is visible without JS.** Base adds `.motion` pre-paint only when motion is allowed, and
+removes it after 3s if the motion script never runs. Every animation has a reduced-motion path,
+and the a11y panel can force motion off.
 
 ## Banned here
 
-Uppercase tracked eyebrows · 01/02 section numbers · identical card grids · chip/tag pills as
-decoration · generated SVG art standing in for screenshots · gradient fills or text · glass blur ·
-glowing dots · a second accent colour · mono as "technical" costume · em dashes in visible copy.
+Uppercase tracked eyebrows · numbered section scaffolding · identical card grids · decorative chip
+rows · generated art standing in for screenshots · gradient fills or text · glass blur · a second
+accent colour · mono used as "technical" costume · em dashes in visible copy.

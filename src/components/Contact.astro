@@ -1,106 +1,105 @@
 ---
-import { profile, strengths } from "../data/content";
+import { profile } from "../data/content";
 
 const handle = (url: string) => url.replace(/\/$/, "").split("/").pop();
 ---
 
-<section class="sec" id="get-in-touch" data-reveal>
-  <div class="sec__head">
-    <h2 class="sec__title">Get in touch</h2>
-  </div>
-  <p class="lead">
-    I'm looking for a full-time AI / ML engineering role, in {profile.location.split(",")[0]},
-    elsewhere in the UK, or remote. Email is the quickest way to reach me.
-  </p>
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <p class="contact__status" data-reveal><span class="light" aria-hidden="true"></span>{profile.status}</p>
 
-  <div class="mail">
-    <a class="mail__addr" href={`mailto:${profile.email}`}>{profile.email}</a>
-    <button type="button" class="btn btn--line mail__copy" data-copy={profile.email}>
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" stroke="currentColor" stroke-width="1.7"/></svg>
-      <span data-copy-label>Copy</span>
-    </button>
-  </div>
+    <h2 class="contact__title display" data-split>
+      <span class="mask"><span>Need AI that works</span></span>
+      <span class="mask"><span><mark class="hl-mark" style="--hl-delay: 750ms">after the demo?</mark></span></span>
+    </h2>
 
-  <ul class="elsewhere">
-    <li>
-      <a class="elsewhere__row" href={profile.links.linkedin} target="_blank" rel="noreferrer">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.3c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21H9V9Z"/></svg>
-        <span class="elsewhere__name">LinkedIn</span>
-        <span class="elsewhere__detail">{handle(profile.links.linkedin)}</span>
-      </a>
-    </li>
-    <li>
-      <a class="elsewhere__row" href={profile.links.github} target="_blank" rel="noreferrer">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
-        <span class="elsewhere__name">GitHub</span>
-        <span class="elsewhere__detail">{handle(profile.links.github)}</span>
-      </a>
-    </li>
-    {profile.cvUrl && (
-      <li>
-        <a class="elsewhere__row" href={profile.cvUrl} target="_blank" rel="noreferrer">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M7 3h7l4 4v14H7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 3v4h4M9.5 13h5M9.5 16.5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <span class="elsewhere__name">Résumé</span>
-          <span class="elsewhere__detail">PDF</span>
-        </a>
-      </li>
-    )}
-  </ul>
-</section>
+    <div class="contact__mail" data-reveal style="--d: 150ms">
+      <a class="contact__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+      <button type="button" class="btn btn--ghost contact__copy" data-copy={profile.email}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5" /><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" /></svg>
+        <span data-copy-label>Copy address</span>
+      </button>
+    </div>
 
-<section class="sec" id="strengths" data-reveal>
-  <div class="sec__head">
-    <h2 class="sec__title">Where I'm most useful</h2>
+    <div class="contact__foot" data-reveal style="--d: 250ms">
+      <ul class="contact__links">
+        <li>
+          <a href={profile.links.linkedin} target="_blank" rel="noreferrer">
+            <span>LinkedIn</span><span class="contact__handle">{handle(profile.links.linkedin)}</span>
+          </a>
+        </li>
+        <li>
+          <a href={profile.links.github} target="_blank" rel="noreferrer">
+            <span>GitHub</span><span class="contact__handle">{handle(profile.links.github)}</span>
+          </a>
+        </li>
+        {profile.cvUrl && (
+          <li>
+            <a href={profile.cvUrl} target="_blank" rel="noreferrer">
+              <span>Résumé</span><span class="contact__handle">PDF</span>
+            </a>
+          </li>
+        )}
+      </ul>
+      <p class="contact__clock" data-clock>
+        It's <span class="contact__time" data-time>…</span> in Birmingham, where I'm based. Open to roles in
+        the UK and remote.
+      </p>
+    </div>
   </div>
-  <ul class="strengths">
-    {strengths.map((s) => <li>{s}</li>)}
-  </ul>
 </section>
 
 <style>
-  .lead { color: var(--muted); max-width: 56ch; }
+  .contact { padding-block: clamp(6rem, 14vw, 10rem) clamp(5rem, 10vw, 7rem); }
+  .contact__status { display: inline-flex; align-items: center; gap: 0.65rem; color: var(--muted); }
+  .contact__title { max-width: 16ch; margin-top: 1.6rem; font-size: clamp(2.6rem, 0.8rem + 6.6vw, 6rem); }
+  .contact__title .hl-mark { padding-inline: 0.06em; }
 
-  .mail { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-top: 1.3rem; }
-  .mail__addr {
-    font-size: clamp(1.2rem, 0.95rem + 1.1vw, 1.55rem);
-    font-weight: 600;
-    letter-spacing: -0.022em;
-    line-height: 1.25;
+  .contact__mail { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: clamp(2.6rem, 6vw, 4rem); }
+  .contact__email {
+    padding: 0 0.06em 0.06em;
+    font-size: clamp(1.35rem, 0.65rem + 2.9vw, 3.2rem);
+    font-weight: 640;
+    font-stretch: 106%;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
     overflow-wrap: anywhere;
-    text-decoration-line: underline;
-    text-decoration-color: var(--primary);
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.2em;
-    transition: text-decoration-thickness 0.2s ease, color 0.2s ease;
+    background: linear-gradient(var(--hl), var(--hl)) no-repeat 0 100% / 100% 3px;
+    transition: background-size 0.55s var(--ease-out), color 0.3s ease;
   }
-  .mail__addr:hover { text-decoration-thickness: 3px; }
-  .mail__copy { min-height: 2rem; padding-inline: 0.7rem; font-size: 0.8rem; color: var(--muted); }
-  .mail__copy:hover { color: var(--ink); }
-  .mail__copy[data-state="done"] { color: var(--ink); border-color: var(--ink); }
+  .contact__email:hover,
+  .contact__email:focus-visible { background-size: 100% 100%; color: var(--on-hl); }
+  .contact__copy { height: 2.7rem; }
+  .contact__copy[data-state="done"] { border-color: var(--hl-text); color: var(--hl-text); }
 
-  .elsewhere { list-style: none; margin: 1.8rem 0 0; padding: 0; max-width: 30rem; }
-  .elsewhere li + li { border-top: 1px solid var(--border); }
-  .elsewhere__row {
+  .contact__foot {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 2rem;
+    align-items: end;
+    margin-top: clamp(3.2rem, 7vw, 5rem);
+  }
+  .contact__links { grid-column: 1 / span 6; list-style: none; margin: 0; padding: 0; }
+  .contact__links a {
     display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.7rem 0;
-    color: var(--ink);
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.05rem 0;
+    border-top: 1px solid var(--line);
+    font-size: 1.08rem;
+    font-weight: 580;
   }
-  .elsewhere__row svg { color: var(--faint); flex: none; transition: color 0.2s ease; }
-  .elsewhere__name { font-weight: 560; }
-  .elsewhere__detail { margin-left: auto; font-size: 0.8rem; color: var(--faint); transition: color 0.2s ease; }
-  .elsewhere__row:hover svg,
-  .elsewhere__row:hover .elsewhere__detail { color: var(--ink); }
-  .elsewhere__row:hover .elsewhere__name {
-    text-decoration: underline;
-    text-decoration-color: var(--primary);
-    text-underline-offset: 0.22em;
-  }
+  .contact__links li:last-child a { border-bottom: 1px solid var(--line); }
+  .contact__handle { font-size: 0.9rem; font-weight: 400; color: var(--faint); transition: color 0.3s ease, transform 0.5s var(--ease-out); }
+  .contact__links a:hover .contact__handle { color: var(--hl-text); transform: translateX(-5px); }
+  .contact__clock { grid-column: 8 / -1; justify-self: end; max-width: 32ch; text-align: right; color: var(--muted); }
+  .contact__time { color: var(--ink); font-weight: 640; }
 
-  .strengths { list-style: none; margin: 0; padding: 0; max-width: 60ch; }
-  .strengths li { padding: 0.7rem 0; border-top: 1px solid var(--border); color: var(--ink); }
-  .strengths li:first-child { border-top: 0; padding-top: 0; }
+  @media (max-width: 860px) {
+    .contact__links, .contact__clock { grid-column: 1 / -1; }
+    .contact__clock { justify-self: start; text-align: left; }
+  }
 </style>
 
 <script>
@@ -115,11 +114,24 @@ const handle = (url: string) => url.replace(/\/$/, "").split("/").pop();
       } catch {
         if (label) label.textContent = "Copy failed";
       }
-      clearTimeout(timer);
+      window.clearTimeout(timer);
       timer = window.setTimeout(() => {
-        if (label) label.textContent = "Copy";
+        if (label) label.textContent = "Copy address";
         delete btn.dataset.state;
       }, 1800);
     });
   });
+
+  // live Birmingham time
+  const time = document.querySelector("[data-clock] [data-time]");
+  if (time) {
+    const tick = () =>
+      (time.textContent = new Date().toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Europe/London",
+      }));
+    tick();
+    window.setInterval(tick, 30_000);
+  }
 </script>
