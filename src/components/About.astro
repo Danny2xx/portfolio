@@ -1,235 +1,283 @@
 ---
-import { experience, stuffIDo, awards, testimonials } from "../data/content";
+import {
+  profile,
+  experience,
+  publications,
+  awards,
+  alsoRecognised,
+  testimonials,
+} from "../data/content";
 import StackIcons from "./StackIcons.astro";
-import Websites from "./Websites.astro";
 
-const initials = (n: string) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+const initials = (n: string) =>
+  n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 ---
 
-<section class="section">
-  <div class="feed">
-    <div class="section__head" data-reveal>
-      <span class="label">Experience</span>
-    </div>
-
-    <ol class="timeline">
-      {experience.map((job) => (
-        <li class="job" data-reveal>
-          <span class="job__range mono">{job.range}</span>
-          <div class="job__body">
-            <h3 class="job__role">
-              {job.role} <span class="job__at">at</span> {job.org}
-            </h3>
-            <p class="job__note">{job.note}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
-
-    {awards.length > 0 && (
-      <>
-        <hr class="rule section__rule" />
-        <div class="section__head" data-reveal>
-          <span class="label">Awards</span>
-        </div>
-        <ul class="awards">
-          {awards.map((a) => (
-            <li class="award" data-reveal>
-              <span class="award__place mono">{a.place}</span>
-              <div class="award__body">
-                <span class="award__event">{a.event}</span>
-                {a.detail && <span class="award__detail">{a.detail}</span>}
-                {(a.href || a.proof) && (
-                  <span class="award__links mono">
-                    {a.href && <a href={a.href} target="_blank" rel="noreferrer">Context ↗</a>}
-                    {a.proof && <a href={a.proof} target="_blank" rel="noreferrer">Certificate ↗</a>}
-                  </span>
-                )}
-              </div>
-              <span class="award__year mono">{a.year}</span>
-            </li>
-          ))}
-        </ul>
-      </>
+<section class="sec" id="experience" data-reveal>
+  <div class="sec__head">
+    <h2 class="sec__title">Experience</h2>
+    {profile.cvUrl && (
+      <a class="sec__aside link link--quiet" href={profile.cvUrl} target="_blank" rel="noreferrer">Full CV</a>
     )}
-
-    <hr class="rule section__rule" />
-
-    <div class="section__head" data-reveal>
-      <span class="label">Stuff I do</span>
-    </div>
-    <p class="stuff" data-reveal>{stuffIDo}</p>
-
-    <hr class="rule section__rule" />
-
-    <Websites />
-
-    <hr class="rule section__rule" />
-
-    <div class="section__head" data-reveal>
-      <span class="label">Stack</span>
-    </div>
-    <div data-reveal>
-      <StackIcons />
-    </div>
-
-    {testimonials.length > 0 && (
-      <>
-        <hr class="rule section__rule" />
-        <div class="section__head" data-reveal>
-          <span class="label">Testimonials</span>
-        </div>
-        <div class="quotes">
-          {testimonials.map((t) => (
-            <figure class="quote" data-reveal>
-              <div class="quote__text">
-                {t.quote.split("\n\n").map((para) => <p>{para}</p>)}
-              </div>
-              <figcaption class="quote__by">
-                <span class="quote__avatar" aria-hidden="true">{initials(t.name)}</span>
-                <span class="quote__meta">
-                  <span class="quote__name">
-                    {t.href ? <a href={t.href} target="_blank" rel="noreferrer">{t.name}</a> : t.name}
-                  </span>
-                  <span class="quote__role mono">{t.role}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </>
-    )}
-
-    <p class="more" data-reveal>
-      <a href="/about">More about me. My journey, education, and how I work →</a>
-    </p>
   </div>
+  <ol class="rows">
+    {experience.map((job) => (
+      <li class="row">
+        <span class="row__when">{job.range}</span>
+        <div>
+          <h3 class="row__title">
+            {job.role}
+            <span class="row__at"> at </span>
+            {job.orgUrl ? (
+              <a class="link" href={job.orgUrl} target="_blank" rel="noreferrer">{job.org}</a>
+            ) : (
+              job.org
+            )}
+          </h3>
+          {job.place && <p class="row__place">{job.place}</p>}
+          <p class="row__note">{job.note}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
 </section>
 
+{publications.length > 0 && (
+  <section class="sec" id="research" data-reveal>
+    <div class="sec__head">
+      <h2 class="sec__title">Research</h2>
+    </div>
+    {publications.map((p) => (
+      <article class="paper">
+        <a class="paper__thumb" href={p.pdf} target="_blank" rel="noreferrer" tabindex="-1" aria-hidden="true">
+          <img src={p.thumb} alt="" width="320" height="452" decoding="async" />
+        </a>
+        <div class="paper__body">
+          <p class="paper__venue">
+            <span class="paper__status">{p.status}</span>
+            {p.venue}
+          </p>
+          <h3 class="paper__title">
+            <a href={p.pdf} target="_blank" rel="noreferrer">{p.title}</a>
+          </h3>
+          <p class="paper__authors">
+            {p.authors.map((a, i) => (
+              <><span class:list={[{ "paper__me": a === profile.name }]}>{a}</span>{i < p.authors.length - 1 && ", "}</>
+            ))}
+          </p>
+          <p class="paper__aff">{p.affiliations}</p>
+          <p class="paper__summary">{p.summary}</p>
+          <p class="paper__links">
+            <a class="link" href={p.pdf} target="_blank" rel="noreferrer">Read the paper</a>
+            <span class="meta">PDF, {p.pages} pages</span>
+          </p>
+        </div>
+      </article>
+    ))}
+  </section>
+)}
+
+<section class="sec" id="recognition" data-reveal>
+  <div class="sec__head">
+    <h2 class="sec__title">Recognition</h2>
+  </div>
+  <ol class="rows">
+    {awards.map((a) => (
+      <li class="row">
+        <span class="row__when">{a.date}</span>
+        <div>
+          <h3 class="row__title">
+            {a.place}<span class="row__at"> at </span>{a.event}
+          </h3>
+          {a.detail && <p class="row__note">{a.detail}</p>}
+          {(a.proof || a.href) && (
+            <p class="row__links">
+              {a.proof && <a class="link link--quiet" href={a.proof} target="_blank" rel="noreferrer">Certificate</a>}
+              {a.href && <a class="link link--quiet" href={a.href} target="_blank" rel="noreferrer">Announcement</a>}
+            </p>
+          )}
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  {alsoRecognised.length > 0 && (
+    <ul class="also">
+      {alsoRecognised.map((m) => (
+        <li class="also__item">
+          <span class="also__what">{m.what}</span>
+          <span class="also__detail">{m.detail}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
+
+<section class="sec" id="stack" data-reveal>
+  <div class="sec__head">
+    <h2 class="sec__title">Tools I reach for</h2>
+    <a class="sec__aside link link--quiet" href="/uses">Everything I use</a>
+  </div>
+  <StackIcons />
+</section>
+
+{testimonials.length > 0 && (
+  <section class="sec" id="recommendations" data-reveal>
+    <div class="sec__head">
+      <h2 class="sec__title">Recommendations</h2>
+    </div>
+    {testimonials.map((t) => {
+      const paras = t.quote.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+      const last = paras.length - 1;
+      return (
+        <figure class="rec">
+          <blockquote class="rec__quote">
+            {paras.map((para, i) => (
+              <p class:list={[i === 0 ? "rec__lead" : "rec__rest"]}>
+                {i === 0 && "“"}{para}{i === last && "”"}
+              </p>
+            ))}
+          </blockquote>
+          <figcaption class="rec__by">
+            {t.photo ? (
+              <img class="rec__photo" src={t.photo} alt="" width="40" height="40" loading="lazy" />
+            ) : (
+              <span class="rec__photo rec__photo--initials" aria-hidden="true">{initials(t.name)}</span>
+            )}
+            <span class="rec__who">
+              <span class="rec__name">
+                {t.linkedin ? (
+                  <a class="link" href={t.linkedin} target="_blank" rel="noreferrer">{t.name}</a>
+                ) : (
+                  t.name
+                )}
+              </span>
+              <span class="rec__role">{t.role}</span>
+            </span>
+            {t.linkedin && (
+              <a class="rec__li" href={t.linkedin} target="_blank" rel="noreferrer" aria-label={`${t.name} on LinkedIn`}>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm6 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.3c0-1.27-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21H9V9Z"/></svg>
+              </a>
+            )}
+          </figcaption>
+        </figure>
+      );
+    })}
+  </section>
+)}
+
+<div class="sec more" data-reveal>
+  <a class="link" href="/about">The longer version</a>
+  <span class="meta">My journey, ventures, education and how I work.</span>
+</div>
+
 <style>
-  .section { padding-block: clamp(3rem, 7vw, 5rem); }
-  .section__head { margin-bottom: 1.6rem; }
-  .section__rule { margin-block: clamp(2.6rem, 6vw, 3.6rem); }
-
-  .journey { display: flex; flex-direction: column; gap: 0.75rem; max-width: 62ch; }
-  .journey__head { font-size: clamp(1.25rem, 1rem + 1.3vw, 1.6rem); margin-bottom: 0.4rem; }
-  .journey p { color: var(--muted); font-size: 0.95rem; }
-
-  /* timeline */
-  .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .job {
+  /* dated rows: experience + recognition */
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row {
     display: grid;
-    grid-template-columns: 7.5rem 1fr;
-    gap: 1.2rem;
-    padding: 1.15rem 0;
+    grid-template-columns: 8.25rem 1fr;
+    gap: 1.25rem;
+    padding: 1.05rem 0;
     border-top: 1px solid var(--border);
-    position: relative;
   }
-  .job:first-child { border-top: 0; }
-  .job__range {
+  .row:first-child { border-top: 0; padding-top: 0.1rem; }
+  .row__when { font-size: 0.8rem; color: var(--faint); padding-top: 0.1rem; white-space: nowrap; }
+  .row__title { font-size: 0.92rem; font-weight: 600; letter-spacing: -0.006em; line-height: 1.4; }
+  .row__at { color: var(--faint); font-weight: 400; }
+  .row__place { font-size: 0.8rem; color: var(--faint); margin-top: 0.05rem; }
+  .row__note { color: var(--muted); margin-top: 0.35rem; max-width: 60ch; }
+  .row__links { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin-top: 0.5rem; font-size: 0.8rem; }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr; gap: 0.2rem; }
+  }
+
+  /* research */
+  .paper { display: grid; grid-template-columns: 6.75rem 1fr; gap: 1.35rem; align-items: start; }
+  .paper__thumb {
+    display: block;
+    border-radius: 3px;
+    overflow: hidden;
+    background: oklch(1 0 0);
+    box-shadow: 0 0 0 1px var(--border), 0 14px 28px -18px oklch(0 0 0 / 0.35);
+    transition: transform 0.4s var(--ease-out), box-shadow 0.4s ease;
+  }
+  .paper__thumb img { display: block; width: 100%; height: auto; }
+  .paper__thumb:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--border-strong), 0 20px 34px -18px oklch(0 0 0 / 0.4); }
+  :global(:root[data-theme="dark"]) .paper__thumb img { filter: brightness(0.9); }
+  .paper__venue { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+  .paper__status {
     font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    color: var(--faint);
-    padding-top: 0.18rem;
-    white-space: nowrap;
+    font-weight: 600;
+    color: var(--primary-hi);
+    background: color-mix(in oklab, var(--primary) 11%, transparent);
+    border-radius: 4px;
+    padding: 0.06rem 0.4rem;
   }
-  .job__role { font-size: 0.92rem; font-weight: 600; letter-spacing: -0.01em; }
-  .job__at { color: var(--faint); font-weight: 400; }
-  .job__note { color: var(--muted); margin-top: 0.3rem; font-size: 0.84rem; max-width: 60ch; }
-
-  @media (max-width: 540px) {
-    .job { grid-template-columns: 1fr; gap: 0.4rem; }
-    .job__range { padding-top: 0; }
-  }
-
-  /* awards */
-  .awards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .award {
-    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem;
-    padding: 0.85rem 0; border-top: 1px solid var(--border);
-  }
-  .award:first-child { border-top: 0; }
-  .award__place {
-    font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--on-accent); background: var(--accent);
-    border-radius: 999px; padding: 0.24rem 0.6rem; white-space: nowrap;
-  }
-  .award__body { min-width: 0; }
-  .award__event { font-weight: 600; font-size: 0.95rem; }
-  .award__detail { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 0.15rem; }
-  .award__links { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.45rem; }
-  .award__links a {
-    color: var(--primary); font-size: 0.67rem; letter-spacing: 0.035em;
-    border-bottom: 1px solid transparent; transition: color 0.18s ease, border-color 0.18s ease;
-  }
-  .award__links a:hover { color: var(--primary-hi); border-bottom-color: var(--primary); }
-  .award__year { font-size: 0.72rem; color: var(--faint); white-space: nowrap; }
+  .paper__title { margin-top: 0.5rem; font-size: 1rem; line-height: 1.32; letter-spacing: -0.012em; text-wrap: pretty; }
+  .paper__title a { transition: color 0.2s ease; }
+  .paper__title a:hover { color: var(--primary-hi); }
+  .paper__authors { margin-top: 0.4rem; font-size: 0.82rem; color: var(--muted); }
+  .paper__me { color: var(--ink); font-weight: 600; }
+  .paper__aff { font-size: 0.8rem; color: var(--faint); }
+  .paper__summary { margin-top: 0.65rem; color: var(--muted); max-width: 58ch; }
+  .paper__links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.7rem; margin-top: 0.75rem; }
   @media (max-width: 520px) {
-    .award { grid-template-columns: auto 1fr; }
-    .award__year { grid-column: 2; margin-top: -0.4rem; }
+    .paper { grid-template-columns: 4.6rem 1fr; gap: 1rem; }
   }
 
-  /* stuff i do */
-  .stuff { color: var(--ink); font-size: 0.92rem; line-height: 1.6; max-width: 60ch; }
-
-  /* link to deeper /about page */
-  .more { margin-top: clamp(2.4rem, 5vw, 3.4rem); }
-  .more a {
-    font-family: var(--font-mono); font-size: 0.82rem; color: var(--primary);
-    border-bottom: 1px solid transparent; transition: border-color 0.2s ease, color 0.2s ease;
+  /* also recognised */
+  .also {
+    list-style: none;
+    margin: 1.3rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px dashed var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
   }
-  .more a:hover { color: var(--primary-hi); border-bottom-color: var(--primary); }
+  .also__item { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.6rem; font-size: 0.84rem; }
+  .also__what { color: var(--ink); }
+  .also__detail { color: var(--faint); font-size: 0.8rem; }
 
-  /* stack (grouped text — now used on the About-me page) */
-  .stack { display: flex; flex-direction: column; gap: 1.5rem; }
-  .stack__group { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.2rem; align-items: start; }
-  .stack__name { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--faint); padding-top: 0.4rem; }
-  .stack__items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .chip {
-    font-size: 0.85rem;
+  /* recommendations */
+  .rec { margin: 0; }
+  .rec + .rec { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .rec__quote { margin: 0; }
+  .rec__lead {
+    max-width: 52ch;
+    font-size: 1.08rem;
+    font-weight: 500;
+    line-height: 1.48;
+    letter-spacing: -0.01em;
     color: var(--ink);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.4rem 0.7rem;
-    transition: border-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
   }
-  .chip:hover { border-color: var(--primary); transform: translateY(-1px); }
-  @media (max-width: 540px) {
-    .stack__group { grid-template-columns: 1fr; gap: 0.6rem; }
-    .stack__name { padding-top: 0; }
+  .rec__rest { margin-top: 0.75rem; max-width: 60ch; color: var(--muted); }
+  .rec__by { display: flex; align-items: center; gap: 0.7rem; margin-top: 1.15rem; }
+  .rec__photo { flex: none; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .rec__photo--initials {
+    display: grid;
+    place-items: center;
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
+  .rec__who { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; }
+  .rec__name { font-size: 0.88rem; font-weight: 600; }
+  .rec__role { font-size: 0.8rem; color: var(--faint); }
+  .rec__li {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    margin-left: 0.2rem;
+    border-radius: 7px;
+    color: var(--faint);
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .rec__li:hover { color: var(--ink); background: var(--surface-2); }
 
-  /* credentials */
-  .creds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
-  .cred { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
-  .cred__line { font-weight: 560; }
-  .cred__detail { font-size: 0.78rem; color: var(--faint); }
-
-  /* testimonials */
-  .quotes { display: flex; flex-direction: column; gap: 1.6rem; }
-  .quote {
-    margin: 0;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--surface);
-    padding: 1.2rem 1.3rem;
-  }
-  .quote__text { color: var(--ink); font-size: 0.92rem; line-height: 1.62; }
-  .quote__text p { margin: 0; text-wrap: pretty; }
-  .quote__text p + p { margin-top: 0.7rem; }
-  .quote__text p:first-child::before { content: "“"; color: var(--faint); }
-  .quote__text p:last-child::after { content: "”"; color: var(--faint); }
-  .quote__by { display: flex; align-items: center; gap: 0.7rem; margin-top: 1rem; padding-top: 0.9rem; border-top: 1px solid var(--border); }
-  .quote__avatar {
-    flex: none; width: 34px; height: 34px; border-radius: 50%;
-    display: grid; place-items: center;
-    font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
-    color: var(--on-primary); background: var(--primary);
-  }
-  .quote__meta { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
-  .quote__name { font-weight: 600; font-size: 0.86rem; }
-  .quote__name a { border-bottom: 1px solid transparent; transition: color 0.18s ease, border-color 0.18s ease; }
-  .quote__name a:hover { color: var(--primary); border-bottom-color: var(--primary); }
-  .quote__role { font-size: 0.72rem; color: var(--faint); }
+  .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.7rem; }
 </style>

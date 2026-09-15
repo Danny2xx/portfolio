@@ -3,67 +3,88 @@ import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import Dock from "../components/Dock.astro";
-import { profile, journey, stack, credentials, currently, howIWork } from "../data/content";
+import { profile, journey, stack, credentials, ventures, currently, howIWork } from "../data/content";
+import { inline } from "../lib/inline";
+
+// "Lead sentence. The rest." -> bold lead
+const split = (s: string) => {
+  const i = s.indexOf(". ");
+  return i === -1 ? { lead: s, rest: "" } : { lead: s.slice(0, i + 1), rest: s.slice(i + 2) };
+};
 ---
 
-<Base title={`About — ${profile.name}`}>
+<Base title={`About · ${profile.name}`} description="Daniel Iyalekhue's journey into AI engineering, his ventures, education and how he works.">
   <Nav />
-  <main id="top" class="about">
+  <main id="main" class="page">
     <div class="feed">
-      <a class="back" href="/">← Back to portfolio</a>
+      <a class="back" href="/">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Portfolio
+      </a>
 
-      <header class="about__head">
-        <span class="label">About me</span>
-        <h1>My journey</h1>
+      <header class="head">
+        <h1 class="page__title">About me</h1>
+        <p class="page__sub">{currently}</p>
       </header>
 
-      <div class="prose">
-        {journey.map((p) => <p>{p}</p>)}
-      </div>
+      <section class="blk" data-reveal>
+        <h2 class="blk__title">My journey</h2>
+        <div class="journey">
+          {journey.map((p) => <p set:html={inline(p)} />)}
+        </div>
+      </section>
 
-      <div class="now" data-reveal>
-        <span class="now__tag mono">● currently</span>
-        <p>{currently}</p>
-      </div>
+      <section class="blk" data-reveal>
+        <h2 class="blk__title">How I work</h2>
+        <ul class="principles">
+          {howIWork.map((h) => {
+            const { lead, rest } = split(h);
+            return <li><strong>{lead}</strong>{rest && ` ${rest}`}</li>;
+          })}
+        </ul>
+      </section>
 
-      <hr class="rule sec" />
+      <section class="blk" data-reveal>
+        <h2 class="blk__title">Ventures</h2>
+        <ul class="list">
+          {ventures.map((v) => (
+            <li>
+              <h3>{v.role}</h3>
+              <p>{v.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <span class="label">Tech stack</span>
-      <div class="stack">
-        {stack.map((g) => (
-          <div class="stack__group">
-            <span class="stack__name mono">{g.group}</span>
-            <ul class="stack__items">
-              {g.items.map((it) => <li class="chip">{it}</li>)}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <section class="blk" data-reveal>
+        <h2 class="blk__title">Education</h2>
+        <ul class="list">
+          {credentials.map((c) => (
+            <li>
+              <h3>{c.line}</h3>
+              <p>{c.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <hr class="rule sec" />
+      <section class="blk" data-reveal>
+        <h2 class="blk__title">Tech stack</h2>
+        <dl class="stack">
+          {stack.map((g) => (
+            <div>
+              <dt>{g.group}</dt>
+              <dd>{g.items.join(", ")}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
-      <span class="label">Education &amp; certifications</span>
-      <ul class="creds">
-        {credentials.map((c) => (
-          <li class="cred">
-            <span class="cred__line">{c.line}</span>
-            {c.detail && <span class="cred__detail mono">{c.detail}</span>}
-          </li>
-        ))}
-      </ul>
-
-      <hr class="rule sec" />
-
-      <span class="label">How I work</span>
-      <ul class="principles">
-        {howIWork.map((h, i) => (
-          <li class="principle">
-            <span class="principle__n mono">{String(i + 1).padStart(2, "0")}</span>
-            <span>{h}</span>
-          </li>
-        ))}
-      </ul>
-
+      <p class="page__foot">
+        <a class="link" href="/#research">Read my research</a>
+        {profile.cvUrl && <a class="link" href={profile.cvUrl} target="_blank" rel="noreferrer">Download my CV</a>}
+        <a class="link" href={`mailto:${profile.email}`}>Email me</a>
+      </p>
     </div>
   </main>
   <Footer />
@@ -71,68 +92,31 @@ import { profile, journey, stack, credentials, currently, howIWork } from "../da
 </Base>
 
 <style>
-  .about { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+  .head { margin-bottom: clamp(2rem, 5vw, 2.8rem); }
 
-  .back {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    transition: color 0.18s ease;
+  .blk {
+    display: grid;
+    grid-template-columns: 8.25rem 1fr;
+    gap: 1.25rem;
+    padding-block: clamp(1.7rem, 4vw, 2.2rem);
+    border-top: 1px solid var(--border);
   }
-  .back:hover { color: var(--ink); }
+  .blk__title { font-size: 0.92rem; font-weight: 600; line-height: 1.5; }
 
-  .about__head { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
-  .about__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
+  .journey { display: flex; flex-direction: column; gap: 0.85rem; max-width: 60ch; color: var(--muted); font-size: 0.95rem; }
 
-  .prose { display: flex; flex-direction: column; gap: 0.8rem; max-width: 64ch; color: var(--muted); font-size: 0.9rem; }
+  .principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; color: var(--muted); max-width: 60ch; }
+  .principles strong { color: var(--ink); font-weight: 600; }
 
-  .now {
-    margin-top: 1.6rem;
-    padding: 1.1rem 1.2rem;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    background: var(--surface);
-    max-width: 64ch;
+  .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.05rem; }
+  .list h3 { font-size: 0.92rem; font-weight: 600; line-height: 1.45; }
+  .list p { color: var(--muted); margin-top: 0.15rem; max-width: 58ch; }
+
+  .stack { margin: 0; display: flex; flex-direction: column; gap: 0.8rem; }
+  .stack dt { font-size: 0.8rem; color: var(--faint); }
+  .stack dd { margin: 0; color: var(--ink); max-width: 60ch; }
+
+  @media (max-width: 600px) {
+    .blk { grid-template-columns: 1fr; gap: 0.8rem; }
   }
-  .now__tag { font-size: 0.7rem; letter-spacing: 0.06em; color: var(--good); text-transform: uppercase; }
-  .now p { margin-top: 0.5rem; color: var(--ink); }
-
-  .sec { margin-block: clamp(2.4rem, 5vw, 3.2rem); }
-  .label + * { margin-top: 1.3rem; }
-
-  /* tech stack (grouped) */
-  .stack { display: flex; flex-direction: column; gap: 1.4rem; }
-  .stack__group { display: grid; grid-template-columns: 8rem 1fr; gap: 1.2rem; align-items: start; }
-  .stack__name { font-size: 0.72rem; letter-spacing: 0.04em; color: var(--faint); padding-top: 0.4rem; }
-  .stack__items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .chip {
-    font-size: 0.75rem; color: var(--ink); background: var(--surface);
-    border: 1px solid var(--border); border-radius: 7px; padding: 0.32rem 0.6rem;
-    transition: border-color 0.18s ease, transform 0.18s ease;
-  }
-  .chip:hover { border-color: var(--primary); transform: translateY(-1px); }
-  @media (max-width: 540px) { .stack__group { grid-template-columns: 1fr; gap: 0.6rem; } .stack__name { padding-top: 0; } }
-
-  /* credentials */
-  .creds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
-  .cred { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
-  .cred__line { font-weight: 560; }
-  .cred__detail { font-size: 0.78rem; color: var(--faint); }
-
-  /* principles */
-  .principles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
-  .principle { display: grid; grid-template-columns: 2rem 1fr; gap: 0.8rem; align-items: baseline; color: var(--ink); }
-  .principle__n { color: var(--primary); font-size: 0.8rem; }
-
-  /* testimonials */
-  .quotes { display: flex; flex-direction: column; gap: 1.5rem; }
-  .quote { margin: 0; }
-  .quote blockquote { margin: 0; font-size: 0.98rem; line-height: 1.55; color: var(--ink); }
-  .quote blockquote::before { content: "“"; color: var(--faint); }
-  .quote blockquote::after { content: "”"; color: var(--faint); }
-  .quote figcaption { margin-top: 0.6rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
-  .quote__name { font-weight: 600; font-size: 0.92rem; }
-  .quote__role { font-size: 0.76rem; color: var(--faint); }
 </style>

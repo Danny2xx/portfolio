@@ -1,172 +1,138 @@
-# Handoff — Daniel Iyalekhue Portfolio
+# Handoff: Daniel Iyalekhue portfolio
 
-Complete status doc for an agent picking this up cold (no prior conversation). Last refreshed
-**2026-07-21**. This is the source of truth for *what exists and how it works*. Read `PRODUCT.md`
-for *why* (strategy/register/principles). **`DESIGN.md` is STALE** — it describes an old dark
-"instrument-panel" system that no longer exists; trust `src/styles/global.css` tokens instead.
+Status doc for an agent picking this up cold. Last refreshed **2026-09-15** (after the
+"remove the AI slop" redesign). This file = what exists and how it works. `PRODUCT.md` = why
+(audience, register, principles). `DESIGN.md` = the visual system.
 
 ## What this is
 
-A personal portfolio for **Daniel Iyalekhue** — **Applied AI / ML Engineer**, MSc Artificial
-Intelligence student at Birmingham City University (2024–2026), currently on a **software/AI
-placement at Blockchain Technology Ltd**. Goal: **land a full-time role**. Register: **brand**
-(design IS the product). Structural inspiration (NOT a visual clone) was https://www.aaezekiel.co/.
+Personal portfolio for **Daniel Iyalekhue**, AI / ML Engineer in Birmingham, UK. MSc Artificial
+Intelligence at Birmingham City University (Sep 2025 to Sep 2026). Goal: **land a full-time role**.
+Register: brand (the design is the product). Structural inspiration was https://www.aaezekiel.co/
+(hero + tabs + floating dock), not a visual clone.
 
-Real facts: Birmingham, UK. GitHub `Danny2xx`, LinkedIn `daniel-iyalekhue-3a48121b8`, email
-`danieliyalekhue@gmail.com`. His CV drove the content (6 AI/ML projects, 3 shipped websites, roles
-at Blockchain Technology Ltd / Carril Agency / Amdari, 2 degrees + certs).
+- **Live:** https://danieliyalekhue.com (apex 308 → www). Vercel, auto-deploys on push to `main`
+  of GitHub `Danny2xx/portfolio` (SSH remote). DNS at Namecheap: A `@` → 76.76.21.21,
+  CNAME `www` → cname.vercel-dns.com.
+- **Facts come from his CV**, served at `public/cv/daniel-iyalekhue-cv.pdf`. GitHub `Danny2xx`,
+  LinkedIn `daniel-iyalekhue-3a48121b8`, email `danieliyalekhue@gmail.com`.
 
-## Design system (current)
-
-- **Light theme default, dark on toggle.** (Old iterations were dark-first — gone.)
-- **Fonts:** Hanken Grotesk (sans) + Geist Mono (mono), self-hosted via Fontsource.
-  Installed-but-UNUSED: `geist`, `jetbrains-mono`, `mona-sans` (safe to remove). Used:
-  `hanken-grotesk`, `geist-mono`, `opendyslexic` (a11y font toggle only).
-- **Palette:** mostly-neutral (neutrals ~chroma 0), OKLCH. Restrained **indigo** primary,
-  **gold** accent (verified badge / kind tags), green "open to work" dot. Tokens in
-  `src/styles/global.css` (`:root` = light, `:root[data-theme="dark"]` = dark).
-- **Minimalist, small type** (deliberate shrink pass — keep it tight).
-- **Identity:** DI monogram logo (`Logo.astro`, inline SVG `currentColor`) in nav/footer/favicon.
-  X-style scalloped verified badge (indigo) by the name. Avatar = `public/vector.png`.
-- **Copy is de-AI'd:** NO em-dashes (`—`), no "not just X / actually / genuinely" filler. Keep
-  it that way. Date ranges use ` — ` intentionally (that's a range, fine).
-
-## Stack + run
-
-Astro 5 · Tailwind v4 (`@tailwindcss/vite`, lightly used) · TypeScript · React 19 (islands ONLY
-for the two Lab demos). `gsap` installed but unused. No backend/API keys/env vars. "No external
-requests" is a deliberate rule (see the `/writing` post). **No git repo yet. Not deployed.**
+## Run
 
 ```bash
 npm install
 npm run dev     # http://localhost:4321
-npm run build   # static → dist/  (7 routes)
+npm run build   # static → dist/ (7 routes). The Tokenizer chunk-size warning is expected.
 ```
 
-Visual verification: Google Chrome is at `/Applications/Google Chrome.app`. Prior work was
-screenshot-verified via headless Chrome + the DevTools Protocol (`--headless=new
---remote-debugging-port=9222`, drive over the WS from a Node script). Useful for checking UI.
+Astro 5 · TypeScript · React 19 islands (only the two Lab demos) · Tailwind v4 is installed but
+effectively unused (plain scoped CSS + `src/styles/global.css`). No backend, no env vars.
+Nothing loads from third parties at runtime (fonts and icons are self-hosted). Keep it that way.
+
+## Design system (summary; details in DESIGN.md)
+
+- **Graphite ink on white, one signal colour (vermilion, OKLCH hue ~34).** Signal marks only what
+  is live or actionable: link underlines, the active tab bar, focus rings, the availability light,
+  the "Accepted" badge, competition notes. Everything else is chroma 0. Light default, dark toggle.
+- **Type:** Hanken Grotesk for everything. Geist Mono ONLY for real code/data (token IDs, kbd, code).
+- **Sections** are `.sec` blocks with a sentence-case `.sec__title` heading row and optional
+  `.sec__aside`. **No tiny uppercase tracked eyebrows, no 01/02 numbering, no chip soup, no
+  generated placeholder art, no glass blur.** These were the "AI slop" tells that got removed.
+- **Links** use `.link` (ink text, signal underline). Buttons: `.btn .btn--solid` / `.btn--line`.
+- **Copy:** no em dashes or AI cadence in visible text (Daniel flagged it). En dashes in date
+  ranges are fine.
+- Slop detector should stay clean: `node ~/.claude/skills/impeccable/scripts/detect.mjs --json src` → `[]`.
 
 ## Routes (7)
 
-- `/` — home feed: `Nav` + `Hero` + `Tabs`(About/Projects/Lab/Contact) + `Footer` + `Dock`.
-- `/about` — deeper page: My Journey · Currently · Tech Stack (grouped) · Education & Certs ·
-  How I work. (Testimonials were MOVED to the home About tab; not here anymore.)
-- `/now` — now-page (`now` in content.ts).
-- `/uses` — tools/stack (`uses` in content.ts).
-- `/writing` + `/writing/[...slug]` — blog (content collection `writing`).
-- `/work/[...slug]` — **case studies** (content collection `caseStudies`). One live: `docsage`.
+- `/`: `Nav` + `Hero` + `Tabs` (About · Projects · Lab · Contact) + `Footer` + `Dock`.
+- `/about`: two-column doc layout. Journey · How I work · Ventures · Education · Tech stack.
+- `/now`, `/uses`: data from `content.ts`.
+- `/writing` + `/writing/[...slug]`: content collection `writing` (one post, `building-this-site`).
+- `/work/[...slug]`: case studies, content collection `caseStudies` (one: `docsage`).
 
-Discoverability: footer colophon (`Now · Uses · Writing · About`, + `Résumé` when cvUrl set) and
-the **⌘K command palette**.
+## Home tabs
 
-## Content model — `src/data/content.ts` (single source of truth for copy)
+- **About:** Experience (dated rows) → **Research** (`#research`, ICACIN 2026 paper with first-page
+  thumbnail) → Recognition (3 wins with certificate + announcement links, then an "also" list of
+  finalist placings) → Tools I reach for (`StackIcons`, grouped) → Recommendations → link to /about.
+- **Projects:** featured project (any project with `shot`, currently AquaSense AI) → index rows
+  grouped by `projectGroups` (AI and machine learning / Full-stack and platforms) → Websites
+  (one wide, then a pair). Rows show Live site / Case study / Source only when those exist.
+- **Lab:** Tokenizer (real cl100k_base via `gpt-tokenizer`) + TemperatureLab (softmax).
+- **Contact:** big email link + Copy button, LinkedIn/GitHub/Résumé rows, "Where I'm most useful".
 
-Exports (types in caps): `profile` (name, title, wordmark, status, location, email,
-**`cvUrl: null`**, links{github,linkedin,x}, bio[]) · `journey` (string[]) · **`experience`**
-(`Job[]` — 4 entries, most-recent first; top one = Blockchain Technology Ltd placement) ·
-**`awards`** (`Award[]`) · `stack` (grouped chips) · **`projects`** (`Project[]` — 6 AI/ML;
-optional `href`/`repo`/**`shot`**) · **`websites`** (`Website[]` — 3 live sites w/ screenshots) ·
-`stuffIDo` · `labIntro` · `now` · `uses` · `currently` · `howIWork` · **`testimonials`**
-(`Testimonial[]` — 1 REAL, has `href`) · `credentials` · `strengths`.
+## Content model: `src/data/content.ts` (single source of truth)
 
-Types: `Job{range,role,org,place?,note}` · `Award{place,event,detail?,year,href?}` ·
-`Project{name,kind,blurb,tags[],href?,repo?,shot?}` · `Website{name,kind,blurb,url,image}` ·
-`Testimonial{quote,name,role,href?}`. Everything marked `// TODO` is a placeholder.
+Exports: `profile` (name, title, headline, status, location, email, `cvUrl`, links, `bio[]`) ·
+`journey` · `experience: Job[]` · `publications: Publication[]` · `awards: Award[]` ·
+`alsoRecognised` · `stack` · `projectGroups` · `projects: Project[]` · `websites: Website[]` ·
+`labIntro` · `credentials` · `ventures` · `now` · `uses` · `currently` · `howIWork` ·
+`testimonials: Testimonial[]` · `strengths`.
 
-## Content collections — `src/content.config.ts`
-
-- **`writing`** — `.md` in `src/content/writing/`. Schema: title, description, date, draft.
-  Seed: `building-this-site.md` (a draft in Daniel's voice; he should review).
-- **`caseStudies`** — `.md` in `src/content/case-studies/`. Schema: title, project, summary,
-  year, role?, stack[], demo?, repo?, **video?, poster?**, draft. Seed: `docsage.md` — factual
-  from CV, with hidden `<!-- TODO -->` comments marking what only Daniel can add (the hard-part
-  story, real metrics, why-local-embeddings). It IS publishable as-is.
-
-## Components
-
-```
-Base.astro         every page: pre-paint theme+a11y inline script, scroll-reveal IO, SEO meta,
-                   renders <CommandPalette/> globally, view-transition setup.
-Nav.astro          fixed top: DI Logo (left) + Settings gear (right). No wordmark text, no theme toggle.
-Logo.astro         DI monogram SVG (currentColor, unique mask id per instance).
-Settings.astro     a11y control panel (gear popover): high-contrast, text-size ±, dyslexia font,
-                   reduce-motion. Persists to localStorage (a11y-* keys).
-Hero.astro         avatar (vector.png) + name + X-style verified badge + title + bio + status.
-                   Orchestrated entrance (staggered [data-reveal] + avatar scale-in).
-Tabs.astro         home tabs About/Projects/Lab/Contact (mechanics below).
-About.astro        "About" tab = Experience + Awards + Stuff I Do + StackIcons + Testimonials
-                   + "More about me →". (Awards + Testimonials live HERE now.)
-StackIcons.astro   tech logo grid (simple-icons). Mono→brand-colour on hover / scroll-bloom on touch.
-Work.astro         "Projects" tab = 6 project cards (real screenshot if project.shot set, else a
-                   generative signal-trace graphic) + "all on GitHub →" + a "Websites" subsection
-                   (real screenshots of 3 live sites, Visit-site hover). Cards show "case study →"
-                   when a caseStudies entry's `project` matches the project name.
-Lab.astro          "Lab" tab = two live React-island demos.
-Tokenizer.tsx      REAL cl100k_base BPE (gpt-tokenizer), in-browser, no API. Featured demo.
-TemperatureLab.tsx softmax / sampling-temperature visualiser.
-Contact.astro      "Contact" tab: magnetic email CTA + GitHub/LinkedIn + conditional CV button + Strengths.
-Footer.astro       live-clock sign-off + socials (+ Résumé icon when cvUrl) + colophon nav + copyright.
-Dock.astro         floating dark dock: Top · About(/about) · ⌘K · Email(accent) · GitHub · Theme.
-                   OWNS theme-toggle logic (window.__toggleTheme) + macOS-style magnify.
-CommandPalette.astro  global ⌘K palette (navigate / actions / connect).
-Notes.astro        UNUSED leftover — safe to delete.
-```
-
-Pages: `index.astro`, `about.astro`, `now.astro`, `uses.astro`, `writing/index.astro`,
-`writing/[...slug].astro`, `work/[...slug].astro`. Public assets: `favicon.svg`, `logo.svg`,
-`vector.png`, `shots/{carril,nuclii,hottake}.jpg` (site screenshots).
+- `bio` and `journey` strings support `**bold**` and `[text](href)` via `src/lib/inline.ts`.
+  `#research`-style hrefs work from any tab (see Tabs mechanics).
+- `Project{name, kind, blurb, stack[], group, note?, href?, repo?, shot?}`. Adding `shot`
+  promotes a project to the featured layout.
+- `Testimonial{quote, name, role, linkedin?, photo?}`. Paragraphs split on blank lines; the first
+  renders as the large lead. Without `photo`, initials show.
 
 ## Key mechanics (don't break)
 
-**Theme + a11y, pre-paint (no flash).** Inline script in `Base.astro` reads localStorage before
-paint: `theme` (dark only if saved "dark", else light) + a11y prefs (`a11y-contrast/font/motion`
-→ `data-*`, `a11y-textscale` → `--ts`). Theme-toggle logic lives in `Dock.astro`
-(`.dock-theme` + `window.__toggleTheme`); ⌘K "toggle theme" also calls `window.__toggleTheme`.
-No `ThemeToggle.astro` (deleted).
+- **Theme + a11y pre-paint** (inline script in `Base.astro`): `theme` (dark only if saved) and
+  `a11y-contrast/font/motion/textscale` → `data-*` attrs / `--ts`. Theme toggle logic lives in
+  `Dock.astro` (`window.__toggleTheme`); ⌘K palette calls it too.
+- **Tabs** (`Tabs.astro`): progressive enhancement. All panels ship visible; the inline script
+  adds `html.tabs-js` and hides inactive ones. **Never add `hidden` to panels in markup.** Hash
+  routing handles tab ids (`#projects`) AND any element id inside a panel (`#research` switches
+  to About, then scrolls). Works on first load, on `hashchange`, and on in-page link clicks.
+  Tabs wrap each slot in `.feed`, so tab components must not add their own `.feed`.
+- **Motion:** CSS-only MPA view transitions; reveal = `.reveal-ready` + IntersectionObserver
+  `.is-in` (content visible without JS); hero entrance is staggered; tab underline scales in;
+  dock magnify. Every animation has a reduced-motion path.
 
-**Tabs.** Slots `about/projects/lab/contact`. Hero persists; tab swaps the panel below.
-Progressive enhancement: ALL panels ship visible; inline script adds `html.tabs-js` and CSS hides
-inactive ones. **Never add `hidden` to panels in markup** (breaks no-JS/crawlers). Hash
-deep-links (`/#projects`) + `hashchange` so dock/footer links switch tabs. ARIA tab roles +
-Arrow/Home/End. Newly-shown panels force-reveal their `[data-reveal]` (were display:none).
+## Assets (`public/`)
 
-**Motion.** Cross-page **view transitions** = CSS-only MPA (`@view-transition{navigation:auto}` +
-`view-transition-name` on `.nav`/`.dock`). **Scroll reveal** = `.reveal-ready` + IO `.is-in`
-(content visible by default). **Dock magnify** + **magnetic email CTA** gated on `hover:hover` &
-not reduced-motion. Every animation has a reduced-motion path.
+`cv/daniel-iyalekhue-cv.pdf` · `papers/icacin-2026-substrate-or-architecture.pdf` +
+`papers/icacin-2026-page1.jpg` (320px thumb rendered from the PDF with PDFKit) ·
+`awards/*` (certificates) · `shots/{aquasense.png, carril.jpg, nuclii.jpg, hottake.jpg}` ·
+`vector.png` (avatar) · `favicon.svg`, `logo.svg`. Loose personal files in the repo root are
+gitignored (`/*.pdf`, `/*.png`, `/*.jpeg`) and must not be published.
 
-**Project media (ready, unused).** `projects[].shot` = "/shots/x.jpg" swaps a card's graphic for a
-real screenshot (fallback = generative trace). Case-study `video` + `poster` frontmatter renders an
-inline lazy `<video>`. Self-hosted mp4 keeps the "no external requests" promise. No assets yet.
+## Verifying UI
 
-## Outstanding (needs Daniel's input)
+Headless Chrome is at `/Applications/Google Chrome.app`. Launch with `--headless=new
+--remote-debugging-port=9222` and drive it over the DevTools WebSocket from a Node script
+(set viewport, navigate, `Page.captureScreenshot`). For full-page shots, resize the viewport to
+the document height rather than using `captureBeyondViewport` (that tiled the page). Headless
+background targets don't advance CSS transitions, so a mid-transition colour in a screenshot
+is not necessarily a bug. `npm run build` before calling anything done.
 
-1. **Deploy his project apps** — IN-FLIGHT topic. He wants the GitHub AI projects live so cards get
-   real "visit" links. These are SEPARATE repos on his accounts/keys (can't deploy from here — guide
-   only). Plan given: Tier 1 easy = **AURAFIND → Vercel**, **Bias-Audit → Streamlit Cloud**; Tier 2 =
-   DocSage/DraftDNA/OPS (Next.js→Vercel, FastAPI→Render/Railway, Postgres→Supabase/Neon, Chroma→disk
-   or Qdrant/Pinecone); Tier 3 skip = **RepoLens** (local Ollama, keep as video). WARN him to set an
-   OpenAI spend cap + rate limiting before sharing any live link. Once a URL exists, set `projects[].href`.
-2. **DocSage case study prompts** — fill the hidden `<!-- TODO -->` in `docsage.md` (metrics, the
-   hard part, why local embeddings) + confirm year + add demo/repo links. Offer to write in his voice.
-3. **Awards** — `awards` has 2 placeholder entries (UKRI Hackathon winner, Oracle Hackathon 2nd,
-   2026). Confirm EXACT event names, dates, links, and what he built.
-4. **Testimonials** — 1 real live (Olumide Olaomo). Ifeoluwa Olorunfemi (RWE) is HELD in a code
-   comment — **never fabricate a named person's quote**; add only real text.
-5. **CV** — drop `public/cv.pdf`, set `profile.cvUrl = "/cv.pdf"` → reveals Résumé links + Contact button.
-6. **Confirm:** Blockchain placement start year + role note (both placeholder); his role on
-   Nuclii/hottake; Web Developer dates (guessed).
-7. **Not deployed / no git.** Portfolio is static Astro → Vercel/Netlify/Cloudflare. `git init` not run.
-8. Optional: screenshots for project cards (`shot`), more Lab explainers (embedding explorer —
-   precompute at build to keep no-network), OG/share image, regenerate `DESIGN.md`, delete dead
-   `Notes.astro` + unused font deps.
+## Outstanding (needs Daniel)
+
+1. **Ifeoluwa Olorunfemi (RWE) recommendation.** Commented slot in `testimonials`. Add only
+   their real words. Never write a quote for a named person.
+2. **Recommendation photos.** LinkedIn photos can't be pulled automatically (login wall, expiring
+   URLs, no third-party loads). With permission, save to `public/people/<name>.jpg` (square,
+   ~160px) and set `photo`.
+3. **Employer name:** CV says "Blockchain Advisors Ltd" (Jun to Aug 2026); an earlier chat said
+   "Blockchain Technology Ltd". Site follows the CV. Confirm.
+4. **Public CV includes his phone number.** Swap the PDF if he'd rather not publish it.
+5. **Paper PDF:** camera-ready copy hosted on the site. Confirm the publisher allows it; once
+   proceedings are out, consider linking the DOI instead or as well.
+6. DocSage case study: hidden `<!-- TODO -->` prompts (metrics, the hard part) in `docsage.md`.
+7. hottake: his role is unconfirmed (`websites` TODO).
+8. **AccessOps backend (paused):** Railway backend is gone, so accessops-coco-ai.vercel.app can't
+   caption. Plan: Google Cloud Run. gcloud SDK is at `~/google-cloud-sdk`. Daniel must run
+   `~/google-cloud-sdk/bin/gcloud auth login`, then create a project with billing, deploy
+   `~/Documents/accessops-coco-ai/webapp/backend` (Dockerfile ready, honours `$PORT`), update
+   `webapp/frontend/vercel.json` rewrite (currently points at a non-existent HF Space), commit
+   that repo, and add `href` to the AccessOps project here.
+9. Optional: og:image for link previews; remove unused deps (`@fontsource-variable/geist`,
+   `jetbrains-mono`, `mona-sans`, `gsap`).
 
 ## Conventions
 
-- OKLCH colour, tokens only (never hardcode colours in components).
-- No em-dashes / AI-cadence in copy. Never ship fake content (placeholder people, invented metrics).
-- `.label` mono section markers are a deliberate consistent system — keep them uniform.
-- Mono is earned (code/metrics/demos), not decorative.
-- Verify UI changes visually (headless Chrome available) and `npm run build` before calling done.
-```
+- OKLCH tokens only; never hardcode colours in components (screenshot frames/shadows excepted).
+- Never ship fake content: placeholder people, invented metrics, fabricated quotes.
+- Commits end with `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`.

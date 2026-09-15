@@ -1,8 +1,8 @@
 ---
 // Tabbed content region. The hero stays persistent above; switching a tab
-// swaps the panel below (like the reference site), with hash-deep-linking.
-// Progressive enhancement: with no JS, every panel is visible (nothing is
-// gated behind a class), so crawlers and no-JS users get the full page.
+// swaps the panel below, with hash deep-linking (#projects) and deep links to
+// anything inside a panel (#research switches to About, then scrolls).
+// Progressive enhancement: with no JS, every panel is visible.
 const tabs = [
   { id: "about", label: "About" },
   { id: "projects", label: "Projects" },
@@ -35,26 +35,31 @@ const tabs = [
 
   <div class="panels">
     <div role="tabpanel" id="panel-about" class="panel is-active" aria-labelledby="tab-about" tabindex="0">
-      <slot name="about" />
+      <div class="feed"><slot name="about" /></div>
     </div>
     <div role="tabpanel" id="panel-projects" class="panel" aria-labelledby="tab-projects" tabindex="0">
-      <slot name="projects" />
+      <div class="feed"><slot name="projects" /></div>
     </div>
     <div role="tabpanel" id="panel-lab" class="panel" aria-labelledby="tab-lab" tabindex="0">
-      <slot name="lab" />
+      <div class="feed"><slot name="lab" /></div>
     </div>
     <div role="tabpanel" id="panel-contact" class="panel" aria-labelledby="tab-contact" tabindex="0">
-      <slot name="contact" />
+      <div class="feed"><slot name="contact" /></div>
     </div>
   </div>
 </section>
 
-<!-- Set active panel from the URL hash BEFORE paint, so there's no flash. -->
+<!-- Pick the active panel from the URL hash BEFORE paint, so there's no flash. -->
 <script is:inline>
   (() => {
     const valid = ["about", "projects", "lab", "contact"];
-    const hash = location.hash.replace("#", "");
-    const active = valid.includes(hash) ? hash : "about";
+    const hash = decodeURIComponent(location.hash.slice(1));
+    let active = valid.includes(hash) ? hash : "about";
+    if (hash && !valid.includes(hash)) {
+      const target = document.getElementById(hash);
+      const panel = target && target.closest(".panel");
+      if (panel) active = panel.id.replace("panel-", "");
+    }
     document.documentElement.classList.add("tabs-js");
     document.querySelectorAll(".panel").forEach((p) =>
       p.classList.toggle("is-active", p.id === "panel-" + active),
@@ -72,56 +77,57 @@ const tabs = [
     position: sticky;
     top: 56px;
     z-index: calc(var(--z-sticky) - 1);
-    background: color-mix(in oklab, var(--bg) 82%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
   }
-  .tabs__inner {
-    display: flex;
-    gap: 0.3rem;
-    padding-block: 0.4rem;
-  }
+  .tabs__inner { display: flex; gap: clamp(1.2rem, 5vw, 2rem); }
   .tab {
-    flex: 1;
+    position: relative;
     appearance: none;
     background: none;
     border: 0;
     font: inherit;
     cursor: pointer;
-    text-align: center;
-    padding: 0.6rem 0.5rem;
-    border-radius: 10px;
-    font-size: 0.88rem;
+    padding: 0.9rem 0 0.85rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--muted);
-    transition: color 0.2s ease, background 0.2s ease;
+    transition: color 0.2s ease;
   }
-  .tab:hover { color: var(--ink); background: var(--surface); }
-  .tab[aria-selected="true"] {
-    color: var(--ink);
-    background: var(--surface-2);
-    font-weight: 600;
+  .tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.38s var(--ease-out);
   }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] { color: var(--ink); }
+  .tab[aria-selected="true"]::after { transform: scaleX(1); }
+  .tab:focus-visible { outline-offset: 0; }
 
   /* With JS, show only the active panel. Without JS, all panels show. */
   :global(html.tabs-js) .panel:not(.is-active) { display: none; }
-
-  :global(html.tabs-js) .panel.is-active {
-    animation: panel-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  :global(html.tabs-js) .panel.is-active { animation: panel-in 0.45s var(--ease-out); }
+  .panel:focus-visible { outline: none; }
   @keyframes panel-in {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     :global(html.tabs-js) .panel.is-active { animation: none; }
+    .tab::after { transition: none; }
   }
 </style>
 
 <script>
-  const valid = ["about", "projects", "lab", "contact"] as const;
+  const valid = ["about", "projects", "lab", "contact"];
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".tab"));
   const panels = new Map(
     Array.from(document.querySelectorAll<HTMLElement>(".panel")).map((p) => [
@@ -135,13 +141,13 @@ const tabs = [
   function reveal(panel: HTMLElement) {
     // A just-shown panel was display:none, so its reveal items never fired.
     panel.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el, i) => {
-      el.style.transitionDelay = reduce ? "0ms" : `${Math.min(i * 45, 260)}ms`;
+      el.style.transitionDelay = reduce ? "0ms" : `${Math.min(i * 50, 200)}ms`;
       el.classList.add("is-in");
     });
   }
 
-  function activate(id: string, opts: { scroll?: boolean; focus?: boolean } = {}) {
-    if (!valid.includes(id as any)) id = "about";
+  function activate(id: string, opts: { scroll?: boolean; hash?: string } = {}) {
+    if (!valid.includes(id)) id = "about";
     tabs.forEach((t) => {
       const on = t.dataset.tab === id;
       t.setAttribute("aria-selected", on ? "true" : "false");
@@ -151,15 +157,22 @@ const tabs = [
     const panel = panels.get(id);
     if (panel) reveal(panel);
 
-    if (history.replaceState) history.replaceState(null, "", `#${id}`);
+    history.replaceState(null, "", `#${opts.hash ?? id}`);
 
     if (opts.scroll && region) {
       const top = region.getBoundingClientRect().top + window.scrollY - 56;
-      if (window.scrollY > top - 4) {
-        window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
-      }
+      if (window.scrollY > top - 4) window.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
     }
-    if (opts.focus) panels.get(id)?.focus({ preventScroll: true });
+  }
+
+  // Route any hash: a tab id, or an element inside one of the panels.
+  function route(hash: string) {
+    if (valid.includes(hash)) return activate(hash, { scroll: true });
+    const target = hash ? document.getElementById(hash) : null;
+    const panel = target?.closest<HTMLElement>(".panel");
+    if (!target || !panel) return;
+    activate(panel.id.replace("panel-", ""), { hash });
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }));
   }
 
   tabs.forEach((tab) => {
@@ -173,20 +186,30 @@ const tabs = [
       else if (e.key === "End") j = tabs.length - 1;
       if (j >= 0) {
         e.preventDefault();
-        const next = tabs[j];
-        next.focus();
-        activate(next.dataset.tab!);
+        tabs[j].focus();
+        activate(tabs[j].dataset.tab!);
       }
     });
   });
 
-  // Deep links from anywhere (dock, footer) that point at a tab id.
-  window.addEventListener("hashchange", () => {
-    const id = location.hash.replace("#", "");
-    if (valid.includes(id as any)) activate(id, { scroll: true });
+  // In-page links (hero, dock, footer) that point at a tab or a section in one.
+  document.addEventListener("click", (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"], a[href^="/#"]');
+    if (!a || location.pathname !== "/") return;
+    const hash = decodeURIComponent(a.getAttribute("href")!.split("#")[1] || "");
+    if (!hash || hash === "top" || hash === "main") return;
+    if (valid.includes(hash) || document.getElementById(hash)?.closest(".panel")) {
+      e.preventDefault();
+      route(hash);
+    }
   });
+  window.addEventListener("hashchange", () => route(decodeURIComponent(location.hash.slice(1))));
 
-  // Reveal the initial active panel's content.
-  const initial = location.hash.replace("#", "");
-  reveal(panels.get(valid.includes(initial as any) ? initial : "about")!);
+  // Reveal the initial panel; honour a deep link to a section inside it.
+  const initial = decodeURIComponent(location.hash.slice(1));
+  const active = document.querySelector<HTMLElement>(".panel.is-active") ?? panels.get("about")!;
+  reveal(active);
+  if (initial && !valid.includes(initial)) {
+    requestAnimationFrame(() => document.getElementById(initial)?.scrollIntoView({ block: "start" }));
+  }
 </script>

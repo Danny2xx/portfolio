@@ -14,7 +14,7 @@ It's accessible out of the box. Keyboard navigation, plus a small panel for cont
 
 The Lab runs real demos instead of screenshots.
 
-For the stack I used Astro with a few React islands for the interactive parts. Astro ships no JavaScript unless a component needs it, so the static parts stay static and only the demos hydrate. Styling is plain CSS with a light and dark theme. The type is Hanken Grotesk, with Geist Mono for anything technical.
+For the stack I used Astro with a few React islands for the interactive parts. Astro ships no JavaScript unless a component needs it, so the static parts stay static and only the demos hydrate. Styling is plain CSS with a light and dark theme. Everything is set in Hanken Grotesk. Geist Mono only shows up where the text really is code or data, like the token IDs in the Lab.
 
 My favourite part is the tokenizer in the Lab. It runs the same BPE tokenizer as GPT-3.5 and 4, fully in the browser, with no API. Type a sentence and you can watch it break into tokens. "Tokenization" becomes two tokens, "GPT-4" becomes three, and an emoji becomes a handful of bytes.
 

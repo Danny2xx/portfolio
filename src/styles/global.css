@@ -1,52 +1,56 @@
 @import "tailwindcss";
 
-/* Self-hosted variable fonts — Hanken Grotesk (sans) + Geist Mono (technical) */
+/* Self-hosted variable fonts: Hanken Grotesk carries everything; Geist Mono is
+   reserved for things that really are code or data (token IDs, kbd, code). */
 @import "@fontsource-variable/hanken-grotesk/wght.css";
 @import "@fontsource-variable/geist-mono/wght.css";
-/* Dyslexia-friendly font — only applied when the a11y toggle is on */
+/* Dyslexia-friendly font, only applied when the a11y toggle is on */
 @import "@fontsource/opendyslexic/400.css";
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Tokens — clean, light-first (reference-style). Light is default; dark mirrors.
-   Mostly-neutral palette with restrained indigo for interaction + gold verify.
+   Tokens. Graphite ink on white with ONE signal colour (vermilion), like the
+   single coloured key on a Braun calculator. Signal marks what is live or
+   actionable: link underlines, the active tab, focus, the availability light.
+   Everything else is neutral (chroma 0). Light is default; dark mirrors it.
    ────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* light (default) */
   --bg: oklch(1 0 0);
-  --surface: oklch(0.984 0 0);
-  --surface-2: oklch(0.965 0 0);
-  --border: oklch(0.922 0 0);
-  --border-strong: oklch(0.86 0 0);
-  --ink: oklch(0.23 0 0);
-  --muted: oklch(0.50 0 0);
-  --faint: oklch(0.58 0 0);
-  --primary: oklch(0.52 0.17 273);
-  --primary-hi: oklch(0.46 0.17 273);
-  --accent: oklch(0.74 0.13 78);
-  --accent-hi: oklch(0.68 0.13 74);
+  --surface: oklch(0.977 0 0);
+  --surface-2: oklch(0.955 0 0);
+  --border: oklch(0.915 0 0);
+  --border-strong: oklch(0.84 0 0);
+  --ink: oklch(0.2 0 0);
+  --muted: oklch(0.44 0 0);
+  --faint: oklch(0.53 0 0);
+
+  --primary: oklch(0.6 0.2 34); /* signal: fills, underlines, indicators */
+  --primary-hi: oklch(0.5 0.18 34); /* signal used as text (>= 4.5:1 on bg) */
+  --accent: var(--primary);
+  --accent-hi: var(--primary-hi);
   --on-primary: oklch(0.99 0 0);
-  --on-accent: oklch(0.24 0.04 78);
-  --good: oklch(0.62 0.16 150);
+  --on-accent: oklch(0.99 0 0);
+  --good: oklch(0.6 0.15 150);
 
-  --glow-primary: oklch(0.52 0.17 273 / 0.12);
-  --glow-accent: oklch(0.74 0.13 78 / 0.14);
-  --ring: oklch(0.52 0.17 273 / 0.45);
+  --glow-primary: oklch(0.6 0.2 34 / 0.14);
+  --glow-accent: oklch(0.6 0.2 34 / 0.14);
+  --ring: oklch(0.6 0.2 34 / 0.5);
 
-  /* dock is always dark (like the reference), so it needs fixed colors */
-  --dock-bg: oklch(0.20 0 0);
-  --dock-border: oklch(0.32 0 0);
+  /* dock is always dark, so it needs fixed colours */
+  --dock-bg: oklch(0.19 0 0);
+  --dock-border: oklch(0.3 0 0);
   --dock-ink: oklch(0.78 0 0);
   --dock-ink-hi: oklch(0.99 0 0);
-  --dock-surface: oklch(0.28 0 0);
+  --dock-surface: oklch(0.27 0 0);
 
   /* type */
   --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* fluid space + measure */
-  --feed-max: 44rem;
+  /* space + measure */
+  --feed-max: 46rem;
   --pad-x: clamp(1.1rem, 4vw, 2rem);
-  --lh-body: 1.6;
+  --lh-body: 1.62;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* z-index scale */
   --z-sticky: 100;
@@ -59,31 +63,30 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: oklch(0.165 0 0);
-  --surface: oklch(0.205 0 0);
-  --surface-2: oklch(0.25 0 0);
-  --border: oklch(0.30 0 0);
-  --border-strong: oklch(0.40 0 0);
-  --ink: oklch(0.96 0 0);
-  --muted: oklch(0.72 0 0);
-  --faint: oklch(0.60 0 0);
-  --primary: oklch(0.66 0.16 273);
-  --primary-hi: oklch(0.74 0.15 273);
-  --accent: oklch(0.80 0.13 78);
-  --accent-hi: oklch(0.86 0.12 80);
-  --on-primary: oklch(0.99 0 0);
-  --on-accent: oklch(0.20 0.03 78);
-  --good: oklch(0.78 0.16 150);
+  --bg: oklch(0.155 0 0);
+  --surface: oklch(0.195 0 0);
+  --surface-2: oklch(0.235 0 0);
+  --border: oklch(0.285 0 0);
+  --border-strong: oklch(0.38 0 0);
+  --ink: oklch(0.955 0 0);
+  --muted: oklch(0.76 0 0);
+  --faint: oklch(0.64 0 0);
 
-  --glow-primary: oklch(0.66 0.16 273 / 0.22);
-  --glow-accent: oklch(0.80 0.13 78 / 0.20);
-  --ring: oklch(0.66 0.16 273 / 0.55);
+  --primary: oklch(0.7 0.18 38);
+  --primary-hi: oklch(0.78 0.15 42);
+  --on-primary: oklch(0.16 0 0);
+  --on-accent: oklch(0.16 0 0);
+  --good: oklch(0.76 0.15 150);
 
-  --dock-bg: oklch(0.24 0 0);
-  --dock-border: oklch(0.36 0 0);
-  --dock-ink: oklch(0.80 0 0);
+  --glow-primary: oklch(0.7 0.18 38 / 0.2);
+  --glow-accent: oklch(0.7 0.18 38 / 0.2);
+  --ring: oklch(0.7 0.18 38 / 0.55);
+
+  --dock-bg: oklch(0.23 0 0);
+  --dock-border: oklch(0.34 0 0);
+  --dock-ink: oklch(0.8 0 0);
   --dock-ink-hi: oklch(0.99 0 0);
-  --dock-surface: oklch(0.32 0 0);
+  --dock-surface: oklch(0.31 0 0);
 
   color-scheme: dark;
 }
@@ -92,32 +95,29 @@
    Accessibility preferences (set via the control panel, persisted, applied
    pre-paint in Base.astro). Each is a data-attr / scale var on <html>.
    ────────────────────────────────────────────────────────────────────────── */
-
-/* Text size — scales everything rem-based. */
 :root { --ts: 1; }
 
-/* High contrast — push ink/borders to the extremes, mute toward ink. */
 :root[data-contrast="high"] {
-  --ink: oklch(0.12 0 0);
-  --muted: oklch(0.30 0 0);
-  --faint: oklch(0.38 0 0);
-  --border: oklch(0.74 0 0);
-  --border-strong: oklch(0.60 0 0);
+  --ink: oklch(0.1 0 0);
+  --muted: oklch(0.28 0 0);
+  --faint: oklch(0.36 0 0);
+  --border: oklch(0.72 0 0);
+  --border-strong: oklch(0.56 0 0);
+  --primary-hi: oklch(0.42 0.16 34);
 }
 :root[data-theme="dark"][data-contrast="high"] {
   --ink: oklch(1 0 0);
-  --muted: oklch(0.86 0 0);
-  --faint: oklch(0.76 0 0);
-  --border: oklch(0.52 0 0);
-  --border-strong: oklch(0.66 0 0);
+  --muted: oklch(0.88 0 0);
+  --faint: oklch(0.8 0 0);
+  --border: oklch(0.54 0 0);
+  --border-strong: oklch(0.68 0 0);
+  --primary-hi: oklch(0.84 0.13 44);
 }
 
-/* Dyslexia-friendly font. */
 :root[data-font="dyslexic"] {
   --font-sans: "OpenDyslexic", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Forced reduced motion (in addition to the OS media query). */
 :root[data-motion="reduced"] * {
   animation-duration: 0.001ms !important;
   animation-iteration-count: 1 !important;
@@ -126,20 +126,19 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Cross-page view transitions (CSS-only MPA — no client router, no JS).
-   Supported browsers cross-fade between full page loads; others just navigate.
+   Cross-page view transitions (CSS-only MPA, no client router).
    ────────────────────────────────────────────────────────────────────────── */
 @view-transition { navigation: auto; }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.34s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-duration: 0.3s;
+  animation-timing-function: var(--ease-out);
 }
 ::view-transition-old(root) { animation-name: vt-out; }
 ::view-transition-new(root) { animation-name: vt-in; }
 @keyframes vt-out { to { opacity: 0; } }
-@keyframes vt-in { from { opacity: 0; transform: translateY(9px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(8px); } }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
@@ -156,6 +155,7 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  scroll-padding-top: 7.5rem; /* fixed nav + sticky tabs */
   font-size: calc(100% * var(--ts, 1));
 }
 
@@ -168,10 +168,11 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: clamp(0.8rem, 0.78rem + 0.1vw, 0.85rem);
+  font-size: 0.875rem;
   line-height: var(--lh-body);
   font-weight: 400;
   font-synthesis: none;
+  font-variant-numeric: tabular-nums;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -180,14 +181,15 @@ body {
 
 h1, h2, h3, h4 {
   font-weight: 600;
-  line-height: 1.14;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
   text-wrap: balance;
   margin: 0;
 }
 
 p { text-wrap: pretty; margin: 0; }
 a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
 
 ::selection {
   background: var(--primary);
@@ -200,17 +202,6 @@ a { color: inherit; text-decoration: none; }
   border-radius: 4px;
 }
 
-/* Tactile press feedback on the common controls (dock handles its own). */
-@media (prefers-reduced-motion: no-preference) {
-  :where(.tab, .set__btn, .set__sz, .footer__social a, .contact__link, .more a, .back, .card__lnk, .cmd):active {
-    transform: scale(0.96);
-  }
-  :where(.tab, .set__btn, .set__sz, .footer__social a, .contact__link, .back):not(:active) {
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease,
-      border-color 0.18s ease, background 0.18s ease;
-  }
-}
-
 ::-webkit-scrollbar { width: 11px; height: 11px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -221,7 +212,7 @@ a { color: inherit; text-decoration: none; }
 ::-webkit-scrollbar-thumb:hover { background: var(--faint); }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Shared utilities
+   Shared building blocks (used across components and pages)
    ────────────────────────────────────────────────────────────────────────── */
 .feed {
   width: 100%;
@@ -230,27 +221,137 @@ a { color: inherit; text-decoration: none; }
   padding-inline: var(--pad-x);
 }
 
-/* mono channel label — clean uppercase mono, reference-style */
-.label {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--faint);
+.mono { font-family: var(--font-mono); }
+.num { font-variant-numeric: tabular-nums; }
+.meta { font-size: 0.78rem; color: var(--faint); }
+
+/* Links: ink text, signal underline. The underline is the affordance. */
+.link {
+  color: var(--ink);
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in oklab, var(--primary) 50%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.link:hover {
+  text-decoration-color: var(--primary);
+  text-decoration-thickness: 2px;
+}
+.link--quiet { color: var(--muted); }
+.link--quiet:hover { color: var(--ink); }
+
+/* Sections inside the home tabs. A heading row, not an eyebrow. */
+.sec { padding-block: clamp(2.2rem, 5vw, 2.9rem); }
+.sec + .sec { border-top: 1px solid var(--border); }
+.sec:first-child { padding-top: clamp(2.4rem, 6vw, 3.2rem); }
+.sec__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.3rem;
+}
+.sec__title { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.012em; }
+.sec__aside { font-size: 0.8rem; color: var(--faint); white-space: nowrap; }
+.sec__intro { color: var(--muted); max-width: 60ch; margin: -0.6rem 0 1.5rem; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.3rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 560;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    transform 0.2s var(--ease-out);
+}
+.btn svg { width: 15px; height: 15px; flex: none; }
+.btn--solid { background: var(--ink); color: var(--bg); }
+.btn--solid:hover { background: color-mix(in oklab, var(--ink) 84%, var(--primary)); }
+.btn--line { background: var(--bg); color: var(--ink); border-color: var(--border-strong); }
+.btn--line:hover { border-color: var(--ink); }
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(.btn, .tab, .set__btn, .set__sz, .footer__social a, .back):active {
+    transform: scale(0.97);
+  }
 }
 
-.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1; }
+/* Sub-pages */
+.page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 2.2rem;
+  transition: color 0.18s ease;
+}
+.back:hover { color: var(--ink); }
+.page__title { font-size: clamp(1.45rem, 1.1rem + 1.4vw, 1.9rem); letter-spacing: -0.025em; }
+.page__sub { color: var(--muted); max-width: 56ch; margin-top: 0.6rem; font-size: 0.92rem; }
+.page__foot { margin-top: 2.8rem; color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
 
-.rule { height: 1px; background: var(--border); border: 0; }
+/* Long-form text (writing + case studies) */
+.prose { max-width: 66ch; color: var(--ink); font-size: 0.95rem; line-height: 1.72; }
+.prose p { margin: 0 0 1.15rem; color: var(--muted); }
+.prose h2 { font-size: 1.1rem; margin: 2.3rem 0 0.8rem; color: var(--ink); }
+.prose h3 { font-size: 0.98rem; margin: 1.8rem 0 0.6rem; color: var(--ink); }
+.prose strong { color: var(--ink); font-weight: 600; }
+.prose em { font-style: italic; }
+.prose a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--primary);
+  text-underline-offset: 0.24em;
+  text-decoration-thickness: 1px;
+}
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose ul, .prose ol {
+  margin: 0 0 1.15rem;
+  padding-left: 1.3rem;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.prose li { padding-left: 0.2rem; }
+.prose li::marker { color: var(--faint); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  color: var(--ink);
+  background: var(--surface-2);
+  border-radius: 5px;
+  padding: 0.1em 0.35em;
+}
+.prose blockquote {
+  margin: 1.4rem 0;
+  padding: 0.9rem 1.1rem;
+  background: var(--surface);
+  border-radius: 10px;
+  color: var(--muted);
+}
+.prose blockquote p:last-child { margin-bottom: 0; }
 
 .skip-link {
   position: fixed;
   top: -100px;
   left: 1rem;
   z-index: var(--z-toast);
-  background: var(--primary);
-  color: var(--on-primary);
+  background: var(--ink);
+  color: var(--bg);
   padding: 0.6rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -258,17 +359,15 @@ a { color: inherit; text-decoration: none; }
 }
 .skip-link:focus { top: 1rem; }
 
-/* Reveal-on-scroll: content visible by default; JS opts INTO the entrance. */
+/* Reveal: content is visible by default; JS opts INTO the entrance. */
 .reveal-ready [data-reveal] {
   opacity: 0;
-  transform: translateY(14px);
-  will-change: opacity, transform;
+  transform: translateY(10px);
 }
 .reveal-ready [data-reveal].is-in {
   opacity: 1;
   transform: none;
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -12,15 +12,17 @@ const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "short", day: "numeric" });
 ---
 
-<Base title={`Writing — ${profile.name}`} description="Notes on AI engineering, building, and what I'm learning.">
+<Base title={`Writing · ${profile.name}`} description="Notes on AI engineering, building, and what I'm learning.">
   <Nav />
-  <main id="top" class="page">
+  <main id="main" class="page">
     <div class="feed">
-      <a class="back" href="/">← Back to portfolio</a>
+      <a class="back" href="/">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Portfolio
+      </a>
 
-      <header class="page__head">
-        <span class="label">Writing</span>
-        <h1>Notes</h1>
+      <header class="head">
+        <h1 class="page__title">Notes</h1>
         <p class="page__sub">Working notes on AI engineering, building, and what I'm learning.</p>
       </header>
 
@@ -33,10 +35,9 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
               <a class="post__link" href={`/writing/${post.id}`}>
                 <div class="post__top">
                   <h2 class="post__title">{post.data.title}</h2>
-                  <time class="post__date mono" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
+                  <time class="post__date" datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
                 </div>
                 <p class="post__desc">{post.data.description}</p>
-                <span class="post__go mono">read →</span>
               </a>
             </li>
           ))}
@@ -49,23 +50,22 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
 </Base>
 
 <style>
-  .page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
-  .back { display: inline-block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin-bottom: 2rem; }
-  .back:hover { color: var(--ink); }
-  .page__head { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2rem; }
-  .page__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
-  .page__sub { font-size: 0.9rem; color: var(--muted); max-width: 56ch; }
-
-  .empty { color: var(--faint); font-family: var(--font-mono); font-size: 0.85rem; padding: 2rem 0; }
+  .head { margin-bottom: clamp(1.8rem, 5vw, 2.4rem); }
+  .empty { color: var(--faint); padding: 2rem 0; }
   .posts { list-style: none; margin: 0; padding: 0; }
   .post { border-top: 1px solid var(--border); }
   .post:last-child { border-bottom: 1px solid var(--border); }
-  .post__link { display: block; padding: 1.3rem 0.2rem; transition: padding-left 0.25s cubic-bezier(0.16,1,0.3,1); }
-  .post__link:hover { padding-left: 0.6rem; }
+  .post__link { display: block; padding: 1.2rem 0; }
   .post__top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-  .post__title { font-size: 1.02rem; font-weight: 600; transition: color 0.2s ease; }
-  .post__link:hover .post__title { color: var(--primary-hi); }
-  .post__date { font-size: 0.7rem; color: var(--faint); white-space: nowrap; }
-  .post__desc { color: var(--muted); margin-top: 0.35rem; font-size: 0.88rem; max-width: 64ch; }
-  .post__go { display: inline-block; margin-top: 0.6rem; font-size: 0.72rem; color: var(--primary); }
+  .post__title {
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.24em;
+    transition: text-decoration-color 0.2s ease;
+  }
+  .post__link:hover .post__title { text-decoration-color: var(--primary); }
+  .post__date { font-size: 0.8rem; color: var(--faint); white-space: nowrap; }
+  .post__desc { color: var(--muted); margin-top: 0.3rem; max-width: 62ch; }
 </style>

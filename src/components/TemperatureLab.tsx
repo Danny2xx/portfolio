@@ -1,8 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 
 /* A small, real demo: how sampling temperature reshapes an LLM's next-token
-   distribution. Pure client-side softmax over fixed logits. Interactive,
-   illustrative, no dependencies. */
+   distribution. Pure client-side softmax over fixed logits. No dependencies. */
 
 const TOKENS = [
   { t: "the", logit: 3.1 },
@@ -32,22 +31,23 @@ export default function TemperatureLab() {
 
   return (
     <div className="tl">
+      <p className="tl__prompt">
+        Next word after <q>I build</q>
+      </p>
+
       <div className="tl__bars">
         {TOKENS.map((tok, i) => {
           const p = probs[i];
           return (
             <div className="tl__row" key={tok.t}>
-              <span className="tl__tok mono">{tok.t}</span>
+              <span className="tl__tok">{tok.t}</span>
               <div className="tl__track">
                 <div
-                  className="tl__fill"
-                  style={{
-                    width: `${(p * 100).toFixed(1)}%`,
-                    opacity: 0.45 + (p / maxP) * 0.55,
-                  }}
+                  className={`tl__fill${p === maxP ? " is-top" : ""}`}
+                  style={{ transform: `scaleX(${p.toFixed(4)})` }}
                 />
               </div>
-              <span className="tl__pct mono">{(p * 100).toFixed(1)}%</span>
+              <span className="tl__pct">{(p * 100).toFixed(1)}%</span>
             </div>
           );
         })}
@@ -55,8 +55,10 @@ export default function TemperatureLab() {
 
       <div className="tl__ctrl">
         <div className="tl__ctrl-head">
-          <label htmlFor="temp" className="mono">temperature</label>
-          <span className="tl__val mono">{temp.toFixed(2)} · {label}</span>
+          <label htmlFor="temp">Temperature</label>
+          <span className="tl__val">
+            <b>{temp.toFixed(2)}</b> {label}
+          </span>
         </div>
         <input
           id="temp"
@@ -65,6 +67,7 @@ export default function TemperatureLab() {
           max="2"
           step="0.01"
           value={temp}
+          style={{ "--pct": `${(temp / 2) * 100}%` } as CSSProperties}
           onChange={(e) => setTemp(parseFloat(e.target.value))}
         />
       </div>
@@ -74,33 +77,41 @@ export default function TemperatureLab() {
 }
 
 const css = `
-.tl { display: flex; flex-direction: column; gap: 1.1rem; }
-.tl__bars { display: flex; flex-direction: column; gap: 0.55rem; }
-.tl__row { display: grid; grid-template-columns: 5.5rem 1fr 3.4rem; align-items: center; gap: 0.7rem; }
-.tl__tok { font-size: 0.82rem; color: var(--ink); text-align: right; }
-.tl__track { height: 14px; background: color-mix(in oklab, var(--bg) 55%, transparent); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.tl { display: flex; flex-direction: column; gap: 1.05rem; }
+.tl__prompt { font-size: 0.8rem; color: var(--faint); }
+.tl__prompt q { color: var(--ink); quotes: "\\201C" "\\2026\\201D"; }
+.tl__bars { display: flex; flex-direction: column; gap: 0.5rem; }
+.tl__row { display: grid; grid-template-columns: 5rem 1fr 3.2rem; align-items: center; gap: 0.75rem; }
+.tl__tok { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink); text-align: right; }
+.tl__track { height: 10px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .tl__fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--primary-hi));
-  box-shadow: 0 0 12px var(--glow-primary);
-  border-radius: 4px;
-  transition: width 0.32s cubic-bezier(0.16,1,0.3,1), opacity 0.32s ease;
+  width: 100%; height: 100%;
+  background: color-mix(in oklab, var(--ink) 55%, transparent);
+  transform-origin: left center;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
 }
-.tl__pct { font-size: 0.74rem; color: var(--muted); text-align: right; }
+.tl__fill.is-top { background: var(--primary); }
+.tl__pct { font-size: 0.78rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
 
 .tl__ctrl { border-top: 1px solid var(--border); padding-top: 1rem; }
-.tl__ctrl-head { display: flex; justify-content: space-between; font-size: 0.74rem; letter-spacing: 0.04em; margin-bottom: 0.6rem; }
-.tl__ctrl-head label { color: var(--faint); text-transform: uppercase; }
-.tl__val { color: var(--accent); }
+.tl__ctrl-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; font-size: 0.8rem; margin-bottom: 0.75rem; }
+.tl__ctrl-head label { color: var(--muted); }
+.tl__val { color: var(--faint); }
+.tl__val b { color: var(--ink); font-weight: 600; margin-right: 0.25rem; font-variant-numeric: tabular-nums; }
 
-.tl input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 99px;
-  background: linear-gradient(90deg, var(--primary), var(--accent)); cursor: pointer; }
-.tl input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%;
-  background: var(--ink); border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--border-strong), 0 4px 10px -2px var(--glow-primary); }
-.tl input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--ink);
-  border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--border-strong); }
-.tl input[type="range"]:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+.tl input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 99px; cursor: pointer;
+  background: linear-gradient(to right, var(--ink) var(--pct), var(--border-strong) var(--pct));
+}
+.tl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--ink);
+}
+.tl input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 2px solid var(--ink);
+}
+.tl input[type="range"]:focus-visible { outline: 2px solid var(--primary); outline-offset: 6px; }
 
 @media (prefers-reduced-motion: reduce) { .tl__fill { transition: none; } }
-@media (max-width: 480px) { .tl__row { grid-template-columns: 4.4rem 1fr 3rem; } }
+@media (max-width: 480px) { .tl__row { grid-template-columns: 4.2rem 1fr 3rem; gap: 0.55rem; } }
 `;

@@ -15,8 +15,8 @@
 
   <div id="set-panel" class="set__panel" role="dialog" aria-label="Accessibility settings" hidden>
     <div class="set__head">
-      <span class="label">Accessibility</span>
-      <button class="set__reset mono" data-reset type="button">reset</button>
+      <h2 class="set__title">Accessibility</h2>
+      <button class="set__reset" data-reset type="button">Reset</button>
     </div>
 
     <div class="set__row">
@@ -71,9 +71,10 @@
   .set__panel[hidden] { display: none; }
 
   .set__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+  .set__title { font-size: 0.86rem; font-weight: 600; }
   .set__reset {
-    font-size: 0.7rem; color: var(--muted); background: none; border: 0; cursor: pointer;
-    text-transform: uppercase; letter-spacing: 0.08em;
+    font: inherit; font-size: 0.8rem; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer;
+    text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 0.22em;
   }
   .set__reset:hover { color: var(--ink); }
 

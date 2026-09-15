@@ -39,6 +39,9 @@ import { profile } from "../data/content";
       <li class="cmd" role="option" data-act="go" data-href="/writing" data-kw="writing notes blog posts">
         <span class="cmd__ic" aria-hidden="true">▸</span> Writing <span class="cmd__hint mono">notes</span>
       </li>
+      <li class="cmd" role="option" data-act="go" data-href="/#research" data-kw="research paper publication icacin">
+        <span class="cmd__ic" aria-hidden="true">▸</span> Research <span class="cmd__hint mono">ICACIN 2026 paper</span>
+      </li>
 
       <li class="cmdk__group mono">Actions</li>
       <li class="cmd" role="option" data-act="theme" data-kw="theme dark light mode toggle">
@@ -58,6 +61,11 @@ import { profile } from "../data/content";
       <li class="cmd" role="option" data-act="ext" data-href={profile.links.linkedin} data-kw="linkedin">
         <span class="cmd__ic" aria-hidden="true">in</span> LinkedIn
       </li>
+      {profile.cvUrl && (
+        <li class="cmd" role="option" data-act="ext" data-href={profile.cvUrl} data-kw="cv resume résumé pdf download">
+          <span class="cmd__ic" aria-hidden="true">↓</span> Résumé <span class="cmd__hint mono">PDF</span>
+        </li>
+      )}
 
       <li id="cmdk-empty" class="cmdk__empty" hidden>No matches</li>
     </ul>
@@ -98,7 +106,7 @@ import { profile } from "../data/content";
   .cmdk__esc { font-size: 0.66rem; color: var(--faint); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.35rem; }
 
   .cmdk__list { list-style: none; margin: 0; padding: 0.4rem; max-height: 50vh; overflow-y: auto; }
-  .cmdk__group { font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); padding: 0.6rem 0.7rem 0.3rem; }
+  .cmdk__group { font-size: 0.76rem; color: var(--faint); padding: 0.65rem 0.7rem 0.3rem; }
   .cmd {
     display: flex; align-items: center; gap: 0.7rem;
     padding: 0.6rem 0.7rem; border-radius: 9px; cursor: pointer;

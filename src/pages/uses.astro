@@ -6,23 +6,24 @@ import Dock from "../components/Dock.astro";
 import { profile, uses } from "../data/content";
 ---
 
-<Base title={`Uses — ${profile.name}`} description="The languages, tools and stack Daniel Iyalekhue works in.">
+<Base title={`Uses · ${profile.name}`} description="The languages, tools and stack Daniel Iyalekhue works in.">
   <Nav />
-  <main id="top" class="page">
+  <main id="main" class="page">
     <div class="feed">
-      <a class="back" href="/">← Back to portfolio</a>
+      <a class="back" href="/">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Portfolio
+      </a>
 
-      <header class="page__head">
-        <span class="label">Uses</span>
-        <h1>What I build with</h1>
+      <header class="head">
+        <h1 class="page__title">What I build with</h1>
         <p class="page__sub">The tools I reach for day to day, on real projects.</p>
-
       </header>
 
       <div class="uses">
         {uses.map((g) => (
           <section class="uses__group">
-            <h2 class="uses__name mono">{g.group}</h2>
+            <h2 class="uses__name">{g.group}</h2>
             <ul class="uses__list">
               {g.items.map((it) => (
                 <li class="uses__item">
@@ -36,8 +37,8 @@ import { profile, uses } from "../data/content";
       </div>
 
       <p class="page__foot">
-        Inspired by <a href="https://uses.tech" target="_blank" rel="noreferrer">uses.tech</a>.
-        <a href="/#projects">See it in the work →</a>
+        <span>Inspired by <a class="link" href="https://uses.tech" target="_blank" rel="noreferrer">uses.tech</a>.</span>
+        <a class="link" href="/#projects">See it in the work</a>
       </p>
     </div>
   </main>
@@ -46,35 +47,21 @@ import { profile, uses } from "../data/content";
 </Base>
 
 <style>
-  .page { padding-top: clamp(5.5rem, 8vw, 7rem); padding-bottom: clamp(5rem, 9vw, 7rem); }
-  .back {
-    display: inline-block; font-family: var(--font-mono); font-size: 0.72rem;
-    color: var(--muted); margin-bottom: 2rem;
-  }
-  .back:hover { color: var(--ink); }
-
-  .page__head { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 2.4rem; }
-  .page__head h1 { font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.7rem); }
-  .page__sub { font-size: 0.9rem; color: var(--muted); max-width: 56ch; }
-
-  .uses { display: flex; flex-direction: column; }
+  .head { margin-bottom: clamp(2rem, 5vw, 2.6rem); }
   .uses__group {
-    display: grid; grid-template-columns: 8rem 1fr; gap: 1.2rem;
-    padding: 1.3rem 0; border-top: 1px solid var(--border); align-items: start;
+    display: grid;
+    grid-template-columns: 8.25rem 1fr;
+    gap: 1.25rem;
+    padding: 1.2rem 0;
+    border-top: 1px solid var(--border);
+    align-items: start;
   }
-  .uses__group:first-child { border-top: 0; }
-  .uses__name { font-size: 0.7rem; letter-spacing: 0.05em; color: var(--faint); text-transform: uppercase; padding-top: 0.35rem; margin: 0; }
-  .uses__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+  .uses__name { font-size: 0.92rem; font-weight: 600; line-height: 1.6; }
+  .uses__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
   .uses__item { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
-  .uses__tool { font-size: 0.95rem; color: var(--ink); font-weight: 500; }
-  .uses__note { font-size: 0.76rem; color: var(--faint); font-family: var(--font-mono); }
-
-  .page__foot { margin-top: 2.6rem; color: var(--muted); font-size: 0.86rem; display: flex; gap: 1rem; flex-wrap: wrap; }
-  .page__foot a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
-  .page__foot a:hover { color: var(--primary-hi); }
-
+  .uses__tool { font-size: 0.92rem; color: var(--ink); }
+  .uses__note { font-size: 0.8rem; color: var(--faint); }
   @media (max-width: 520px) {
     .uses__group { grid-template-columns: 1fr; gap: 0.5rem; }
-    .uses__name { padding-top: 0; }
   }
 </style>
