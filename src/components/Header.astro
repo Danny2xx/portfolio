@@ -39,20 +39,36 @@ import Settings from "./Settings.astro";
   .hdr__brand:hover :global(svg) { transform: rotate(-8deg); }
   .hdr__name { font-weight: 620; font-stretch: 108%; letter-spacing: -0.01em; }
 
-  .hdr__right { display: flex; align-items: center; gap: 1.2rem; }
-  .hdr__status { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.84rem; color: var(--muted); }
+  .hdr__right { display: flex; align-items: center; gap: 0.5rem; }
+  .hdr__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-right: 0.4rem;
+    font-size: 0.84rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
   .hdr__cv {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.65rem;
+    border-radius: 12px;
     font-size: 0.88rem;
     font-weight: 560;
     text-decoration: underline;
     text-decoration-color: var(--hl-text);
     text-underline-offset: 0.26em;
-    transition: text-decoration-thickness 0.2s ease;
+    transition: text-decoration-thickness 0.2s ease, background-color 0.2s ease;
   }
-  .hdr__cv:hover { text-decoration-thickness: 2px; }
+  .hdr__cv:hover { text-decoration-thickness: 2px; background: var(--surface-2); }
 
-  @media (max-width: 760px) {
+  @media (max-width: 900px) {
     .hdr__status { display: none; }
+  }
+  @media (max-width: 420px) {
+    .hdr__name { display: none; }
   }
 </style>
 

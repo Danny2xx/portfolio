@@ -1,47 +1,44 @@
 ---
-title: "RepoLens: letting an LLM find issues but never set the score"
+title: "RepoLens: the model finds things, it doesn't get a vote"
 project: "RepoLens AI"
-summary: "A local-first codebase audit that combines standard analysers with a local LLM review, then scores deterministically so the same repository always gets the same result."
+summary: "A local-first codebase audit that pairs standard analysers with a local LLM review, then scores with fixed arithmetic so the same repository always gets the same number."
 year: "2026"
 stack: ["Next.js", "FastAPI", "Ollama", "qwen2.5-coder", "Zod"]
 draft: false
 ---
 
-## The problem
+"Ask an LLM to review my codebase" gives you something that reads beautifully and can't be relied on. Run it twice, get two scores. Run it on work code and you've just uploaded your employer's source to somebody else's servers.
 
-"Ask an LLM to review my codebase" produces something that reads well and can't be relied on. Run it twice and the score moves. Run it on a codebase you can't share and you've just uploaded your employer's source to someone else's servers.
+Both problems have the same shape: the model is being asked to do a job that needs to be repeatable and private, and it is neither.
 
-RepoLens takes the useful half of that idea and puts guardrails around it: the model helps find issues, and something deterministic decides what they're worth.
+## Why the LLM doesn't score
 
-## How it works
+RepoLens splits the work. The model reviews code and proposes findings. A scoring function counts them: start at 100, subtract 12 for a high-severity issue, 6 for medium, 2 for low. That's it.
 
-1. **Upload.** A codebase ZIP, extracted with a zip-slip check and a size limit, because "unzip whatever the user sends" is how you get files written outside the target directory.
-2. **Detect the stack.** A file scan works out what the project is before deciding what to run against it.
-3. **Run the real analysers.** npm audit, ESLint, tsc, ruff, bandit and gitleaks, with a regex fallback for secrets when gitleaks isn't available.
-4. **LLM review.** Code is chunked (up to 160 lines per chunk, capped at 120 chunks) and reviewed by qwen2.5-coder running locally in Ollama at low temperature, returning structured JSON.
-5. **Merge and deduplicate.** The same issue found by two tools becomes one finding.
-6. **Score, deterministically.** Start at 100 and subtract 12, 6 or 2 per high, medium or low finding. Then a Markdown report and a dashboard.
+The consequence is the point. Two runs over the same repository produce the same number, so you can actually tell whether a codebase improved between Tuesday and Friday. And a confidently-worded hallucination costs a few points instead of rewriting the verdict, because the model was never holding the pen.
 
-## Decisions worth calling out
+## What it runs
 
-**The LLM proposes, the score engine disposes.** The model never emits a number. It contributes findings, which are then counted by fixed arithmetic. That's what makes two runs of the same repository comparable, and it means a confidently-worded hallucination costs a few points rather than rewriting the verdict.
+1. **Unzip safely.** A zip-slip check and a size limit, since "extract whatever the user uploads" is how files end up written outside the target directory.
+2. **Detect the stack**, then run what fits: npm audit, ESLint, tsc, ruff, bandit, gitleaks, with a regex fallback for secrets when gitleaks isn't installed.
+3. **Review the code**: chunks of up to 160 lines, capped at 120 chunks, sent to qwen2.5-coder in Ollama at low temperature, returning structured JSON.
+4. **Merge and deduplicate**, so one issue found by two tools is one finding.
+5. **Score and report**: Markdown that can go straight in a pull request, plus a dashboard.
 
-**Everything runs locally.** Ollama means the code being audited never leaves the machine, which is the only version of this tool someone can point at work code.
+Everything runs on the machine. That's not a privacy feature bolted on, it's the only version of this tool anyone can point at code they don't own.
 
-**Missing tools degrade, they don't fail.** If ruff or gitleaks isn't installed, the audit continues without that signal instead of collapsing. An audit tool that only runs on a perfectly provisioned machine doesn't get run.
+## Two details that matter more than they look
 
-**One schema, both sides.** Zod schemas are shared between the API and the web app, so a change to a finding's shape breaks the build rather than the dashboard.
+**Missing tools degrade instead of failing.** If ruff isn't installed, the audit continues without it. An audit tool that demands a perfectly provisioned machine is an audit tool nobody runs twice.
 
-## What it produces
+**Zod schemas are shared between the API and the web app**, so a change to a finding's shape breaks the build rather than silently emptying a column in the dashboard.
 
-Scores per dimension, a deduplicated issue list, and a Markdown report that can go in a pull request. A saved run against a third-party repository returned 41 issues and a security score of 0, which is the kind of result that's useful precisely because nothing softened it.
+## What a score of 76 doesn't mean
 
-There are 44 tests across the API.
+A saved run against a third-party repository came back with 41 issues and a security score of 0, which is useful precisely because nothing softened it.
 
-<!-- TODO (Daniel): the most interesting finding RepoLens caught on a real repo, in two sentences.
-     Ideally something the static analysers alone would have missed. That's the proof the LLM
-     layer earns its place. -->
+But the weights are a judgement call, not a calibrated scale. The scores rank codebases consistently against each other and against their own history. A 76 has no meaning outside this tool, and the chunk cap means a very large repository is sampled rather than read exhaustively.
 
-## Limits
-
-The chunk cap means very large repositories are sampled rather than exhaustively reviewed, and the scoring weights are a judgement call rather than a calibrated scale: they rank codebases consistently, but a score of 76 has no meaning beyond this tool.
+<!-- TODO (Daniel): the most interesting thing RepoLens caught on a real repo, in two sentences.
+     Ideally something the static analysers alone would have missed, since that's the evidence
+     the LLM layer earns its place. -->

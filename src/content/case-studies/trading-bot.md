@@ -1,55 +1,54 @@
 ---
-title: "A trading bot where the risk manager has the final say"
+title: "A trading bot built back to front"
 project: "Multi-venue trading bot"
-summary: "A paper-trading R&D prototype on Base. Several strategies share one interface, and no order reaches a venue without passing position, exposure, drawdown and daily-loss limits."
+summary: "A paper-trading R&D prototype on Base. The risk manager and the kill switch were built before the strategies got interesting, which is the only order that works."
 year: "2026"
 role: "Blockchain Advisors internship"
 stack: ["Python", "web3.py", "CCXT", "FastAPI", "TimescaleDB", "Prometheus"]
 draft: false
 ---
 
-<!-- TODO (Daniel): this was a team repo. Add one line here saying exactly which parts you owned
-     (the repo history shows most commits under another name), because an interviewer who checks
-     will ask. Everything below describes the system, not who wrote which file. -->
+<!-- TODO (Daniel): this was a team repo and most commits are under another name. One line here
+     saying which parts you owned. Everything below describes the system, not its authorship. -->
 
-## The problem
+Most trading bots are written in the exciting order: strategy first, risk controls bolted on once real money is involved. That order is how accounts die, because the safety layer arrives after the habits have formed around not having one.
 
-A trading bot is easy to write and hard to trust. The dangerous version works beautifully in a backtest, then meets real fees, real slippage and a bad hour, and discovers there was never anything stopping it from losing the account.
+This one was built the other way round.
 
-The brief here was research, not returns: build the thing properly, with the safety rails in code, and find out what the strategies actually do.
+## Where the limits live
 
-## How it works
+Every order, from every strategy, passes through one risk manager: position size, total exposure, drawdown, daily loss, total capital, plus a global kill switch with a test covering it.
 
-1. **Market data.** Prices come from DEX Screener, direct on-chain pool reads or a synthetic feed, with exchange prices available through CCXT. Whatever the source, it is normalised into one shared market state, optionally stored in TimescaleDB.
-2. **Strategies behind one interface.** A rule-based range strategy, a moving-average cross and a logistic-regression model all implement the same contract, so they can be swapped and compared on equal terms.
-3. **Risk checks.** Every order passes position-size, exposure, drawdown, daily-loss and total-capital caps, with a global kill switch.
-4. **Paper fills.** The backtester models fees and slippage rather than assuming perfect execution.
-5. **The live gate.** Real execution sits behind a gate, signing its own transactions with web3.py. Swaps were exercised on the Base Sepolia testnet.
-6. **Observability.** Model inference runs as its own FastAPI service, with Prometheus metrics behind a dashboard.
+Not in a config file, in the code path. A limit that lives only in configuration stops existing the moment something loads the wrong file, and on-chain there is no support line to call afterwards.
 
-## Decisions worth calling out
+Around that:
 
-**The risk manager is not configuration.** Limits are enforced in code on the path every order takes, and the kill switch has a test. A limit that lives only in a config file is a limit that stops existing the moment something reads the wrong file.
+- **Keys encrypted at rest** with Fernet, per user, rather than sitting in environment variables.
+- **A gas-aware guard** that skips trades whose expected edge is smaller than the gas to execute them. On-chain, that trade is a loss wearing a signal's clothes.
+- **Startup reconciliation**, because a bot that restarts with a stale idea of its own positions is worse than one that's switched off.
+- **CI failing under 80% coverage**, which for software that can move money is a floor, not an accomplishment.
 
-**Keys are encrypted at rest.** Per-user wallet keys are encrypted with Fernet rather than sitting in environment variables.
+## One contract, three strategies
 
-**A gas-aware guard.** On-chain, a trade whose expected edge is smaller than its gas cost is a loss dressed as a signal, so those are skipped before they're placed.
+A rule-based range strategy, a moving-average cross and a logistic-regression model all implement the same interface, so they can be swapped and compared on identical conditions. Market data arrives from DEX Screener, on-chain pool reads or a synthetic feed and is normalised into one shape before any strategy sees it.
 
-**Coverage is enforced.** CI fails under 80% test coverage, which for a system that can move money is the floor rather than an achievement.
+Execution runs on Base through Aerodrome with a Uniswap v3 fallback, behind a live gate, signing with web3.py. Swaps were exercised on the Sepolia testnet. No mainnet trades were placed.
 
-## What the backtests showed
+## What the backtests actually showed
 
-These runs are on **synthetic data, 400 ticks, fixed seed**. They compare strategies against each other under identical conditions. They are not evidence that anything is profitable.
+On **synthetic data, 400 ticks, one fixed seed**:
 
 | Strategy | Return | Trades | Sharpe | Max drawdown |
 |---|---|---|---|---|
 | Rule-based range | +8.68% | 12 | 2.22 | 1.73% |
 | Moving-average cross | −15.44% | 25 | −2.51 | 17.09% |
-| ML momentum (placeholder model) | −19.44% | 52 | −2.73 | 19.44% |
+| ML momentum (placeholder) | −19.44% | 52 | −2.73 | 19.44% |
 | Buy and hold | +0.16% | 1 | 0.13 | 11.05% |
 
-The honest reading: the rule-based strategy's 12 trades and 100% win rate are far too few to mean anything, and the placeholder ML model traded most and lost most. Parameter sensitivity moved the range strategy between +7.5% and +10.6%, so it isn't knife-edge, but nothing here has met a real order book.
+Here's the honest reading, and it's the reason the table is on the page at all: **+8.68% over 12 trades with a 100% win rate is not a strategy, it's an anecdote.** Twelve trades on generated data is far too small a sample to conclude anything, and a 100% win rate is a warning sign rather than a selling point. What the table does establish is that the harness works, that fees and slippage are modelled, and that the placeholder ML model traded the most and lost the most, which is exactly what a placeholder should be allowed to do before anyone trusts it.
 
-## Limits
+Parameter sensitivity moved the range strategy between +7.5% and +10.6%, so it isn't balanced on a knife edge. That's the most that can be said.
 
-No mainnet trades were placed. Everything above is paper trading or testnet, on generated data, which is the appropriate stage for a ten-week research prototype and the reason the risk layer was built before the strategies got interesting.
+## What I'd fix first
+
+Real market data instead of synthetic, and enough trades for the numbers to mean something. Until then the interesting output of this project isn't a return figure, it's the risk layer, and the fact that it was there first.

@@ -16,7 +16,8 @@ const hasStudy = new Set(studies.map((s) => s.data.project));
   <div class="wrap">
     <SectionHead
       title="Selected work"
-      desc={`${projects.length} systems, from research prototypes to live dashboards. Each one opens into how it works and what it scored.`}
+      desc="Research prototypes and live dashboards. Each one opens into how it works, what it scored, and what didn't."
+      meta={`${projects.length} projects · ${hasStudy.size} written up in full`}
     />
 
     <div class="grid">

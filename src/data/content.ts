@@ -540,11 +540,11 @@ export const ventures: { role: string; detail: string }[] = [
 /* ── Right now (About) ───────────────────────────────────────────────────── */
 export const now = {
   updated: "September 2026",
+  // Keep these additive: the hero already covers the MSc and the job search.
   items: [
-    { label: "Finishing", text: "My MSc in Artificial Intelligence." },
-    { label: "Working", text: "AI / ML engineering at Carril Agency." },
-    { label: "Learning", text: "Agent evaluation and retrieval quality." },
-    { label: "Open to", text: "Full-time AI / ML roles, UK or remote." },
+    { label: "Shipping", text: "LLM reporting pipelines at Carril, over live ad and analytics data." },
+    { label: "Learning", text: "Agent evaluation, and measuring retrieval quality with RAGAS." },
+    { label: "Writing", text: "Occasional notes on what I'm building." },
   ],
 };
 

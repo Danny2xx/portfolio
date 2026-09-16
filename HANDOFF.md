@@ -52,10 +52,18 @@ display type, Geist Mono only for code and data.
 ```
 Base.astro        every page: pre-paint theme + a11y + motion opt-in, SEO, Header/Footer/Dock.
 Header.astro      thin fixed bar: logo, name, status, Résumé, a11y gear. Hides on scroll down.
+                  Status hidden under 900px, name under 420px; Résumé has a 44px hit area.
 Dock.astro        PRIMARY NAV. Floating bottom pill, section scroll-spy, highlighter pill that
-                  slides via clip-path, theme toggle. Labels on desktop, icons under 760px.
+                  slides via clip-path, theme toggle. Labels on desktop, 44px icons under 760px.
+                  TUCKS AWAY on scroll down and returns on scroll up, so it never sits on top of
+                  content; it stays put while any [aria-expanded="true"] panel is open.
+Settings.astro    a11y dialog: 44px trigger, 52x32 switches, close button, Escape, click-outside,
+                  focus returns to the trigger. Under 700px it becomes a sheet above the dock
+                  with a scrim, so it's in thumb reach instead of covering the hero.
 Hero.astro        headline with masked line reveal + highlighter, and the citation system.
-SectionHead.astro big display title left, short description right. Used by every section.
+SectionHead.astro two compositions so sections don't all open the same way: `split` (title left,
+                  note opposite) and `stack` (title, rule, note beneath), plus an optional `meta`
+                  line for real data. Work/Research use split; Experience/About/Lab use stack.
 Work.astro        mixed-size featured cards (xl/lg/md) + compact index + websites strip.
 Pipeline.astro    a project's architecture as a live trace; used on cards and project pages.
 Experience.astro  timeline with a scroll-linked progress rail and dots that light as you pass.

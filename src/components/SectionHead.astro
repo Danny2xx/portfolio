@@ -1,30 +1,61 @@
 ---
+// Section opener. Two compositions so the page doesn't start every section the
+// same way: "split" puts the note opposite the title, "stack" runs the note
+// under it against a full-width rule. `meta` is for real data (counts, dates).
 interface Props {
   title: string;
   desc?: string;
+  meta?: string;
+  variant?: "split" | "stack";
 }
-const { title, desc } = Astro.props;
+const { title, desc, meta, variant = "split" } = Astro.props;
 ---
 
-<header class="shead">
+<header class:list={["shead", `shead--${variant}`]}>
   <h2 class="shead__title display" data-split><span class="mask"><span>{title}</span></span></h2>
   {desc && <p class="shead__desc" data-reveal>{desc}</p>}
+  {meta && <p class="shead__meta" data-reveal>{meta}</p>}
 </header>
 
 <style>
-  .shead {
+  .shead { margin-bottom: clamp(2.8rem, 6vw, 4.8rem); }
+
+  /* split: title left, note opposite */
+  .shead--split {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 1.1rem;
     align-items: end;
-    margin-bottom: clamp(2.8rem, 6vw, 4.8rem);
   }
-  .shead__title { grid-column: 1 / span 8; font-size: clamp(2.5rem, 1.25rem + 4.6vw, 5.25rem); }
-  .shead__desc { grid-column: 9 / -1; max-width: 36ch; padding-bottom: 0.6rem; color: var(--muted); font-size: 1rem; }
-  .shead__desc { --d: 150ms; }
+  .shead--split .shead__title { grid-column: 1 / span 7; font-size: clamp(2.5rem, 1.25rem + 4.6vw, 5.25rem); }
+  .shead--split .shead__desc { grid-column: 9 / -1; max-width: 34ch; padding-bottom: 0.55rem; color: var(--muted); }
+  .shead--split .shead__meta { grid-column: 9 / -1; padding-bottom: 0.55rem; }
+
+  /* stack: title, then a rule, then the note beneath it */
+  .shead--stack .shead__title { font-size: clamp(2.5rem, 1.25rem + 4.6vw, 5.25rem); }
+  .shead--stack .shead__desc {
+    max-width: 46ch;
+    margin-top: 1.5rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 1.02rem;
+  }
+  .shead--stack .shead__meta { margin-top: 0.7rem; }
+
+  .shead__desc { --d: 120ms; }
+  .shead__meta {
+    font-size: 0.86rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+    --d: 200ms;
+  }
+
   @media (max-width: 860px) {
-    .shead__title, .shead__desc { grid-column: 1 / -1; }
-    .shead__desc { padding-bottom: 0; }
+    .shead--split .shead__title,
+    .shead--split .shead__desc,
+    .shead--split .shead__meta { grid-column: 1 / -1; padding-bottom: 0; }
+    .shead--split .shead__desc { margin-top: 0.4rem; }
   }
 </style>

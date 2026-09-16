@@ -66,7 +66,8 @@ const withCitations = (s: string) =>
 
 <style>
   /* bottom padding keeps the last source and the buttons clear of the dock */
-  .hero { position: relative; padding-top: clamp(6.5rem, 11vw, 8.5rem); padding-bottom: clamp(6rem, 11vw, 8rem); }
+  /* bottom padding keeps the last source clear of the floating dock at rest */
+  .hero { position: relative; padding-top: clamp(6.5rem, 11vw, 8.5rem); padding-bottom: clamp(7.5rem, 13vw, 10rem); }
 
   .hero__meta { display: flex; align-items: center; gap: 0.8rem; }
   .hero__avatar {

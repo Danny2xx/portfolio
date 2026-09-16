@@ -68,6 +68,14 @@ const icons: Record<string, string> = {
     border: 1px solid var(--dock-line);
     box-shadow: 0 24px 60px -24px oklch(0 0 0 / 0.6);
     color: var(--dock-ink);
+    max-width: calc(100vw - 1.5rem);
+    transition: transform 0.55s var(--ease-out), opacity 0.4s ease;
+  }
+  /* tucks away while reading down so it never sits on top of content */
+  .dock.is-tucked {
+    transform: translate(-50%, calc(100% + 2.5rem));
+    opacity: 0;
+    pointer-events: none;
   }
 
   .dock__round {
@@ -124,7 +132,9 @@ const icons: Record<string, string> = {
   :global(:root[data-theme="light"]) .dock__sun { display: none; }
 
   @media (max-width: 760px) {
-    .dock__link { width: 40px; padding: 0; }
+    .dock { gap: 0; padding: 0.3rem; }
+    .dock__link { width: 44px; height: 44px; padding: 0; }
+    .dock__round { width: 44px; height: 44px; }
     .dock__link svg { display: block; }
     .dock__label {
       position: absolute;
@@ -198,6 +208,26 @@ const icons: Record<string, string> = {
       });
       pick();
     }
+
+    // Tuck the dock away while scrolling down, bring it back on the way up,
+    // so it never permanently covers the content underneath it.
+    let lastY = window.scrollY;
+    let queuedTuck = false;
+    const tuck = () => {
+      queuedTuck = false;
+      const y = window.scrollY;
+      const atBottom = window.innerHeight + y >= document.body.scrollHeight - 80;
+      let hide = dock.classList.contains("is-tucked");
+      if (y <= 200 || atBottom) hide = false;
+      else if (y > lastY + 6) hide = true;
+      else if (y < lastY - 6) hide = false;
+      if (document.querySelector('[aria-expanded="true"]')) hide = false;
+      dock.classList.toggle("is-tucked", hide);
+      lastY = y;
+    };
+    window.addEventListener("scroll", () => {
+      if (!queuedTuck) { queuedTuck = true; requestAnimationFrame(tuck); }
+    }, { passive: true });
 
     // Theme toggle (also used by anything calling window.__toggleTheme)
     const applyTheme = (theme: string) => {
