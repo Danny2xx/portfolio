@@ -123,7 +123,12 @@ animation bugs, and headless background tabs don't advance CSS transitions. Alwa
    Technology Ltd".
 5. **The public CV includes his phone number.**
 6. **Paper PDF** is the camera-ready copy; confirm the publisher allows self-hosting.
-7. DocSage case study still has `<!-- TODO -->` prompts (his reasoning, real latency numbers).
+7. **Case studies.** 8 of the 9 projects have one in `src/content/case-studies/` (OPS Platform
+   doesn't: it's a scaffold and a write-up would be padding). They render at the bottom of the
+   matching project page, matched by the `project` frontmatter field == the project's `name`.
+   Each carries a few `<!-- TODO -->` prompts for the things only Daniel can answer (why RL
+   failed on AccessOps, his role on the AquaSense team and the trading bot, what he'd do about
+   the age bias finding, real DocSage latency). Everything outside those comments is from code.
 8. hottake role unconfirmed.
 9. **AccessOps backend (paused):** deploy `~/Documents/accessops-coco-ai/webapp/backend` to Cloud
    Run (`gcloud auth login` needed), then update that repo's `webapp/frontend/vercel.json` rewrite

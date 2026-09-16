@@ -1,10 +1,15 @@
 ---
+import { getCollection } from "astro:content";
 import { projects, websites } from "../data/content";
 import SectionHead from "./SectionHead.astro";
 import Pipeline from "./Pipeline.astro";
 
 const featured = projects.filter((p) => p.featured);
 const more = projects.filter((p) => !p.featured);
+
+// projects with a published case study get a marker
+const studies = await getCollection("caseStudies", ({ data }) => !data.draft);
+const hasStudy = new Set(studies.map((s) => s.data.project));
 ---
 
 <section class="section" id="work">
@@ -25,7 +30,10 @@ const more = projects.filter((p) => !p.featured);
             )}
           </div>
           <div class="card__body">
-            <p class="card__kind">{p.kind}</p>
+            <p class="card__kind">
+              {p.kind}
+              {hasStudy.has(p.name) && <span class="card__study"> · Case study</span>}
+            </p>
             <h3 class="card__title" style={`view-transition-name: title-${p.slug}`}>
               <a class="card__link" href={`/work/${p.slug}`}>{p.name}</a>
             </h3>
@@ -48,7 +56,10 @@ const more = projects.filter((p) => !p.featured);
             <li>
               <a class="row" href={`/work/${p.slug}`}>
                 <span class="row__name" style={`view-transition-name: title-${p.slug}`}>{p.name}</span>
-                <span class="row__kind">{p.kind}</span>
+                <span class="row__kind">
+                  {p.kind}
+                  {hasStudy.has(p.name) && <span class="card__study"> · Case study</span>}
+                </span>
                 <span class="row__tag">{p.tagline}</span>
                 <span class="row__go" aria-hidden="true">
                   <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3.5 10.5 8 6 12.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -123,6 +134,7 @@ const more = projects.filter((p) => !p.featured);
   .card__body { display: flex; flex: 1; flex-direction: column; gap: 0.65rem; padding: clamp(1.5rem, 3vw, 2.25rem); }
   .card--xl .card__body { grid-column: 8 / -1; justify-content: center; padding: clamp(2rem, 4vw, 3.25rem); }
   .card__kind { font-size: 0.84rem; color: var(--faint); }
+  .card__study { color: var(--hl-text); }
   .card__title { font-size: clamp(1.65rem, 1.1rem + 1.5vw, 2.4rem); font-stretch: 112%; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
   .card--xl .card__title { font-size: clamp(2.1rem, 1.2rem + 2.6vw, 3.5rem); }
   .card__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }

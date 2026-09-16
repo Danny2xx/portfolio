@@ -402,6 +402,29 @@ mark { background: none; color: inherit; }
 .prose ul, .prose ol { margin: 0 0 1.2rem; padding-left: 1.3rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.5rem; }
 .prose li::marker { color: var(--hl-text); }
 .prose code { font-family: var(--font-mono); font-size: 0.85em; color: var(--ink); background: var(--surface-2); border-radius: 5px; padding: 0.1em 0.35em; }
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 1.4rem;
+  font-size: 0.92rem;
+}
+.prose thead th {
+  padding: 0.7rem 1.2rem 0.7rem 0;
+  border-bottom: 1px solid var(--line-strong);
+  text-align: left;
+  font-weight: 620;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.prose tbody td {
+  padding: 0.75rem 1.2rem 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+.prose tbody td:first-child { color: var(--ink); }
+.prose tbody td strong { color: var(--hl-text); }
 .prose blockquote { margin: 1.5rem 0; padding: 1rem 1.2rem; background: var(--surface); border-radius: 12px; color: var(--muted); }
 .prose blockquote p:last-child { margin-bottom: 0; }
 
