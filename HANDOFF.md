@@ -83,8 +83,12 @@ Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax de
 
 - **Content is visible without JS.** `Base` adds `.motion` pre-paint only when motion is allowed,
   and strips it after 3s if `motion.ts` never runs. Reveals only *enhance* visible content.
-- **Citations:** `[[source-id]]` in `heroIntro` becomes a numbered chip tied to `heroSources`.
-  Hover/focus lights the pair and draws an SVG wire; on touch it jumps to the source and flashes.
+- **The hero says what he builds, not what he won.** `heroBuilds` in `content.ts` is four lines of
+  craft, each linking to the project that proves it; the rail walks a highlighter down those rows
+  while on screen and pauses on hover. The headline animates along Archivo's width axis as it
+  lands. Awards and the paper belong in Research and recognition. The earlier version led with a
+  paper, a hackathon win and a finalist placing, and Daniel rightly called it a trophy cabinet.
+  On phones the rail is ordered above the supporting paragraph so it lands on the first screen.
 - **Theme + a11y pre-paint** in `Base`; the toggle lives in `Dock` (`window.__toggleTheme`).
 - **View transitions:** project titles carry `view-transition-name: title-<slug>` on both the card
   and the project page, so the title morphs across navigation. Header and dock persist.

@@ -6,10 +6,14 @@ changes stay on-system.
 
 ## The idea: "Grounded"
 
-Daniel's research is about AI answers that cite their evidence, so the site behaves the same way.
-The hero makes claims and every claim carries a numbered citation; hovering one draws a line to
-the source it came from (the paper PDF, the certificate, the live dashboard, the CV). Key phrases
-are marked with a highlighter, as if someone read the page and marked what matters.
+Daniel's research is about AI answers that cite their evidence, so the site behaves the same way:
+nothing is asserted without the thing that backs it. Key phrases are marked with a highlighter, as
+if someone read the page and marked what matters.
+
+**The hero says what he builds, not what he won.** Four lines of craft ("answers that cite the page
+they came from", "models that hand over when they're unsure"), each linking to the system that
+proves it. Awards and the paper live in Research and recognition, where they belong. If you find
+yourself leading with credentials again, that's the mistake to undo.
 
 Reference points: a marked-up printed document, and the single coloured key on a Braun calculator.
 
@@ -56,8 +60,11 @@ underlines. Nothing else. No gradients, no glows.
 
 ## Signature components
 
-- **Citations** (`Hero.astro`): `[[source-id]]` in the copy becomes a numbered chip. Hover, focus
-  or tap lights the matching source; on wide screens an SVG wire is drawn between the two.
+- **Built-things rail** (`Hero.astro`): four capability lines from `heroBuilds`, each with the
+  project that proves it and a link to its page. Hover slides the line and draws a highlighter
+  underline. This is the hero's evidence, in place of a credentials list.
+- **Kinetic type**: the headline animates along Archivo's width axis (86% to 112%) as it lands,
+  so the hero arrives rather than appearing.
 - **Pipeline** (`Pipeline.astro`): a project's architecture as a live trace. Steps light in order
   while on screen, with a rail that fills. Fully lit and static when motion is off. This is the
   honest alternative to decorative placeholder art for projects with no screenshot.

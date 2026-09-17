@@ -23,41 +23,18 @@ export const profile = {
   },
 };
 
-/* ── Hero: every claim cites its evidence ────────────────────────────────── */
-export const heroIntro = {
-  lede: "I'm Daniel, an AI / ML engineer in Birmingham. I co-authored a paper on grounded enterprise agents, accepted at ICACIN 2026 [[paper]], took first place at BCU's AI Day Hackathon [[hackathon]], and helped build AquaSense, a live wastewater forecasting platform [[aquasense]].",
-  sub: "Now finishing an MSc in Artificial Intelligence at Birmingham City University [[cv]], and looking for a full-time role.",
-};
+/* ── Hero: what he builds, with the system that proves each one ──────────── */
+export const heroLede =
+  "I build the unglamorous half of AI products. The retrieval that finds the right page, the evaluation that proves it works, the API that serves it, and the screen someone actually uses.";
 
-export const heroSources: { id: string; title: string; detail: string; type: string; href: string }[] = [
-  {
-    id: "paper",
-    title: "Substrate or Architecture?",
-    detail: "Accepted paper, ICACIN 2026",
-    type: "PDF",
-    href: "/papers/icacin-2026-substrate-or-architecture.pdf",
-  },
-  {
-    id: "hackathon",
-    title: "First place certificate",
-    detail: "AI Day Hackathon, BCU, June 2026",
-    type: "PDF",
-    href: "/awards/ai-at-bcu-day-first-prize.pdf",
-  },
-  {
-    id: "aquasense",
-    title: "AquaSense AI",
-    detail: "Live compliance dashboard",
-    type: "Live",
-    href: "https://aquasense-lake.vercel.app/dashboard",
-  },
-  {
-    id: "cv",
-    title: "Curriculum vitae",
-    detail: "Education, roles and projects",
-    type: "PDF",
-    href: "/cv/daniel-iyalekhue-cv.pdf",
-  },
+export const heroSub =
+  "Mostly Python and TypeScript, mostly end to end. Currently finishing an MSc in Artificial Intelligence and looking for a full-time role.";
+
+export const heroBuilds: { what: string; proof: string; href: string }[] = [
+  { what: "Answers that cite the page they came from", proof: "DocSage", href: "/work/docsage" },
+  { what: "Models that hand over when they're unsure", proof: "AccessOps", href: "/work/accessops-coco-ai" },
+  { what: "Forecasts that flag a breach half an hour early", proof: "AquaSense AI", href: "/work/aquasense-ai" },
+  { what: "Trading systems where the risk limits live in code", proof: "Multi-venue bot", href: "/work/trading-bot" },
 ];
 
 /* ── My journey (About) ──────────────────────────────────────────────────── */

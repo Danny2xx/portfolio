@@ -1,14 +1,5 @@
 ---
-import { profile, heroIntro, heroSources } from "../data/content";
-
-const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-// "[[id]]" -> numbered citation chip pointing at its source
-const withCitations = (s: string) =>
-  esc(s).replace(/\s*\[\[([\w-]+)\]\]/g, (_m, id: string) => {
-    const n = heroSources.findIndex((src) => src.id === id) + 1;
-    if (n === 0) return "";
-    return `<a class="cite" href="#src-${n}" data-cite="${n}" aria-label="Source ${n}: ${esc(heroSources[n - 1].title)}">${n}</a>`;
-  });
+import { profile, heroLede, heroSub, heroBuilds } from "../data/content";
 ---
 
 <section class="hero" id="top" data-hero>
@@ -29,44 +20,34 @@ const withCitations = (s: string) =>
     </h1>
 
     <div class="hero__grid">
-      <div class="hero__intro hero__fade" style="--d: 560ms">
-        <p class="hero__lede" set:html={withCitations(heroIntro.lede)} />
-        <p class="hero__sub" set:html={withCitations(heroIntro.sub)} />
+      <div class="hero__intro hero__fade" style="--d: 520ms">
+        <p class="hero__lede">{heroLede}</p>
+        <p class="hero__sub">{heroSub}</p>
         <div class="hero__actions">
           <a class="btn btn--hl" href="#work">See the work</a>
           <a class="btn btn--ghost" href={`mailto:${profile.email}`}>Email me</a>
+          <span class="hero__status"><span class="light" aria-hidden="true"></span>{profile.status}</span>
         </div>
       </div>
 
-      <aside class="sources hero__fade" style="--d: 700ms" aria-labelledby="sources-title">
-        <div class="sources__head">
-          <h2 class="sources__title" id="sources-title">Sources</h2>
-          <p class="sources__hint">Each numbered claim links to its evidence.</p>
-        </div>
-        <ol class="sources__list">
-          {heroSources.map((s, i) => (
-            <li class="source" id={`src-${i + 1}`} data-source={i + 1}>
-              <a class="source__link" href={s.href} target="_blank" rel="noreferrer">
-                <span class="source__n">{i + 1}</span>
-                <span class="source__body">
-                  <span class="source__title">{s.title}</span>
-                  <span class="source__detail">{s.detail}</span>
-                </span>
-                <span class="source__type">{s.type}</span>
+      <aside class="builds hero__fade" style="--d: 660ms" aria-labelledby="builds-title">
+        <h2 class="builds__title" id="builds-title">Things I've built</h2>
+        <ul class="builds__list">
+          {heroBuilds.map((b) => (
+            <li class="build">
+              <a class="build__link" href={b.href}>
+                <span class="build__what">{b.what}</span>
+                <span class="build__proof">{b.proof}</span>
               </a>
             </li>
           ))}
-        </ol>
+        </ul>
       </aside>
     </div>
   </div>
-
-  <svg class="wire" aria-hidden="true" data-wire><path></path></svg>
 </section>
 
 <style>
-  /* bottom padding keeps the last source and the buttons clear of the dock */
-  /* bottom padding keeps the last source clear of the floating dock at rest */
   .hero { position: relative; padding-top: clamp(6.5rem, 11vw, 8.5rem); padding-bottom: clamp(7.5rem, 13vw, 10rem); }
 
   .hero__meta { display: flex; align-items: center; gap: 0.8rem; }
@@ -82,7 +63,11 @@ const withCitations = (s: string) =>
   .hero__name { font-weight: 620; font-stretch: 106%; line-height: 1.3; }
   .hero__role { font-size: 0.88rem; color: var(--muted); line-height: 1.3; }
 
-  .hero__title { margin-top: clamp(2.2rem, 5vw, 3.4rem); font-size: clamp(2.85rem, 0.8rem + 7.4vw, 6rem); }
+  .hero__title {
+    margin-top: clamp(2.2rem, 5vw, 3.4rem);
+    font-size: clamp(2.85rem, 0.8rem + 7.4vw, 6rem);
+    font-stretch: 112%;
+  }
   .hero__line { display: block; overflow: hidden; padding-block: 0.06em 0.12em; margin-block: -0.06em -0.12em; }
   .hero__line > span { display: block; }
   .hero .hl-mark { --hl-delay: 760ms; }
@@ -92,96 +77,76 @@ const withCitations = (s: string) =>
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 3rem;
-    align-items: end;
+    align-items: start;
     margin-top: clamp(2.4rem, 5vw, 3.6rem);
   }
   .hero__intro { grid-column: 1 / span 6; }
-  .sources { grid-column: 8 / -1; }
+  .builds { grid-column: 8 / -1; }
 
-  .hero__lede { max-width: 38rem; font-size: clamp(1.12rem, 1rem + 0.45vw, 1.32rem); line-height: 1.55; color: var(--ink); }
-  .hero__sub { max-width: 36rem; margin-top: 1rem; color: var(--muted); }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
-
-  /* citation chips (rendered via set:html, so global) */
-  .hero :global(.cite) {
-    display: inline-grid;
-    place-items: center;
-    min-width: 1.4em;
-    height: 1.4em;
-    margin-left: 0.22em;
-    padding: 0 0.3em;
-    border-radius: 5px;
-    vertical-align: 0.28em;
-    font: 600 0.6em/1 var(--font-mono);
-    color: var(--on-hl);
-    background: var(--hl);
-    transition: box-shadow 0.25s ease, transform 0.35s var(--ease-out);
+  .hero__lede {
+    max-width: 34ch;
+    font-size: clamp(1.18rem, 1rem + 0.6vw, 1.45rem);
+    line-height: 1.45;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    text-wrap: pretty;
   }
-  .hero :global(.cite:hover),
-  .hero :global(.cite.is-lit) { box-shadow: 0 0 0 4px var(--hl-soft); transform: translateY(-1px); }
+  .hero__sub { max-width: 44ch; margin-top: 1.1rem; color: var(--muted); }
+  .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 2rem; }
+  .hero__status { display: inline-flex; align-items: center; gap: 0.55rem; margin-left: 0.4rem; font-size: 0.85rem; color: var(--muted); }
 
-  /* sources */
-  .sources__head {
+  /* what I build, each line backed by a real system */
+  .builds__title {
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.92rem;
+    font-weight: 620;
+  }
+  .builds__list { list-style: none; margin: 0; padding: 0; }
+  .build__link {
+    position: relative;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 0.85rem;
+    gap: 1.2rem;
+    padding: 0.9rem 0;
     border-bottom: 1px solid var(--line);
   }
-  .sources__title { font-size: 0.95rem; font-weight: 620; font-stretch: 106%; }
-  .sources__hint { font-size: 0.8rem; color: var(--faint); text-align: right; }
-  .sources__list { list-style: none; margin: 0; padding: 0; }
-  .source__link {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--line);
+  .build__what {
+    font-size: 0.98rem;
+    color: var(--ink);
+    transition: transform 0.45s var(--ease-out);
   }
-  .source__n {
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 6px;
-    font: 500 0.78rem/1 var(--font-mono);
-    color: var(--muted);
-    box-shadow: inset 0 0 0 1px var(--line-strong);
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  }
-  .source__body { min-width: 0; transition: transform 0.5s var(--ease-out); }
-  .source__title { display: block; font-weight: 600; line-height: 1.35; }
-  .source__detail { display: block; font-size: 0.82rem; color: var(--faint); line-height: 1.35; }
-  .source__type {
-    padding: 0.32rem 0.55rem;
-    border-radius: 999px;
-    font: 500 0.7rem/1 var(--font-mono);
+  .build__proof {
+    flex: none;
+    font-size: 0.82rem;
     color: var(--faint);
-    box-shadow: inset 0 0 0 1px var(--line);
+    white-space: nowrap;
+    transition: color 0.25s ease;
   }
-  .source__link:hover .source__n,
-  .source.is-lit .source__n { background: var(--hl); color: var(--on-hl); box-shadow: none; }
-  .source__link:hover .source__body,
-  .source.is-lit .source__body { transform: translateX(5px); }
-
-  /* the connector drawn between a citation and its source */
-  .wire {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: visible;
-    pointer-events: none;
-    z-index: var(--z-wire);
-    opacity: 0;
-    transition: opacity 0.25s ease;
+  .build__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 1px;
+    background: var(--hl-text);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ease-out);
   }
-  .wire.is-on { opacity: 1; }
-  .wire path { fill: none; stroke: var(--hl-text); stroke-width: 1.5; stroke-linecap: round; }
+  .build__link:hover .build__what { transform: translateX(6px); }
+  .build__link:hover .build__proof { color: var(--hl-text); }
+  .build__link:hover::after { transform: scaleX(1); }
 
-  /* load choreography */
+  /* at rest the rail walks itself, so the page is never completely still */
+  .build.is-live .build__proof { color: var(--hl-text); }
+  .build.is-live .build__link::after { transform: scaleX(1); }
+
+  /* load choreography: lines rise, and the type widens into place */
+  :global(.motion) .hero__title { font-stretch: 86%; transition: font-stretch 1.4s var(--ease-out); }
+  :global(.motion) .hero.is-in .hero__title { font-stretch: 112%; }
   :global(.motion) .hero__line > span { transform: translateY(112%); transition: transform 1.15s var(--ease-out); }
   :global(.motion) .hero__line:nth-child(3) > span { transition-delay: 90ms; }
   :global(.motion) .hero__line:nth-child(4) > span { transition-delay: 180ms; }
@@ -195,7 +160,24 @@ const withCitations = (s: string) =>
   :global(.motion) .hero.is-in .hero__fade { opacity: 1; transform: none; }
 
   @media (max-width: 900px) {
-    .hero__intro, .sources { grid-column: 1 / -1; }
+    .hero__intro, .builds { grid-column: 1 / -1; }
+    .hero__lede { max-width: none; }
+    /* on a phone the rail comes second, right after the lede, so what he builds
+       is on the first screen. The supporting paragraph and buttons follow it. */
+    .hero__grid { row-gap: 2rem; }
+    .hero__intro { display: flex; flex-direction: column; }
+    .hero__lede { order: 1; }
+    .hero__sub { order: 3; margin-top: 1.6rem; }
+    .hero__actions { order: 4; }
+    .builds { order: 2; margin-top: -0.4rem; }
+  }
+  @media (max-width: 900px) {
+    /* pull the rail up between lede and sub by flattening the two columns */
+    .hero__grid { display: flex; flex-direction: column; }
+    .hero__intro { display: contents; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.motion) .hero__title { font-stretch: 112%; transition: none; }
   }
 </style>
 
@@ -211,84 +193,29 @@ const withCitations = (s: string) =>
       Promise.race([fonts, new Promise((r) => setTimeout(r, 700))]).then(() => requestAnimationFrame(start));
     } else start();
 
-    const wire = hero.querySelector<SVGSVGElement>("[data-wire]")!;
-    const path = wire.querySelector("path")!;
-    const wide = window.matchMedia("(min-width: 901px) and (pointer: fine)");
-    let active: string | null = null;
-
-    const light = (n: string | null) => {
-      hero.querySelectorAll(".cite.is-lit, .source.is-lit").forEach((el) => el.classList.remove("is-lit"));
-      if (n) hero.querySelectorAll(`.cite[data-cite="${n}"], .source[data-source="${n}"]`).forEach((el) => el.classList.add("is-lit"));
-    };
-
-    const draw = (animate: boolean) => {
-      if (!active || !wide.matches) return wire.classList.remove("is-on");
-      const a = hero.querySelector(`.cite[data-cite="${active}"]`);
-      const b = hero.querySelector(`#src-${active} .source__n`);
-      if (!a || !b) return;
-      const ra = a.getBoundingClientRect();
-      const rb = b.getBoundingClientRect();
-      const x1 = ra.right + 6, y1 = ra.top + ra.height / 2;
-      const x2 = rb.left - 8, y2 = rb.top + rb.height / 2;
-      const dx = Math.max(40, (x2 - x1) * 0.5);
-      path.setAttribute("d", `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
-      if (animate && document.documentElement.classList.contains("motion")) {
-        const len = path.getTotalLength();
-        path.style.transition = "none";
-        path.style.strokeDasharray = `${len}`;
-        path.style.strokeDashoffset = `${len}`;
-        path.getBoundingClientRect();
-        path.style.transition = "stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
-        path.style.strokeDashoffset = "0";
-      }
-      wire.classList.add("is-on");
-    };
-
-    const on = (n: string) => {
-      if (n === active) return;
-      active = n;
-      light(n);
-      draw(true);
-    };
-    const off = () => {
-      active = null;
-      light(null);
-      wire.classList.remove("is-on");
-    };
-    const keyOf = (el: Element | null) => {
-      const t = el?.closest<HTMLElement>(".cite, .source");
-      return t ? (t.dataset.cite ?? t.dataset.source ?? null) : null;
-    };
-
-    hero.addEventListener("pointerover", (e) => {
-      const n = keyOf(e.target as Element);
-      if (n) on(n);
-    });
-    hero.addEventListener("pointerout", (e) => {
-      const from = keyOf(e.target as Element);
-      const to = keyOf(e.relatedTarget as Element | null);
-      if (from && from !== to) off();
-    });
-    hero.addEventListener("focusin", (e) => {
-      const n = keyOf(e.target as Element);
-      if (n) on(n);
-    });
-    hero.addEventListener("focusout", off);
-    window.addEventListener("scroll", () => active && draw(false), { passive: true });
-
-    // Citation click: on desktop open the evidence; on touch, jump to it and flash.
-    hero.addEventListener("click", (e) => {
-      const cite = (e.target as Element).closest<HTMLAnchorElement>(".cite");
-      if (!cite) return;
-      const n = cite.dataset.cite!;
-      if (wide.matches) {
-        e.preventDefault();
-        const href = hero.querySelector<HTMLAnchorElement>(`#src-${n} .source__link`)?.href;
-        if (href) window.open(href, "_blank", "noopener");
-        return;
-      }
-      light(n);
-      window.setTimeout(() => active !== n && light(null), 1800);
-    });
+    // Walk the highlighter down the rail while it's on screen; pause on hover
+    // so it never fights the pointer.
+    const rail = hero.querySelector<HTMLElement>(".builds");
+    const rows = Array.from(hero.querySelectorAll<HTMLElement>(".build"));
+    if (rail && rows.length > 1 && document.documentElement.classList.contains("motion")) {
+      let i = -1;
+      let timer = 0;
+      const step = () => {
+        i = (i + 1) % rows.length;
+        rows.forEach((row, n) => row.classList.toggle("is-live", n === i));
+      };
+      const play = () => { if (!timer) { step(); timer = window.setInterval(step, 2600); } };
+      const pause = () => {
+        window.clearInterval(timer);
+        timer = 0;
+        rows.forEach((row) => row.classList.remove("is-live"));
+      };
+      new IntersectionObserver(
+        ([entry]) => (entry.isIntersecting ? play() : pause()),
+        { threshold: 0.25 },
+      ).observe(rail);
+      rail.addEventListener("pointerenter", pause);
+      rail.addEventListener("pointerleave", play);
+    }
   }
 </script>
