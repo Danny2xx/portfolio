@@ -23,19 +23,130 @@ export const profile = {
   },
 };
 
-/* ── Hero: what he builds, with the system that proves each one ──────────── */
-export const heroLede =
-  "I build the unglamorous half of AI products. The retrieval that finds the right page, the evaluation that proves it works, the API that serves it, and the screen someone actually uses.";
+/* ── The report ──────────────────────────────────────────────────────────────
+   The homepage is a report on Daniel's own claims. Every row below is backed by
+   a file in the matching repo: a metric in a report, a test, or a design that
+   makes the claim true by construction. FAIL and UNTESTED rows stay on the page
+   on purpose. If you can't point at the evidence, delete the row.            */
+export type Claim = {
+  system: string;
+  claim: string;
+  result: "PASS" | "FAIL" | "UNTESTED";
+  value: string;
+  href: string;
+};
 
-export const heroSub =
-  "Mostly Python and TypeScript, mostly end to end. Currently finishing an MSc in Artificial Intelligence and looking for a full-time role.";
+export const reportIntro =
+  "I build AI systems and then try to break them. Below is what I claimed, what the numbers said, and the places it fell over.";
 
-export const heroBuilds: { what: string; proof: string; href: string }[] = [
-  { what: "Answers that cite the page they came from", proof: "DocSage", href: "/work/docsage" },
-  { what: "Models that hand over when they're unsure", proof: "AccessOps", href: "/work/accessops-coco-ai" },
-  { what: "Forecasts that flag a breach half an hour early", proof: "AquaSense AI", href: "/work/aquasense-ai" },
-  { what: "Trading systems where the risk limits live in code", proof: "Multi-venue bot", href: "/work/trading-bot" },
+export const claims: Claim[] = [
+  {
+    system: "AccessOps",
+    claim: "The model can tell which of its own captions are good",
+    result: "PASS",
+    value: "0.331 vs 0.247",
+    href: "/work/accessops-coco-ai",
+  },
+  {
+    system: "AccessOps",
+    claim: "Reinforcement learning improves the captions",
+    result: "FAIL",
+    value: "0.222 vs 0.247",
+    href: "/work/accessops-coco-ai",
+  },
+  {
+    system: "AccessOps",
+    claim: "Adding attention helps",
+    result: "FAIL",
+    value: "0.0001",
+    href: "/work/accessops-coco-ai",
+  },
+  {
+    system: "AquaSense",
+    claim: "A compliance breach can be flagged before it happens",
+    result: "PASS",
+    value: "25 min early",
+    href: "/work/aquasense-ai",
+  },
+  {
+    system: "AquaSense",
+    claim: "That holds on a real plant, not a simulation",
+    result: "UNTESTED",
+    value: "simulated data",
+    href: "/work/aquasense-ai",
+  },
+  {
+    system: "Credit audit",
+    claim: "The model treats age groups equally",
+    result: "FAIL",
+    value: "0.72, fails 80% rule",
+    href: "/work/credit-bias-audit",
+  },
+  {
+    system: "Credit audit",
+    claim: "Class balancing never leaked into the test set",
+    result: "PASS",
+    value: "SMOTE after split",
+    href: "/work/credit-bias-audit",
+  },
+  {
+    system: "DocSage",
+    claim: "Every answer cites the page it came from",
+    result: "PASS",
+    value: "by construction",
+    href: "/work/docsage",
+  },
+  {
+    system: "DocSage",
+    claim: "Answer latency is measured",
+    result: "UNTESTED",
+    value: "script exists, never run",
+    href: "/work/docsage",
+  },
+  {
+    system: "Trading bot",
+    claim: "No order can bypass the risk limits",
+    result: "PASS",
+    value: "kill switch tested",
+    href: "/work/trading-bot",
+  },
+  {
+    system: "Trading bot",
+    claim: "The strategy makes money",
+    result: "UNTESTED",
+    value: "12 trades, synthetic",
+    href: "/work/trading-bot",
+  },
+  {
+    system: "RepoLens",
+    claim: "The same codebase always scores the same",
+    result: "PASS",
+    value: "LLM never scores",
+    href: "/work/repolens-ai",
+  },
+  {
+    system: "AURAFIND",
+    claim: "It cannot recommend a product that doesn't exist",
+    result: "PASS",
+    value: "model only parses",
+    href: "/work/aurafind",
+  },
+  {
+    system: "ICACIN paper",
+    claim: "Graph grounding makes answers traceable",
+    result: "PASS",
+    value: "0.20 → 0.89",
+    href: "/papers/icacin-2026-substrate-or-architecture.pdf",
+  },
+  {
+    system: "ICACIN paper",
+    claim: "Cleaner records widen what can be answered",
+    result: "PASS",
+    value: "63% → 82%",
+    href: "/papers/icacin-2026-substrate-or-architecture.pdf",
+  },
 ];
+
 
 /* ── My journey (About) ──────────────────────────────────────────────────── */
 export const journey: string[] = [

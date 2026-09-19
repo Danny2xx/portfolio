@@ -218,16 +218,26 @@ const icons: Record<string, string> = {
       const y = window.scrollY;
       const atBottom = window.innerHeight + y >= document.body.scrollHeight - 80;
       let hide = dock.classList.contains("is-tucked");
-      if (y <= 200 || atBottom) hide = false;
+      // stay out of the opening screen entirely, then behave like the header
+      if (y < 320) hide = true;
+      else if (atBottom) hide = false;
       else if (y > lastY + 6) hide = true;
       else if (y < lastY - 6) hide = false;
       if (document.querySelector('[aria-expanded="true"]')) hide = false;
       dock.classList.toggle("is-tucked", hide);
       lastY = y;
     };
+    let settle = 0;
     window.addEventListener("scroll", () => {
       if (!queuedTuck) { queuedTuck = true; requestAnimationFrame(tuck); }
+      // it hides while you're moving down, but it must always come back when
+      // you stop, or the nav is unreachable for anyone who only scrolls down
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => {
+        if (window.scrollY >= 320) dock.classList.remove("is-tucked");
+      }, 650);
     }, { passive: true });
+    tuck();
 
     // Theme toggle (also used by anything calling window.__toggleTheme)
     const applyTheme = (theme: string) => {

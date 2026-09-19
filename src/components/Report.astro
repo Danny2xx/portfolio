@@ -1,0 +1,90 @@
+---
+// The homepage's spine: Daniel's claims about his own systems, and what the
+// evidence said. FAIL and UNTESTED rows are the point, not an oversight.
+import { claims } from "../data/content";
+---
+
+<section class="report" id="report">
+  <div class="wrap">
+    <table class="claims">
+      <caption class="sr-only">Claims about each system, and the measured result</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="col-system">System</th>
+          <th scope="col" class="col-claim">Claim</th>
+          <th scope="col" class="col-result">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {claims.map((c) => (
+          <tr class:list={["claim", `is-${c.result.toLowerCase()}`]}>
+            <td class="claim__system">{c.system}</td>
+            <td class="claim__what">
+              <a href={c.href}>{c.claim}</a>
+            </td>
+            <td class="claim__result">
+              <span class="flag">{c.result}</span>
+              <span class="value">{c.value}</span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .report { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 9vw, 7rem); }
+
+  .claims { width: 100%; border-collapse: collapse; text-align: left; }
+  .claims thead th {
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line-strong);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--faint);
+  }
+  .col-system { width: 9rem; }
+  .col-result { width: 14rem; }
+
+  .claim td { padding: 1.05rem 0; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+
+  .claim__system { font: 500 0.82rem/1.5 var(--font-mono); color: var(--faint); padding-right: 1rem; }
+  .claim__what { padding-right: 1.5rem; }
+  .claim__what a {
+    font-size: 1.02rem;
+    color: var(--ink);
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.24em;
+    transition: text-decoration-color 0.25s ease;
+  }
+  .claim:hover .claim__what a { text-decoration-color: var(--hl-text); }
+
+  .claim__result { display: flex; align-items: baseline; gap: 0.7rem; }
+  .flag {
+    flex: none;
+    padding: 0.12rem 0.45rem;
+    border-radius: 3px;
+    font: 600 0.74rem/1.5 var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+  .value { font: 400 0.82rem/1.5 var(--font-mono); color: var(--faint); }
+
+  /* PASS is quiet. FAIL is the loud one, deliberately. */
+  .is-pass .flag { color: var(--muted); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .is-fail .flag { color: var(--on-hl); background: var(--hl); }
+  .is-untested .flag { color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); }
+  .is-fail .claim__what a { color: var(--ink); }
+
+  @media (max-width: 720px) {
+    .claims, .claims tbody, .claim, .claim td { display: block; width: auto; }
+    .claims thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .claim { padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+    .claim td { padding: 0; border-bottom: 0; }
+    .claim__system { font-size: 0.78rem; }
+    .claim__what { margin-top: 0.15rem; padding-right: 0; }
+    .claim__what a { font-size: 1.05rem; }
+    .claim__result { margin-top: 0.55rem; }
+  }
+</style>
