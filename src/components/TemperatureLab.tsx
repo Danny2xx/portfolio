@@ -82,7 +82,7 @@ const css = `
 .tl__prompt q { color: var(--ink); quotes: "\\201C" "\\2026\\201D"; }
 .tl__bars { display: flex; flex-direction: column; gap: 0.5rem; }
 .tl__row { display: grid; grid-template-columns: 5rem 1fr 3.2rem; align-items: center; gap: 0.75rem; }
-.tl__tok { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink); text-align: right; }
+.tl__tok { font-family: var(--type-mono); font-size: 0.8rem; color: var(--ink); text-align: right; }
 .tl__track { height: 10px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
 .tl__fill {
   width: 100%; height: 100%;

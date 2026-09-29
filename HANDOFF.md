@@ -1,8 +1,8 @@
 # Handoff: Daniel Iyalekhue portfolio
 
-Status doc for an agent picking this up cold. Last refreshed **2026-09-16**, after a full frontend
-overhaul. This file = what exists and how it works. `PRODUCT.md` = why (audience, register).
-`DESIGN.md` = the visual system and the idea behind it.
+Status doc for an agent picking this up cold. Last refreshed **2026-09-29**, after the rebuild
+into a single-column feed. This file = what exists and how it works. `PRODUCT.md` = why (audience,
+register). `DESIGN.md` = the visual system and the idea behind it.
 
 ## What this is
 
@@ -24,74 +24,70 @@ npm run dev     # http://localhost:4321
 npm run build   # static → dist/ (15 pages). The Tokenizer chunk-size warning is expected.
 ```
 
-Astro 5 · TypeScript · React 19 islands (Lab demos only) · Lenis for smooth scrolling ·
-Archivo + Geist Mono via Fontsource. Tailwind v4 is installed but only its preflight is used.
+Astro 5 · TypeScript · React 19 islands (Lab demos only) · Inter Variable + Geist Mono Variable
+via Fontsource. No scroll library: motion is CSS. Tailwind v4 is wired to the design tokens
+through `@theme inline` (see `DESIGN.md`), though the site's own CSS is hand-written.
 No backend, no env vars, and **nothing loads from third parties at runtime**. Keep it that way.
 
-## Structure (2026-09-16 overhaul)
+## Structure (2026-09-29 rebuild)
 
-One scrolling home, a page per project, nothing behind tabs.
+One 600px column. The home page is a profile with two tabs; everything else is a sub-page in the
+same system.
 
-- `/` → `Hero` · `Work` · `Experience` · `Research` · `About` · `Lab` · `Contact`, each an
-  `id`-anchored `.section`. `Header` (thin, auto-hiding), `Footer` and `Dock` come from `Base`.
-- `/work/<slug>` → generated from `projects` in `content.ts` (9 pages). Shows the pipeline, the
-  engineering decisions, measured results, and a case study if one matches by project name.
-- `/writing` + `/writing/<slug>` → content collection `writing`.
-- `/about`, `/now`, `/uses` → meta-refresh redirects to `/#about` (they used to be real pages).
-- **Removed:** the tab system, the ⌘K palette, `Nav.astro` (now `Header.astro`), `Notes.astro`.
+- `/` → `Profile` (head + tabs) wrapping `Feed` (the Profile panel) and `LabPanel` (the Lab panel),
+  then `Footer`. `Settings` and `Dock` come from `Base`. There is no header and no hero.
+- `/work/<slug>` → generated from `projects` in `content.ts` (9 pages). What it is, how it works
+  (numbered pipeline rows), measured facts + caveat, engineering decisions, stack chips, the case
+  study if one matches by name, and a link to the next project.
+- `/writing` + `/writing/<slug>` → content collection `writing`, same rows and prose styles.
+- `/about`, `/now`, `/uses` → meta-refresh redirects to `/` (they used to be real pages, then
+  pointed at `/#about`, which no longer exists).
+- **Removed:** the tab system of two rebuilds ago, the ⌘K palette, `Header`, `Hero`, `Work`,
+  `Experience`, `Research`, `About`, `Contact`, `Lab`, `Pipeline`, `Report`, `SectionHead`,
+  `StackIcons`, `Logo`, and `src/scripts/motion.ts` with it.
 
 ## Design system
 
-Read `DESIGN.md` first. The short version: **"Grounded"**, a site that cites its own claims.
-Dark default with a light toggle, graphite neutrals, one highlighter colour (`--hl` for fills,
-`--hl-text` for text and lines: they differ in light mode for contrast), Archivo's width axis for
-display type, Geist Mono only for code and data.
+Read `DESIGN.md` first. The short version: a 600px column of rows under sticky mono uppercase
+labels. Dark default with a light toggle, plain hex neutrals, no accent beyond a focus blue.
+Inter for text, Geist Mono for labels and data. Body 14/20, row title 15, description 13, meta 12.
+Rows, not cards. The measurements come from aaezekiel.co, read with `getComputedStyle`.
 
 ## Components
 
 ```
-Base.astro        every page: pre-paint theme + a11y + motion opt-in, SEO, Header/Footer/Dock.
-Header.astro      thin fixed bar: logo, name, status, Résumé, a11y gear. Hides on scroll down.
-                  Status hidden under 900px, name under 420px; Résumé has a 44px hit area.
-Dock.astro        PRIMARY NAV. Floating bottom pill, section scroll-spy, highlighter pill that
-                  slides via clip-path, theme toggle. Labels on desktop, 44px icons under 760px.
-                  TUCKS AWAY on scroll down and returns on scroll up, so it never sits on top of
-                  content; it stays put while any [aria-expanded="true"] panel is open.
-Settings.astro    a11y dialog: 44px trigger, 52x32 switches, close button, Escape, click-outside,
-                  focus returns to the trigger. Under 700px it becomes a sheet above the dock
-                  with a scrim, so it's in thumb reach instead of covering the hero.
-Hero.astro        headline with masked line reveal + highlighter, and the citation system.
-SectionHead.astro two compositions so sections don't all open the same way: `split` (title left,
-                  note opposite) and `stack` (title, rule, note beneath), plus an optional `meta`
-                  line for real data. Work/Research use split; Experience/About/Lab use stack.
-Work.astro        mixed-size featured cards (xl/lg/md) + compact index + websites strip.
-Pipeline.astro    a project's architecture as a live trace; used on cards and project pages.
-Experience.astro  timeline with a scroll-linked progress rail and dots that light as you pass.
-Research.astro    the ICACIN paper (cover, authors, summary, comparison bars) + awards.
-About.astro       story + Right now / How I work / Ventures / Education + recommendation + tools.
-Lab.astro         the two React demos.
-Contact.astro     closing headline, big email with copy button, links, live Birmingham clock.
-Settings.astro    a11y panel (contrast, text size, dyslexia font, reduced motion).
-StackIcons.astro  grouped tech logos (simple-icons).
+Base.astro        every page: pre-paint theme + a11y, SEO, skip link, Settings, slot, Dock.
+Profile.astro     profile head (avatar, name + tick, role, bio, mono link row) and the
+                  Profile/Lab tab pair. Owns the pill, the view-transition panel swap, roving
+                  arrow keys and the #lab hash. Panels arrive via slot="profile" / slot="lab".
+Feed.astro        the Profile panel: What I do, Experience, Education, Selected work, Research,
+                  Recognition, Websites, Stack chips, Recommendations. All rows, all from
+                  content.ts. Work rows link to /work/<slug>.
+LabPanel.astro    the Lab panel: Tokenizer and TemperatureLab as client:visible islands, plus
+                  Notes rows from the writing collection.
+Dock.astro        floating bottom pill: top, email, GitHub, theme toggle. Owns
+                  window.__toggleTheme. Tucks on scroll down; a 620ms settle timer always
+                  brings it back, so it can never sit permanently on top of content.
+Settings.astro    a11y dialog: 44px trigger, 48x28 switches, text size +/-, close button,
+                  Escape, click-outside, focus returns to the trigger. Under 700px it is a
+                  bottom sheet with a scrim, in thumb reach.
+Footer.astro      live Birmingham clock and three icons, 12px mono.
 Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax demo.
 ```
 
-`src/scripts/motion.ts` owns smooth scrolling, reveal-on-enter and scroll progress.
-`src/lib/inline.ts` renders `**bold**` and `[text](href)` in prose fields.
-
 ## Key mechanics (don't break)
 
-- **Content is visible without JS.** `Base` adds `.motion` pre-paint only when motion is allowed,
-  and strips it after 3s if `motion.ts` never runs. Reveals only *enhance* visible content.
-- **The hero says what he builds, not what he won.** `heroBuilds` in `content.ts` is four lines of
-  craft, each linking to the project that proves it; the rail walks a highlighter down those rows
-  while on screen and pauses on hover. The headline animates along Archivo's width axis as it
-  lands. Awards and the paper belong in Research and recognition. The earlier version led with a
-  paper, a hackathon win and a finalist placing, and Daniel rightly called it a trophy cabinet.
-  On phones the rail is ordered above the supporting paragraph so it lands on the first screen.
+- **Content is visible without JS.** Motion is CSS only, inside a `prefers-reduced-motion`
+  query. Nothing is hidden waiting for a script.
+- **Sticky section labels** (`.label`) are the navigation. They bleed to the column edge with a
+  `--bg` background so rows slide under them cleanly. Don't put them in a scroll container.
+- **The text-size control only works because every px `font-size` and `line-height` is
+  `calc(Npx * var(--ts))`.** Add a raw px size and that part of the page stops scaling.
 - **Theme + a11y pre-paint** in `Base`; the toggle lives in `Dock` (`window.__toggleTheme`).
-- **View transitions:** project titles carry `view-transition-name: title-<slug>` on both the card
-  and the project page, so the title morphs across navigation. Header and dock persist.
+- **The dock always comes back.** The tuck-on-scroll-down has a settle timer for exactly this
+  reason; an earlier version hid it for the whole of a downward scroll.
+- **Design tokens are `--type-sans` / `--type-mono`.** Tailwind owns `--font-*`; reusing those
+  names makes the variable reference itself and the font silently falls back.
 
 ## Project claims (important)
 
@@ -121,9 +117,14 @@ the repo root are gitignored and must not be published.
 
 Headless Chrome (`--headless=new --remote-debugging-port=9222`) driven over the DevTools
 WebSocket. Resize the viewport to the document height for full-page shots rather than using
-`captureBeyondViewport`. **Screenshot with motion both off and on**: the reduced-motion path hides
-animation bugs, and headless background tabs don't advance CSS transitions. Always
-`npm run build`, and keep `node ~/.claude/skills/impeccable/scripts/detect.mjs --json src` at `[]`.
+`captureBeyondViewport`. Serve `dist/` with `npx serve dist` and **not** `serve -s`: SPA mode
+rewrites every path to `index.html`, so sub-pages silently test the home page. Check 1280 and 390,
+both themes, and measure rather than eyeball: tap-target rects, `scrollWidth - innerWidth`, and
+computed colours run through a contrast ratio. Always `npm run build`.
+
+Last measured (2026-09-29, production): no horizontal overflow at 1280 or 390 on `/`,
+`/work/*` or `/writing`; secondary text at **5.34:1 dark / 6.17:1 light**; every interactive
+target past 24px; text size scales 85% to 130% without overflow.
 
 ## Outstanding (needs Daniel)
 
@@ -149,7 +150,7 @@ animation bugs, and headless background tabs don't advance CSS transitions. Alwa
 
 ## Conventions
 
-- OKLCH tokens only; never hardcode colours in components.
+- Token colours only; never hardcode a colour in a component.
 - Never ship fake content: no invented metrics, no fabricated quotes, no placeholder people.
 - No em dashes or AI cadence in visible copy.
 - Commits end with `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`.

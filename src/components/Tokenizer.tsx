@@ -75,7 +75,7 @@ const css = `
 
 .tok__input {
   width: 100%; resize: vertical; min-height: 3.2rem;
-  font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.5;
+  font-family: var(--type-sans); font-size: 0.95rem; line-height: 1.5;
   color: var(--ink); background: var(--bg);
   border: 1px solid var(--border-strong); border-radius: 8px; padding: 0.65rem 0.8rem;
   outline: none; transition: border-color 0.18s ease, box-shadow 0.18s ease;
@@ -87,9 +87,9 @@ const css = `
   display: flex; flex-wrap: wrap; gap: 2px;
   padding: 0.7rem; min-height: 3.4rem;
   border-radius: 8px; background: var(--surface);
-  font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.75;
+  font-family: var(--type-mono); font-size: 0.8rem; line-height: 1.75;
 }
-.tok__empty { color: var(--faint); font-family: var(--font-sans); align-self: center; }
+.tok__empty { color: var(--faint); font-family: var(--type-sans); align-self: center; }
 .tok__t { white-space: pre-wrap; border-radius: 3px; padding: 0 1px; color: var(--ink); }
 /* four alternating tints so neighbouring tokens always differ */
 .tok__t.c0 { background: color-mix(in oklab, var(--primary) 17%, transparent); }

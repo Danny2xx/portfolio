@@ -5,8 +5,6 @@
    projects, from the code in each repo. Project metrics are copied from the
    repos' own report files; never round them up or add ones that don't exist.
 
-   Inline markup in `journey`: **bold** and [link](https://url) (src/lib/inline.ts).
-   Hero copy: [[source-id]] inserts a numbered citation to `heroSources`.
    ────────────────────────────────────────────────────────────────────────── */
 
 export const profile = {
