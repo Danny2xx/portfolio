@@ -1,7 +1,7 @@
 # Handoff: Daniel Iyalekhue portfolio
 
 Status doc for an agent picking this up cold. Last refreshed **2026-09-29**, after the rebuild
-into a single-column feed. This file = what exists and how it works. `PRODUCT.md` = why (audience,
+into a single-column feed and the Ask/motion pass on top of it. This file = what exists and how it works. `PRODUCT.md` = why (audience,
 register). `DESIGN.md` = the visual system and the idea behind it.
 
 ## What this is
@@ -36,6 +36,9 @@ same system.
 
 - `/` → `Profile` (head + tabs) wrapping `Feed` (the Profile panel) and `LabPanel` (the Lab panel),
   then `Footer`. `Settings` and `Dock` come from `Base`. There is no header and no hero.
+  The Feed opens with `Ask` and runs thirteen sections: What I do, Experience, Education,
+  Selected work, Research, Recognition, Story, How I work, Ventures, Right now, Websites,
+  Stack, Recommendations.
 - `/work/<slug>` → generated from `projects` in `content.ts` (9 pages). What it is, how it works
   (numbered pipeline rows), measured facts + caveat, engineering decisions, stack chips, the case
   study if one matches by name, and a link to the next project.
@@ -60,9 +63,12 @@ Base.astro        every page: pre-paint theme + a11y, SEO, skip link, Settings, 
 Profile.astro     profile head (avatar, name + tick, role, bio, mono link row) and the
                   Profile/Lab tab pair. Owns the pill, the view-transition panel swap, roving
                   arrow keys and the #lab hash. Panels arrive via slot="profile" / slot="lab".
-Feed.astro        the Profile panel: What I do, Experience, Education, Selected work, Research,
-                  Recognition, Websites, Stack chips, Recommendations. All rows, all from
-                  content.ts. Work rows link to /work/<slug>.
+Feed.astro        the Profile panel, thirteen sections of rows, all from content.ts. Every
+                  row carries id={rid(...)} from lib/passages.ts, because an Ask citation
+                  scrolls to that id and lights it.
+Ask.astro         "Ask this site": the search box, the answer, the citations. Inlines the
+                  corpus as JSON and calls lib/retrieve.ts. See DESIGN.md.
+Stack.astro       40 tools in six groups with real simple-icons brand marks.
 LabPanel.astro    the Lab panel: Tokenizer and TemperatureLab as client:visible islands, plus
                   Notes rows from the writing collection.
 Dock.astro        floating bottom pill: top, email, GitHub, theme toggle. Owns
@@ -88,6 +94,15 @@ Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax de
   reason; an earlier version hid it for the whole of a downward scroll.
 - **Design tokens are `--type-sans` / `--type-mono`.** Tailwind owns `--font-*`; reusing those
   names makes the variable reference itself and the font silently falls back.
+- **Ask row ids come from `rid()` in `lib/passages.ts`, used by both sides.** Change how a row
+  is keyed in `Feed.astro` without changing `passages.ts` and every citation stops scrolling
+  anywhere. There is no runtime error when this breaks, so check it by clicking a citation.
+- **The Ask corpus is generated from `content.ts` only.** Never write copy into
+  `passages.ts`: the answers are extractive, so anything added there becomes something the
+  site "says" about Daniel without appearing on the page.
+- **Both email buttons copy rather than open a mail client**, and fall back to `mailto:` if
+  the clipboard is refused. The `EMAIL ↗` link in the head is a plain `mailto:` either way,
+  so there is always one that works.
 
 ## Project claims (important)
 

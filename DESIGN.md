@@ -1,7 +1,7 @@
 # Design
 
 Visual system for Daniel Iyalekhue's portfolio. Register: **brand**. Rebuilt **2026-09-29** as a
-dense single-column feed. Tokens live in `src/styles/global.css`; this file explains the intent so
+dense single-column feed, then given the Ask box and the motion pass. Tokens live in `src/styles/global.css`; this file explains the intent so
 changes stay on-system.
 
 ## The idea: one column, read like a document
@@ -68,6 +68,28 @@ verified tick beside the name, and the brand dots on the stack chips.
 - Sub-pages (`/work/<slug>`, `/writing`, `/writing/<slug>`) reuse `.col`, `.sec`, `.label` and
   `.row` exactly, so a project page is the same object as the feed that links to it.
 
+## Ask this site
+
+The one thing on the page that is not a document. It is a miniature of the
+retriever in DocSage, pointed at the portfolio itself:
+
+1. **BM25** over 57 passages built from `content.ts` (`src/lib/passages.ts`).
+2. A **character-trigram vector space**, cosine, which catches near misses and typos.
+3. **Reciprocal rank fusion** of the two, so neither arm has to be calibrated against
+   the other. Same trick as the paper.
+4. **Query expansion** on the query side only, because a recruiter types "shipped" and the
+   page says "deployed". The corpus is never expanded, so an answer can only be what the
+   site already claims.
+5. An **extractive** answer: the best-matching sentence from each hit, never generated.
+6. **Citations** that scroll to the row they came from and light it for 2.6s.
+
+If nothing clears the relative score floor it says so and quotes nothing. That refusal is
+the feature, not a fallback: the whole point of his research is a system that knows when it
+has no grounds to answer.
+
+No API, no model download, no network. About 40KB of inlined JSON and 3KB of logic, and it
+answers in under 3ms after the first query builds the index.
+
 ## Signature components
 
 - **Profile head** (`Profile.astro`): avatar, name with a verified tick, role, two-line bio, and a
@@ -80,8 +102,13 @@ verified tick beside the name, and the brand dots on the stack chips.
 - **Rows** (`Feed.astro`): experience, education, work, research, recognition, websites. A row is a
   tile, a title, a description and a meta value. Work rows are links; the `.go` arrow slides 2px on
   hover.
-- **Dock** (`Dock.astro`): top, email, GitHub, theme. Tucks away on scroll down and always returns
-  after a 620ms settle timer, so it can never end up permanently hiding content.
+- **Dock** (`Dock.astro`): logo home, top, copy email, GitHub, CV, theme. Tucks away on scroll
+  down and always returns after a 620ms settle timer, so it can never end up permanently
+  hiding content. It also stays put while any panel is open.
+- **Stack** (`Stack.astro`): all 40 tools in six groups, with real brand marks from
+  simple-icons where one exists and a mono monogram where none does. Marks are grey until
+  hovered, then take their brand colour; on touch they bloom as the group scrolls in.
+  Dark brand colours fall back to `--ink` so they do not vanish on a `#0f0f0f` page.
 - **Lab** (`LabPanel.astro`): the two React islands, `client:visible`. Real `cl100k_base` BPE in the
   browser and a softmax temperature demo. They are the only JavaScript that matters on the page.
 
@@ -93,6 +120,13 @@ No scroll library. Everything is CSS, inside `@media (prefers-reduced-motion: no
 - Section rows — 0.5s, staggered `calc(var(--sd) + var(--i) * 34ms)`, so a section deals itself out.
 - `.is-swapping .row` — 0.42s, 26ms stagger, when the Profile / Lab panels swap.
 - `::view-transition-old/new(panel)` — 0.18s out, 0.3s in, for the tab morph.
+
+**Every icon that changes state says so.** The settings trigger rotates its sliders out and an
+X in. The theme toggle spins sun to moon, and the new theme is revealed by a circle wiping out
+from the button through `::view-transition-new(root)` rather than cutting. Both email buttons
+swap to a green tick for 1.8s when the address is copied. Sticky labels draw an underline as you
+enter their section. Rows lift their title and rotate their tile on hover. Switches squash as the
+dot travels. The "open to work" dot breathes.
 
 Easing is one curve: `--ease: cubic-bezier(.16, 1, .3, 1)`. `:root[data-motion="reduced"]` forces
 every duration to `0.001ms`, and the content is fully visible without JS regardless.
@@ -111,6 +145,6 @@ itself.
 
 ## Banned here
 
-Hero sections · card grids · decorative section headings · generated art standing in for
+Generated answers of any kind · hero sections · card grids · decorative section headings · generated art standing in for
 screenshots · gradients · glass blur · a second accent colour · scroll-jacking · counters that
 animate numbers · em dashes in visible copy · any claim without the code to back it.
