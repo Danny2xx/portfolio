@@ -1,0 +1,167 @@
+---
+// The Profile panel: everything as rows, in the order a hiring manager reads.
+import {
+  whatIDo,
+  experience,
+  credentials,
+  projects,
+  publications,
+  awards,
+  websites,
+  stack,
+  testimonials,
+} from "../data/content";
+
+const initials = (s: string) =>
+  s.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
+// a few real brand colours; anything else takes the muted dot
+const hues: Record<string, string> = {
+  Python: "#3776ab", TypeScript: "#3178c6", JavaScript: "#f7df1e", PyTorch: "#ee4c2c",
+  "TensorFlow / Keras": "#ff6f00", "scikit-learn": "#f7931e", "Hugging Face": "#ffd21e",
+  LangChain: "#1c3c3c", FastAPI: "#009688", "Next.js": "#888888", React: "#61dafb",
+  Docker: "#2496ed", PostgreSQL: "#336791", Supabase: "#3ecf8e", Ollama: "#a1a1a1",
+  ChromaDB: "#ff6b6b", SQL: "#e38c00", Pandas: "#150458", NumPy: "#4d77cf", SHAP: "#7aa2ff",
+};
+const tools = stack.flatMap((g) => g.items).filter((t, i, a) => a.indexOf(t) === i).slice(0, 14);
+
+const linkFor = (p: (typeof projects)[number]) =>
+  p.href ? "Visit site ↗" : p.repo ? "Source ↗" : "Read ↗";
+---
+
+<section class="sec">
+  <h2 class="label">What I do</h2>
+  <p class="rise" style="--d: 430ms">{whatIDo}</p>
+</section>
+
+<section class="sec">
+  <h2 class="label">Experience</h2>
+  <div class="rows">
+    {experience.map((job, i) => (
+      <div class="row" style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">{initials(job.org)}</span>
+        <span>
+          <span class="t">{job.org}</span>
+          <span class="d">{job.role}</span>
+        </span>
+        <span class="meta">{job.range}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Education</h2>
+  <div class="rows">
+    {credentials.map((c, i) => (
+      <div class="row row--plain" style={`--i:${i}`}>
+        <span>
+          <span class="t">{c.line}</span>
+          <span class="d">{c.detail}</span>
+        </span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Selected work</h2>
+  <div class="rows">
+    {projects.map((p, i) => (
+      <a class="row" href={`/work/${p.slug}`} style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">{initials(p.name)}</span>
+        <span>
+          <span class="t">{p.name}</span>
+          <span class="d">{p.tagline}</span>
+        </span>
+        <span class="go">{linkFor(p)}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Research</h2>
+  <div class="rows">
+    {publications.map((pub, i) => (
+      <a class="row" href={pub.pdf} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">PA</span>
+        <span>
+          <span class="t">{pub.title.split("?")[0]}?</span>
+          <span class="d">{pub.venue}, {pub.status.toLowerCase()}. With {pub.affiliations}.</span>
+        </span>
+        <span class="go">Read paper ↗</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Recognition</h2>
+  <div class="rows">
+    {awards.map((a, i) => (
+      <div class="row row--plain" style={`--i:${i}`}>
+        <span>
+          <span class="t">{a.place}, {a.event}</span>
+          {a.detail && <span class="d">{a.detail}</span>}
+        </span>
+        <span class="meta">{a.date}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Websites</h2>
+  <div class="rows">
+    {websites.map((w, i) => (
+      <a class="row" href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">{initials(w.name)}</span>
+        <span>
+          <span class="t">{w.name}</span>
+          <span class="d">{w.kind}</span>
+        </span>
+        <span class="go">Visit ↗</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="sec">
+  <h2 class="label">Stack</h2>
+  <p class="d">The tools I work in every day, from the model to the interface.</p>
+  <div class="chips">
+    {tools.map((t) => (
+      <span class="chip">
+        <span class="chip__dot" style={`background:${hues[t] ?? "var(--dim)"}`} aria-hidden="true"></span>{t}
+      </span>
+    ))}
+  </div>
+</section>
+
+{testimonials.length > 0 && (
+  <section class="sec">
+    <h2 class="label">Recommendations</h2>
+    {testimonials.map((t) => {
+      const paragraphs = t.quote.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+      return (
+        <figure class="quote" style="margin:0">
+          <figcaption class="quote__by">
+            <span class="quote__av" aria-hidden="true">
+              {t.photo ? <img src={t.photo} alt="" width="26" height="26" /> : initials(t.name)}
+            </span>
+            <span>
+              <span class="t">
+                {t.linkedin ? <a href={t.linkedin} target="_blank" rel="noreferrer">{t.name}</a> : t.name}
+              </span>
+              <span class="d">{t.role}</span>
+            </span>
+          </figcaption>
+          <blockquote class="quote__text" style="margin:0">
+            {paragraphs.map((p, i) => <p style={i ? "margin-top:8px" : ""}>{i === 0 ? `"${p}` : p}{i === paragraphs.length - 1 ? '"' : ""}</p>)}
+          </blockquote>
+        </figure>
+      );
+    })}
+  </section>
+)}

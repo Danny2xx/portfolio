@@ -1,256 +1,58 @@
 ---
-// Floating section dock: the site's primary navigation. On the home page it
-// tracks the section in view with a highlighter pill; elsewhere it links home.
-import Logo from "./Logo.astro";
-
-interface Props {
-  page?: "home" | "sub";
-}
-const { page = "home" } = Astro.props;
-const base = page === "home" ? "" : "/";
-
-const items = [
-  { id: "work", label: "Work" },
-  { id: "experience", label: "Experience" },
-  { id: "research", label: "Research" },
-  { id: "about", label: "About" },
-  { id: "lab", label: "Lab" },
-  { id: "contact", label: "Contact" },
-];
-
-const icons: Record<string, string> = {
-  work: '<rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/>',
-  experience: '<rect x="3.5" y="7" width="17" height="12.5" rx="2"/><path d="M9 7V5.6A1.6 1.6 0 0 1 10.6 4h2.8A1.6 1.6 0 0 1 15 5.6V7M3.5 12.5h17"/>',
-  research: '<path d="M7 3.5h7l4 4v13H7z" stroke-linejoin="round"/><path d="M14 3.5v4h4M9.5 12.5h5M9.5 16h5" stroke-linecap="round"/>',
-  about: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.6-3.6 3.4-5.8 7-5.8s6.4 2.2 7 5.8" stroke-linecap="round"/>',
-  lab: '<path d="M9.5 3.5h5M10.5 3.5v5.2l-5.1 8.9a2 2 0 0 0 1.7 2.9h9.8a2 2 0 0 0 1.7-2.9l-5.1-8.9V3.5M7.6 14.5h8.8" stroke-linecap="round" stroke-linejoin="round"/>',
-  contact: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/>',
-};
+import { profile } from "../data/content";
 ---
 
-<nav class="dock" aria-label="Sections" data-dock data-page={page}>
-  <a class="dock__round" href={`${base}#top`} aria-label="Back to top">
-    <Logo size={17} />
+<nav class="dock" aria-label="Quick actions" data-dock>
+  <a href="#top" aria-label="Back to top">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M6 10v9.5h12V10" /></svg>
   </a>
-  <span class="dock__sep" aria-hidden="true"></span>
-
-  <div class="dock__links" data-links>
-    <span class="dock__pill" aria-hidden="true" data-pill></span>
-    {items.map((it) => (
-      <a class="dock__link" href={`${base}#${it.id}`} data-id={it.id}>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" set:html={icons[it.id]} />
-        <span class="dock__label">{it.label}</span>
-      </a>
-    ))}
-  </div>
-
-  <span class="dock__sep" aria-hidden="true"></span>
-  <button class="dock__round dock-theme" type="button" aria-label="Switch colour theme">
-    <svg class="dock__sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round"/></svg>
-    <svg class="dock__moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke-linejoin="round"/></svg>
+  <a href={`mailto:${profile.email}`} aria-label={`Email ${profile.name}`}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
+  </a>
+  <a href={profile.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" /></svg>
+  </a>
+  <span class="dock__div" aria-hidden="true"></span>
+  <button type="button" class="dock-theme" aria-label="Switch colour theme">
+    <svg class="dock__sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5V5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round" /></svg>
+    <svg class="dock__moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke-linejoin="round" /></svg>
   </button>
 </nav>
 
 <style>
-  .dock {
-    position: fixed;
-    left: 50%;
-    bottom: max(1rem, env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-    z-index: var(--z-dock);
-    view-transition-name: dock;
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.35rem;
-    border-radius: 999px;
-    background: var(--dock-bg);
-    border: 1px solid var(--dock-line);
-    box-shadow: 0 24px 60px -24px oklch(0 0 0 / 0.6);
-    color: var(--dock-ink);
-    max-width: calc(100vw - 1.5rem);
-    transition: transform 0.55s var(--ease-out), opacity 0.4s ease;
-  }
-  /* tucks away while reading down so it never sits on top of content */
-  .dock.is-tucked {
-    transform: translate(-50%, calc(100% + 2.5rem));
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .dock__round {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: none;
-    color: var(--dock-ink-hi);
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.35s var(--ease-out);
-  }
-  .dock__round:hover { background: var(--dock-surface); }
-  .dock__round:active { transform: scale(0.92); }
-
-  .dock__sep { width: 1px; height: 20px; margin-inline: 0.15rem; background: var(--dock-line); }
-
-  .dock__links { position: relative; display: flex; align-items: center; }
-  .dock__pill {
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    background: var(--hl);
-    opacity: 0;
-    clip-path: inset(0 var(--r, 100%) 0 var(--l, 0) round 999px);
-    transition: clip-path 0.6s var(--ease-out), opacity 0.3s ease;
-  }
-  .dock__pill.is-on { opacity: 1; }
-
-  .dock__link {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px;
-    padding: 0 0.95rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 560;
-    font-stretch: 104%;
-    white-space: nowrap;
-    color: var(--dock-ink);
-    transition: color 0.3s ease;
-  }
-  .dock__link:hover { color: var(--dock-ink-hi); }
-  .dock__link[aria-current="true"] { color: var(--on-hl); }
-  .dock__link svg { display: none; }
-
   :global(:root[data-theme="dark"]) .dock__moon { display: none; }
   :global(:root[data-theme="light"]) .dock__sun { display: none; }
-
-  @media (max-width: 760px) {
-    .dock { gap: 0; padding: 0.3rem; }
-    .dock__link { width: 44px; height: 44px; padding: 0; }
-    .dock__round { width: 44px; height: 44px; }
-    .dock__link svg { display: block; }
-    .dock__label {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .dock__pill { transition: none; }
-  }
 </style>
 
 <script>
   const dock = document.querySelector<HTMLElement>("[data-dock]");
+
+  const applyTheme = (theme: string) => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem("theme", theme); } catch {}
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#fbfbfa" : "#0f0f0f");
+  };
+  (window as any).__toggleTheme = () =>
+    applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+  dock?.querySelector(".dock-theme")?.addEventListener("click", () => (window as any).__toggleTheme());
+
+  // it steps aside while you read down, and comes back when you stop
   if (dock) {
-    const box = dock.querySelector<HTMLElement>("[data-links]")!;
-    const pill = dock.querySelector<HTMLElement>("[data-pill]")!;
-    const links = Array.from(dock.querySelectorAll<HTMLAnchorElement>(".dock__link"));
-
-    const setActive = (id: string | null) => {
-      let active: HTMLAnchorElement | undefined;
-      for (const link of links) {
-        if (link.dataset.id === id) {
-          link.setAttribute("aria-current", "true");
-          active = link;
-        } else link.removeAttribute("aria-current");
-      }
-      if (!active) return pill.classList.remove("is-on");
-      pill.style.setProperty("--l", `${active.offsetLeft}px`);
-      pill.style.setProperty("--r", `${box.clientWidth - active.offsetLeft - active.offsetWidth}px`);
-      pill.classList.add("is-on");
-    };
-
-    if (dock.dataset.page === "home") {
-      const sections = links
-        .map((l) => document.getElementById(l.dataset.id!))
-        .filter((s): s is HTMLElement => s !== null);
-      let current: string | null | undefined;
-      const pick = () => {
-        const line = window.innerHeight * 0.45;
-        let id: string | null = null;
-        for (const s of sections) {
-          const r = s.getBoundingClientRect();
-          if (r.top <= line && r.bottom > line) id = s.id;
-        }
-        if (id !== current) {
-          current = id;
-          setActive(id);
-        }
-      };
-      let queued = false;
-      window.addEventListener(
-        "scroll",
-        () => {
-          if (!queued) {
-            queued = true;
-            requestAnimationFrame(() => {
-              queued = false;
-              pick();
-            });
-          }
-        },
-        { passive: true },
-      );
-      window.addEventListener("resize", () => {
-        current = undefined;
-        pick();
-      });
-      pick();
-    }
-
-    // Tuck the dock away while scrolling down, bring it back on the way up,
-    // so it never permanently covers the content underneath it.
-    let lastY = window.scrollY;
-    let queuedTuck = false;
-    const tuck = () => {
-      queuedTuck = false;
-      const y = window.scrollY;
-      const atBottom = window.innerHeight + y >= document.body.scrollHeight - 80;
-      let hide = dock.classList.contains("is-tucked");
-      // stay out of the opening screen entirely, then behave like the header
-      if (y < 320) hide = true;
-      else if (atBottom) hide = false;
-      else if (y > lastY + 6) hide = true;
-      else if (y < lastY - 6) hide = false;
-      if (document.querySelector('[aria-expanded="true"]')) hide = false;
-      dock.classList.toggle("is-tucked", hide);
-      lastY = y;
-    };
+    let last = window.scrollY;
+    let queued = false;
     let settle = 0;
-    window.addEventListener("scroll", () => {
-      if (!queuedTuck) { queuedTuck = true; requestAnimationFrame(tuck); }
-      // it hides while you're moving down, but it must always come back when
-      // you stop, or the nav is unreachable for anyone who only scrolls down
-      window.clearTimeout(settle);
-      settle = window.setTimeout(() => {
-        if (window.scrollY >= 320) dock.classList.remove("is-tucked");
-      }, 650);
-    }, { passive: true });
-    tuck();
-
-    // Theme toggle (also used by anything calling window.__toggleTheme)
-    const applyTheme = (theme: string) => {
-      document.documentElement.dataset.theme = theme;
-      try {
-        localStorage.setItem("theme", theme);
-      } catch {}
-      document
-        .querySelector('meta[name="theme-color"]')
-        ?.setAttribute("content", theme === "light" ? "#fbfbfb" : "#121310");
+    const update = () => {
+      queued = false;
+      const y = window.scrollY;
+      const atEnd = window.innerHeight + y >= document.body.scrollHeight - 60;
+      if (y > last + 6 && y > 180 && !atEnd) dock.classList.add("is-tucked");
+      else if (y < last - 6 || atEnd) dock.classList.remove("is-tucked");
+      last = y;
     };
-    (window as any).__toggleTheme = () =>
-      applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
-    dock.querySelector(".dock-theme")?.addEventListener("click", () => (window as any).__toggleTheme());
+    window.addEventListener("scroll", () => {
+      if (!queued) { queued = true; requestAnimationFrame(update); }
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => dock.classList.remove("is-tucked"), 620);
+    }, { passive: true });
   }
 </script>

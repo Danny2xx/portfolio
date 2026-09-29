@@ -1,0 +1,66 @@
+---
+import { getCollection } from "astro:content";
+import { labIntro } from "../data/content";
+import Tokenizer from "./Tokenizer.tsx";
+import TemperatureLab from "./TemperatureLab.tsx";
+
+const notes = (await getCollection("writing", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month: "short" });
+---
+
+<section class="sec">
+  <h2 class="label">Lab</h2>
+  <p class="rise" style="--d: 120ms">{labIntro}</p>
+
+  <div class="demo" style="--i:0">
+    <div class="demo__head">
+      <span class="t">How a language model reads text</span>
+      <span class="meta">cl100k_base</span>
+    </div>
+    <p class="d">Type below and watch the tokenizer behind GPT-4 split it up. It runs here, in your browser.</p>
+    <div class="demo__stage"><Tokenizer client:visible /></div>
+  </div>
+
+  <div class="demo" style="--i:1">
+    <div class="demo__head">
+      <span class="t">Sampling temperature</span>
+      <span class="meta">softmax</span>
+    </div>
+    <p class="d">Drag it and watch the odds tighten or spread. Same maths the model uses to pick its next token.</p>
+    <div class="demo__stage"><TemperatureLab client:visible /></div>
+  </div>
+</section>
+
+{notes.length > 0 && (
+  <section class="sec">
+    <h2 class="label">Notes</h2>
+    <div class="rows">
+      {notes.map((note, i) => (
+        <a class="row row--plain" href={`/writing/${note.id}`} style={`--i:${i}`}>
+          <span>
+            <span class="t">{note.data.title}</span>
+            <span class="d">{note.data.description}</span>
+          </span>
+          <span class="go">{fmt(note.data.date)} ↗</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .demo {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+    animation: rise 0.5s var(--ease) backwards;
+    animation-delay: calc(200ms + var(--i, 0) * 60ms);
+  }
+  .demo__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .demo__stage { margin-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { .demo { animation: none; } }
+</style>

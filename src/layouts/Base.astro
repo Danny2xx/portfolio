@@ -1,20 +1,17 @@
 ---
 import "../styles/global.css";
 import { profile } from "../data/content";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+import Settings from "../components/Settings.astro";
 import Dock from "../components/Dock.astro";
 
 interface Props {
   title?: string;
   description?: string;
-  page?: "home" | "sub";
 }
 
 const {
-  title = `${profile.name} · AI / ML Engineer`,
-  description = "Daniel Iyalekhue, AI / ML engineer in Birmingham, UK. Retrieval, evaluation, predictive models and the products around them. Co-author of an ICACIN 2026 paper.",
-  page = "home",
+  title = `${profile.name} · ${profile.title}`,
+  description = "Daniel Iyalekhue, AI / ML engineer in Birmingham. Retrieval, evaluation, models and the products around them. Co-author of an ICACIN 2026 paper.",
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyalekhue.com");
@@ -30,7 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#121310" />
+    <meta name="theme-color" content="#0f0f0f" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -39,39 +36,30 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Theme, a11y prefs and motion opt-in, set before paint so nothing flashes. -->
+    <!-- theme and accessibility prefs, applied before paint so nothing flashes -->
     <script is:inline>
       (() => {
         const el = document.documentElement;
-        let theme = "dark";
         try {
-          if (localStorage.getItem("theme") === "light") theme = "light";
+          el.dataset.theme = localStorage.getItem("theme") === "light" ? "light" : "dark";
           if (localStorage.getItem("a11y-contrast") === "high") el.dataset.contrast = "high";
           if (localStorage.getItem("a11y-font") === "dyslexic") el.dataset.font = "dyslexic";
           if (localStorage.getItem("a11y-motion") === "reduced") el.dataset.motion = "reduced";
           const ts = localStorage.getItem("a11y-textscale");
           if (ts) el.style.setProperty("--ts", ts);
-        } catch (_) {}
-        el.dataset.theme = theme;
-        const reduce =
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches || el.dataset.motion === "reduced";
-        if (!reduce) {
-          el.classList.add("motion");
-          // failsafe: if the motion script never runs, show everything
-          setTimeout(() => { if (!window.__motion) el.classList.remove("motion"); }, 3000);
+        } catch (_) {
+          el.dataset.theme = "dark";
+        }
+        if (el.dataset.theme === "light") {
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#fbfbfa");
         }
       })();
     </script>
   </head>
   <body>
-    <a href="#main" class="skip-link">Skip to content</a>
-    <Header />
+    <a class="skip" href="#main">Skip to content</a>
+    <Settings />
     <slot />
-    <Footer />
-    <Dock page={page} />
-
-    <script>
-      import "../scripts/motion";
-    </script>
+    <Dock />
   </body>
 </html>

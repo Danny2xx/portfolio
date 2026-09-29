@@ -1,24 +1,18 @@
 ---
 import Base from "../layouts/Base.astro";
-import Hero from "../components/Hero.astro";
-import Report from "../components/Report.astro";
-import Work from "../components/Work.astro";
-import Experience from "../components/Experience.astro";
-import Research from "../components/Research.astro";
-import About from "../components/About.astro";
-import Lab from "../components/Lab.astro";
-import Contact from "../components/Contact.astro";
+import Profile from "../components/Profile.astro";
+import Feed from "../components/Feed.astro";
+import LabPanel from "../components/LabPanel.astro";
+import Footer from "../components/Footer.astro";
 ---
 
 <Base>
-  <main id="main">
-    <Hero />
-    <Report />
-    <Work />
-    <Experience />
-    <Research />
-    <About />
-    <Lab />
-    <Contact />
+  <main id="main" class="col" style="padding-block: 44px 132px">
+    <span id="top"></span>
+    <Profile>
+      <Feed slot="profile" />
+      <LabPanel slot="lab" />
+    </Profile>
+    <Footer />
   </main>
 </Base>

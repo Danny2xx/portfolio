@@ -23,6 +23,14 @@ export const profile = {
   },
 };
 
+
+/* ── Profile head ────────────────────────────────────────────────────────── */
+export const bio =
+  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models and the products around them. Based in Birmingham, UK.";
+
+export const whatIDo =
+  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards around them. From the data to the deployed product, I handle the whole path.";
+
 /* ── The report ──────────────────────────────────────────────────────────────
    The homepage is a report on Daniel's own claims. Every row below is backed by
    a file in the matching repo: a metric in a report, a test, or a design that

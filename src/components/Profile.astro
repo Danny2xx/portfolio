@@ -1,0 +1,95 @@
+---
+// Profile head: who this is, how to reach him, and the Profile / Lab switch.
+// The two panels arrive as slots so this file owns the switching behaviour.
+import { profile, bio } from "../data/content";
+---
+
+<header class="head">
+  <img class="avatar rise" style="--d: 0ms" src="/vector.png" alt={`Portrait of ${profile.name}`} width="56" height="56" />
+
+  <h1 class="who rise" style="--d: 70ms">
+    {profile.name}
+    <svg class="tick" viewBox="0 0 24 24" aria-label="Verified">
+      <path fill="#e0b341" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81C14.67 2.63 13.43 1.75 12 1.75s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91C2.64 9.33 1.75 10.57 1.75 12s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34z" />
+      <path fill="var(--bg)" d="M10.54 16.2 6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z" />
+    </svg>
+  </h1>
+  <p class="role rise" style="--d: 120ms">{profile.title}</p>
+  <p class="bio rise" style="--d: 170ms">{bio}</p>
+
+  <nav class="dots rise" style="--d: 230ms" aria-label="Elsewhere">
+    <a href={`mailto:${profile.email}`}>Email ↗</a><span class="sep">/</span>
+    <a href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><span class="sep">/</span>
+    <a href={profile.links.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+    {profile.cvUrl && (
+      <>
+        <span class="sep">/</span>
+        <a href={profile.cvUrl} target="_blank" rel="noreferrer">CV ↗</a>
+      </>
+    )}
+  </nav>
+
+  <div class="switch rise" style="--d: 300ms">
+    <div class="tabs" data-tabs data-on="profile" role="tablist" aria-label="Sections">
+      <span class="tabs__pill" aria-hidden="true"></span>
+      <button class="tab" type="button" role="tab" id="t-profile" aria-selected="true" aria-controls="p-profile">Profile</button>
+      <button class="tab" type="button" role="tab" id="t-lab" aria-selected="false" aria-controls="p-lab">Lab</button>
+    </div>
+    <a class="iconbtn" href={`mailto:${profile.email}`} aria-label={`Email ${profile.name}`}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
+    </a>
+  </div>
+</header>
+
+<div id="p-profile" role="tabpanel" aria-labelledby="t-profile"><slot name="profile" /></div>
+<div id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden><slot name="lab" /></div>
+
+<script>
+  const group = document.querySelector<HTMLElement>("[data-tabs]");
+  if (group) {
+    const tabs = Array.from(group.querySelectorAll<HTMLButtonElement>(".tab"));
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const show = (target: HTMLButtonElement) => {
+      for (const tab of tabs) {
+        const on = tab === target;
+        tab.setAttribute("aria-selected", String(on));
+        const panel = document.getElementById(tab.getAttribute("aria-controls")!);
+        if (!panel) continue;
+        panel.hidden = !on;
+        panel.style.viewTransitionName = on ? "panel" : "";
+        if (on && !reduce.matches) {
+          panel.classList.remove("is-swapping");
+          void panel.offsetWidth;
+          panel.classList.add("is-swapping");
+        }
+      }
+      group.dataset.on = target.id === "t-lab" ? "lab" : "profile";
+      try { history.replaceState(null, "", target.id === "t-lab" ? "#lab" : "#profile"); } catch {}
+    };
+
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => {
+        if (tab.getAttribute("aria-selected") === "true") return;
+        const run = () => show(tab);
+        if (document.startViewTransition && !reduce.matches) document.startViewTransition(run);
+        else run();
+      });
+    }
+
+    // a tablist should answer to the arrow keys
+    group.addEventListener("keydown", (e) => {
+      const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      if (i < 0) return;
+      let j = -1;
+      if (e.key === "ArrowRight") j = (i + 1) % tabs.length;
+      else if (e.key === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+      if (j < 0) return;
+      e.preventDefault();
+      tabs[j].focus();
+      tabs[j].click();
+    });
+
+    if (location.hash === "#lab") show(tabs[1]);
+  }
+</script>
