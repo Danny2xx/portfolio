@@ -18,8 +18,12 @@ const linkFor = (p: (typeof projects)[number]) =>
   <h2 class="label">Selected work</h2>
   <div class="rows">
     {projects.map((p, i) => (
-      <a class="row" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`}>
-        <span class="tile" aria-hidden="true">{initials(p.name)}</span>
+      <a class="row" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`} data-prefetch>
+        {p.thumb ? (
+          <span class="tile tile--shot" aria-hidden="true"><img src={p.thumb} alt="" width="400" height="250" loading="lazy" decoding="async" /></span>
+        ) : (
+          <span class="tile" aria-hidden="true">{initials(p.name)}</span>
+        )}
         <span>
           <span class="t">{p.name}</span>
           <span class="d">{p.tagline}</span>
@@ -83,21 +87,38 @@ const linkFor = (p: (typeof projects)[number]) =>
 
 <section class="sec" id="s-websites">
   <h2 class="label">Websites</h2>
-  <div class="rows">
+  <div class="cards">
     {websites.map((w, i) => (
-      <a class="row" id={rid("site", w.name)} href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
-        <span class="tile" aria-hidden="true">{initials(w.name)}</span>
-        <span>
+      <a class="card" id={rid("site", w.name)} href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+        <span class="card__shot">
+          <img src={w.thumb} alt={w.alt} width="400" height="250" loading="lazy" decoding="async" />
+        </span>
+        <span class="card__by">
           <span class="t">{w.name}</span>
           <span class="d">{w.kind}</span>
         </span>
-        <span class="go">Visit ↗</span>
       </a>
     ))}
   </div>
 </section>
 
 <style>
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
+  .card { display: block; }
+  .card__shot {
+    display: block; aspect-ratio: 16 / 10; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--card);
+    transition: border-color 0.24s ease, transform 0.42s var(--ease);
+  }
+  .card__shot img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+  .card__by { display: block; margin-top: 7px; }
+  .card:hover .card__shot { border-color: var(--line-strong); transform: translateY(-2px); }
+  .card:hover .t { color: var(--accent); }
+  .card .t { transition: color 0.2s ease; }
+  @media (max-width: 520px) {
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
   .para { margin: 0 0 10px; max-width: 64ch; }
   .para:last-of-type { margin-bottom: 0; }
   .note { margin-top: 5px; color: var(--dim); }

@@ -63,6 +63,36 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
     <Dock />
 
     <script>
+      // Navigation should never make you wait: the page you are about to open
+      // is fetched the moment you show intent.
+      {
+        const seen = new Set<string>();
+        const warm = (href: string) => {
+          if (!href || seen.has(href)) return;
+          seen.add(href);
+          const l = document.createElement("link");
+          l.rel = "prefetch";
+          l.href = href;
+          l.as = "document";
+          document.head.appendChild(l);
+        };
+        const intent = (e: Event) => {
+          const a = (e.target as HTMLElement)?.closest?.("a[href^='/']") as HTMLAnchorElement | null;
+          if (a && !a.target) warm(a.getAttribute("href")!);
+        };
+        addEventListener("pointerover", intent, { passive: true, capture: true });
+        addEventListener("touchstart", intent, { passive: true, capture: true });
+        addEventListener("focusin", intent, { passive: true, capture: true });
+
+        // and the first few project pages get fetched while the browser is idle
+        const idle = (window as any).requestIdleCallback || ((f: Function) => setTimeout(f, 1200));
+        idle(() => {
+          document.querySelectorAll<HTMLAnchorElement>("a[data-prefetch]").forEach((a, i) => {
+            if (i < 4) warm(a.getAttribute("href")!);
+          });
+        });
+      }
+
       // Progressive disclosure: the page stays short, nothing is thrown away.
       for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-more]")) {
         const fold = document.getElementById(btn.getAttribute("aria-controls") || "");

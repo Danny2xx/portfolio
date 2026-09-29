@@ -161,6 +161,8 @@ input, textarea { caret-color: var(--accent); }
 
 /* ── sections, labels, rows ─────────────────────────────────────────────── */
 .sec { margin-top: 34px; }
+/* sections below the fold cost nothing to lay out until they scroll in */
+.sec:nth-of-type(n + 3) { content-visibility: auto; contain-intrinsic-size: auto 320px; }
 .label {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
   margin: 0 calc(-1 * var(--pad)); padding: 10px var(--pad) 8px;
@@ -183,7 +185,8 @@ input, textarea { caret-color: var(--accent); }
 .row:last-child { border-bottom: 0; }
 .row--plain { grid-template-columns: minmax(0, 1fr) auto; }
 .tile { width: 28px; height: 28px; border-radius: 7px; background: var(--card); border: 1px solid var(--line); display: grid; place-items: center; font-family: var(--type-mono); font-size: calc(10px * var(--ts)); color: var(--mid); overflow: hidden; }
-.tile img { width: 100%; height: 100%; object-fit: cover; }
+.tile img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.tile--shot { padding: 0; border-color: var(--line-strong); }
 .t { display: block; font-size: calc(15px * var(--ts)); font-weight: 500; line-height: calc(20.25px * var(--ts)); }
 .d { display: block; color: var(--mid); font-size: calc(13px * var(--ts)); line-height: calc(18px * var(--ts)); }
 .meta, .go { font-family: var(--type-mono); font-size: calc(12px * var(--ts)); color: var(--mid); white-space: nowrap; padding-top: 3px; font-variant-numeric: tabular-nums; }
@@ -293,12 +296,13 @@ a.row:hover .tile { border-color: var(--line-strong); transform: scale(1.06) rot
 @media (prefers-reduced-motion: no-preference) {
   .rise { animation: rise 0.62s var(--ease) backwards; animation-delay: var(--d, 0ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(9px); filter: blur(3px); } }
-  .sec .row, .sec .quote { animation: rise 0.5s var(--ease) backwards; animation-delay: calc(var(--sd, 430ms) + var(--i, 0) * 34ms); }
+  .sec .row, .sec .quote { animation: rise 0.5s var(--ease) backwards; animation-delay: calc(var(--sd, 430ms) + min(var(--i, 0), 8) * 34ms); }
   .sec:nth-of-type(1) { --sd: 430ms; }
   .sec:nth-of-type(2) { --sd: 500ms; }
   .sec:nth-of-type(3) { --sd: 560ms; }
   .sec:nth-of-type(n + 4) { --sd: 620ms; }
-  .is-swapping .row { animation: rise 0.42s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 26ms); }
+  /* only the rows you can actually see are worth choreographing */
+  .is-swapping .row { animation: rise 0.42s var(--ease) backwards; animation-delay: calc(min(var(--i, 0), 7) * 26ms); }
   /* the theme wipe: the new page is revealed by a circle, the old one holds still */
   :root[data-wiping] ::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
   :root[data-wiping] ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }

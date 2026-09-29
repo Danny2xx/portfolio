@@ -14,6 +14,7 @@ import {
   awards, alsoRecognised, journey, howIWork, ventures, now, websites, stack,
   testimonials, profile,
 } from "../data/content";
+import { trigrams, cosine, mds2d } from "./vec";
 
 export type Passage = {
   id: string;
@@ -98,3 +99,11 @@ testimonials.forEach((t) => p.push({
 }));
 
 export const passages = p;
+
+/* ── the map of the corpus ─────────────────────────────────────────────────
+   Where each passage sits relative to the others, measured once at build time
+   so the browser never pays for it. The Ask box draws this, and a point's
+   position is a real measurement: passages about the same things land close
+   together because their character trigrams overlap.                        */
+const grams = p.map((x) => trigrams(`${x.title} ${x.text}`));
+export const layout = mds2d(p.length, (i, j) => 1 - cosine(grams[i], grams[j]));

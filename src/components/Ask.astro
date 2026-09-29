@@ -10,7 +10,7 @@
    says so instead of guessing, which is the whole point of the paper this is
    named after.
    ────────────────────────────────────────────────────────────────────────── */
-import { passages } from "../lib/passages";
+import { passages, layout } from "../lib/passages";
 
 const examples = [
   "has he shipped anything to production?",
@@ -45,11 +45,17 @@ const examples = [
     {examples.map((e) => <button class="ask__chip" type="button" data-eg={e}>{e}</button>)}
   </div>
 
+  <figure class="ask__map" data-ask-map hidden>
+    <canvas data-ask-canvas width="1120" height="304" aria-hidden="true"></canvas>
+    <figcaption class="ask__cap" data-ask-cap></figcaption>
+  </figure>
+
   <div class="ask__trace" data-ask-trace hidden aria-hidden="true"></div>
   <output class="ask__out" data-ask-out hidden></output>
 </section>
 
 <script type="application/json" data-ask-index set:html={JSON.stringify(passages)}></script>
+<script type="application/json" data-ask-layout set:html={JSON.stringify(layout.map(([x, y]) => [+x.toFixed(4), +y.toFixed(4)]))}></script>
 
 <style>
   .ask { margin-top: 20px; }
@@ -121,6 +127,18 @@ const examples = [
   }
   .ask__chip:hover { color: var(--ink); border-color: var(--line-strong); transform: translateY(-1px); }
   .ask.is-answered .ask__eg { display: none; }
+
+  /* the corpus, drawn where the measurements put it */
+  .ask__map { margin: 14px 0 0; padding: 0; }
+  .ask__map[hidden] { display: none; }
+  .ask__map canvas {
+    display: block; width: 100%; height: 152px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--card);
+  }
+  .ask__cap {
+    margin-top: 6px; font-family: var(--type-mono); font-size: calc(10.5px * var(--ts));
+    color: var(--mid); font-variant-numeric: tabular-nums;
+  }
 
   /* the retriever shows its work: real stages, real counts, real timings */
   .ask__trace { margin-top: 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -269,6 +287,156 @@ const examples = [
       else go();
     };
 
+    /* ── the map of the corpus ────────────────────────────────────────────
+       59 points at their measured positions. A query lights the passages the
+       lexical arm matched, then the ones that survive fusion pull out to the
+       citation slots. Nothing here is invented: the coordinates come from
+       classical MDS over the same trigram distances the retriever uses.     */
+    const mapWrap = document.querySelector<HTMLElement>("[data-ask-map]");
+    const canvas = document.querySelector<HTMLCanvasElement>("[data-ask-canvas]");
+    const cap = document.querySelector<HTMLElement>("[data-ask-cap]");
+    const layout: [number, number][] = JSON.parse(
+      document.querySelector<HTMLScriptElement>("[data-ask-layout]")?.textContent || "[]",
+    );
+    const ctx = canvas?.getContext("2d") ?? null;
+    let raf = 0;
+
+    const tone = (name: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
+
+    const drawField = (lit: Set<number>, won: number[], t: number) => {
+      if (!ctx || !canvas) return;
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      // the cloud lives in the upper two thirds; the bottom strip is the shelf
+      // the cited passages land on
+      const padX = 26, padTop = 22;
+      const shelf = H - 52;
+      const px = (x: number) => padX + x * (W - padX * 2);
+      const py = (y: number) => padTop + y * (shelf - padTop - 14);
+
+      const dim = tone("--dim");
+      const mid = tone("--mid");
+      const accent = tone("--accent");
+      const ink = tone("--ink");
+
+      // ease the three phases: field in, matches light, winners pull out
+      const e = (a: number, b: number) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+      const soft = (v: number) => 1 - Math.pow(1 - v, 3);
+      const pIn = soft(e(0, 260));
+      const pLit = soft(e(180, 620));
+      const pWin = soft(e(520, 980));
+
+      // slots the winners travel to, along the bottom
+      const slots = won.map((_, i) => [
+        (W / (won.length + 1)) * (i + 1),
+        shelf + 12,
+      ]);
+
+      // the shelf line, drawn as the winners arrive
+      if (won.length && pWin > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.16 * pWin;
+        ctx.strokeStyle = mid;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padX, shelf - 8);
+        ctx.lineTo(W - padX, shelf - 8);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.globalAlpha = 1;
+      for (let i = 0; i < layout.length; i++) {
+        const [lx, ly] = layout[i];
+        let x = px(lx), y = py(ly);
+        const isLit = lit.has(i);
+        const wi = won.indexOf(i);
+
+        if (wi >= 0 && pWin > 0) {
+          x += (slots[wi][0] - x) * pWin;
+          y += (slots[wi][1] - y) * pWin;
+        }
+
+        let r = 2.1 * pIn;
+        let fill = mid;
+        let alpha = 0.42 * pIn;
+
+        if (isLit) {
+          const l = pLit;
+          r = (2.1 + 2.2 * l) * pIn;
+          fill = accent;
+          alpha = (0.4 + 0.55 * l) * pIn;
+        }
+        if (wi >= 0) {
+          r = (2.1 + 2.2 * pLit + 2.4 * pWin) * pIn;
+          fill = ink;
+          alpha = pIn;
+          // the line back to where it came from
+          ctx.save();
+          ctx.globalAlpha = 0.28 * pWin * pIn;
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(px(lx), py(ly));
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = fill;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(r, 0.4), 0, Math.PI * 2);
+        ctx.fill();
+
+        if (wi >= 0 && pWin > 0.35) {
+          ctx.globalAlpha = (pWin - 0.35) / 0.65;
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(x, y, r + 5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = mid;
+          ctx.font = "500 15px ui-monospace, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText(String(wi + 1), x, y + 26);
+        }
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    const playField = (lit: number[], won: number[]) => {
+      if (!ctx || !canvas || !mapWrap || layout.length === 0) return;
+      cancelAnimationFrame(raf);
+      const set = new Set(lit);
+      mapWrap.hidden = false;
+      if (cap) {
+        cap.textContent = won.length
+          ? `${layout.length} passages · ${lit.length} matched · ${won.length} cited · positions from trigram distance`
+          : `${layout.length} passages · ${lit.length} matched · none cleared the floor`;
+      }
+      if (reduce.matches) { drawField(set, won, 1200); return; }
+      const t0 = performance.now();
+      const step = () => {
+        const t = performance.now() - t0;
+        drawField(set, won, t);
+        if (t < 1100) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    // the map is sized in CSS pixels, so match the backing store to the display
+    const sizeCanvas = () => {
+      if (!canvas) return;
+      const r = canvas.getBoundingClientRect();
+      if (!r.width) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(r.width * dpr);
+      canvas.height = Math.round(152 * dpr);
+    };
+    addEventListener("resize", () => { sizeCanvas(); }, { passive: true });
+
     const renderTrace = (stages: Stage[]) => {
       if (stages.length === 0) { traceEl.hidden = true; return; }
       traceEl.innerHTML = stages
@@ -342,9 +510,11 @@ const examples = [
       // one frame so the spinner registers, even though the search is instant
       requestAnimationFrame(() => {
         const t0 = performance.now();
-        const { hits, answer, trace } = search(query, corpus);
+        const { hits, answer, trace, lit, won } = search(query, corpus);
         const ms = performance.now() - t0;
         root.classList.remove("is-working");
+        sizeCanvas();
+        playField(lit, won);
         renderTrace([...trace, { name: "total", detail: `${corpus.length} passages, all local`, ms }]);
         render(hits, answer, ms);
       });
@@ -366,6 +536,8 @@ const examples = [
           tag.textContent = "ASK";
           out.hidden = true;
           traceEl.hidden = true;
+          if (mapWrap) mapWrap.hidden = true;
+          cancelAnimationFrame(raf);
           root.classList.remove("is-answered", "is-typed");
           clearSources();
           typing = 0;
@@ -379,5 +551,9 @@ const examples = [
     input.addEventListener("focus", stopTyping);
 
     typeLoop();
+
+    // warm the index during idle time so the first question never pays for it
+    const idle = (window as any).requestIdleCallback || ((f: Function) => setTimeout(f, 1500));
+    idle(() => { try { countMatches("warm", corpus); } catch {} });
   }
 </script>

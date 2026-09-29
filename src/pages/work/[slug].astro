@@ -54,16 +54,23 @@ const Content = study ? (await render(study)).Content : null;
 
     <section class="sec">
       <h2 class="label">How it works</h2>
-      <div class="rows">
-        {p.pipeline.map((step, i) => (
-          <div class="row row--plain" style={`--i:${i}`}>
-            <span>
-              <span class="t">{step.label}</span>
-              {step.detail && <span class="d">{step.detail}</span>}
-            </span>
-            <span class="meta">{String(i + 1).padStart(2, "0")}</span>
-          </div>
-        ))}
+      <!-- the trace runs as you scroll it: the rail fills, each stage lights
+           as it reaches the reading line. All CSS, no scroll listener. -->
+      <div class="trace">
+        <span class="trace__track" aria-hidden="true"></span>
+        <span class="trace__rail" aria-hidden="true"></span>
+        <ol class="trace__steps">
+          {p.pipeline.map((step, i) => (
+            <li class="trace__step" style={`--i:${i}`}>
+              <span class="trace__dot" aria-hidden="true"></span>
+              <span class="trace__body">
+                <span class="t">{step.label}</span>
+                {step.detail && <span class="d">{step.detail}</span>}
+              </span>
+              <span class="meta">{String(i + 1).padStart(2, "0")}</span>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
 
@@ -118,6 +125,63 @@ const Content = study ? (await render(study)).Content : null;
 </Base>
 
 <style>
+  /* ── the pipeline as a trace ─────────────────────────────────────────── */
+  .trace { position: relative; margin-top: 6px; padding-left: 22px; }
+  .trace__track, .trace__rail {
+    position: absolute; left: 5px; top: 14px; bottom: 14px; width: 1px;
+  }
+  .trace__track { background: var(--line); }
+  .trace__rail { background: var(--accent); height: 100%; transform-origin: top; }
+
+  .trace__steps { list-style: none; margin: 0; padding: 0; }
+  .trace__step {
+    position: relative; display: grid;
+    grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start;
+    padding: 9px 0; border-bottom: 1px solid var(--line);
+  }
+  .trace__step:last-child { border-bottom: 0; }
+  .trace__dot {
+    position: absolute; left: -22px; top: 15px; width: 11px; height: 11px;
+    border-radius: 50%; background: var(--bg);
+    box-shadow: inset 0 0 0 1.5px var(--line-strong);
+    transition: box-shadow 0.3s ease, transform 0.4s var(--ease);
+  }
+  .trace__body { display: block; min-width: 0; }
+
+  /* default, and the fallback wherever scroll timelines are missing: fully lit */
+  .trace__step { opacity: 1; }
+  .trace__dot { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 3px color-mix(in oklab, var(--accent) 16%, transparent); }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .trace__rail {
+        height: 0;
+        animation: trace-fill linear both;
+        animation-timeline: view();
+        animation-range: cover 14% cover 72%;
+      }
+      @keyframes trace-fill { to { height: 100%; } }
+
+      .trace__step {
+        opacity: 0.45;
+        animation: trace-step linear both;
+        animation-timeline: view();
+        animation-range: cover 24% cover 46%;
+      }
+      @keyframes trace-step { to { opacity: 1; } }
+
+      .trace__dot {
+        box-shadow: inset 0 0 0 1.5px var(--line-strong);
+        animation: trace-dot linear both;
+        animation-timeline: view();
+        animation-range: cover 24% cover 46%;
+      }
+      @keyframes trace-dot {
+        to { box-shadow: inset 0 0 0 1.5px var(--accent), 0 0 0 3px color-mix(in oklab, var(--accent) 16%, transparent); }
+      }
+    }
+  }
+
   .shot { margin: 22px 0 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); }
   .shot img { display: block; width: 100%; height: auto; }
   .caveat { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--card); color: var(--mid); font-size: calc(13px * var(--ts)); }

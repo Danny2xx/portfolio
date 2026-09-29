@@ -8,10 +8,19 @@
    it cannot invent a claim about Daniel that the site does not make.
    ────────────────────────────────────────────────────────────────────────── */
 import type { Passage } from "./passages";
+import { trigrams, cosine } from "./vec";
 
 export type Hit = { p: Passage; score: number; bm25Rank: number; vecRank: number };
 export type Stage = { name: string; detail: string; ms: number };
-export type Result = { hits: Hit[]; answer: string; trace: Stage[] };
+export type Result = {
+  hits: Hit[];
+  answer: string;
+  trace: Stage[];
+  /** corpus indices the lexical arm matched, for the map of the corpus */
+  lit: number[];
+  /** corpus indices that survived fusion, in the order they are cited */
+  won: number[];
+};
 
 const STOP = new Set([
   "a", "an", "the", "and", "or", "but", "if", "of", "at", "by", "for", "with", "about", "into",
@@ -128,30 +137,6 @@ export function tokenize(s: string): string[] {
     .map(stem);
 }
 
-function trigrams(s: string): Map<string, number> {
-  const t = " " + s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " ";
-  const m = new Map<string, number>();
-  for (let i = 0; i + 3 <= t.length; i++) {
-    const g = t.slice(i, i + 3);
-    m.set(g, (m.get(g) ?? 0) + 1);
-  }
-  return m;
-}
-
-function cosine(a: Map<string, number>, b: Map<string, number>): number {
-  let dot = 0;
-  const [small, large] = a.size < b.size ? [a, b] : [b, a];
-  for (const [k, v] of small) {
-    const o = large.get(k);
-    if (o) dot += v * o;
-  }
-  if (dot === 0) return 0;
-  let na = 0, nb = 0;
-  for (const v of a.values()) na += v * v;
-  for (const v of b.values()) nb += v * v;
-  return dot / Math.sqrt(na * nb);
-}
-
 /* the index is built once per page, on the first query */
 type Index = {
   docs: { tokens: string[]; tf: Map<string, number>; len: number; tri: Map<string, number> }[];
@@ -256,7 +241,7 @@ export function search(query: string, corpus: Passage[], topK = 3): Result {
   const ix = indexOf(corpus);
 
   const asked = tokenize(query);
-  if (asked.length === 0) return { hits: [], answer: "", trace: [] };
+  if (asked.length === 0) return { hits: [], answer: "", trace: [], lit: [], won: [] };
   const qTokens = expand(asked);
   const trace: Stage[] = [
     { name: "tokenise", detail: `${asked.length} term${asked.length === 1 ? "" : "s"} → ${qTokens.length} expanded`, ms: performance.now() - t0 },
@@ -265,6 +250,8 @@ export function search(query: string, corpus: Passage[], topK = 3): Result {
   let t = performance.now();
   const lexScores = bm25(qTokens, ix);
   const lexRanks = ranks(lexScores);
+  const lit: number[] = [];
+  lexScores.forEach((v, i) => { if (v > 0) lit.push(i); });
   trace.push({
     name: "bm25",
     detail: `${ix.docs.length} passages · ${lexScores.filter((v) => v > 0).length} matched`,
@@ -292,7 +279,7 @@ export function search(query: string, corpus: Passage[], topK = 3): Result {
   const lexical = fused.filter((f) => f.bm25Rank !== Infinity && f.bm25Rank <= LEX_MAX);
   if (lexical.length === 0) {
     trace.push({ name: "rrf", detail: "nothing cleared the floor", ms: performance.now() - t });
-    return { hits: [], answer: "", trace };
+    return { hits: [], answer: "", trace, lit, won: [] };
   }
   lexical.sort((a, b) => b.score - a.score || a.bm25Rank - b.bm25Rank);
 
@@ -310,7 +297,7 @@ export function search(query: string, corpus: Passage[], topK = 3): Result {
     hits.push(f);
   }
   trace.push({ name: "rrf", detail: `fused · ${qualified.length} cleared · ${hits.length} kept`, ms: performance.now() - t });
-  if (hits.length === 0) return { hits: [], answer: "", trace };
+  if (hits.length === 0) return { hits: [], answer: "", trace, lit, won: [] };
 
   t = performance.now();
   const qSet = new Set(qTokens);
@@ -325,7 +312,14 @@ export function search(query: string, corpus: Passage[], topK = 3): Result {
   });
 
   trace.push({ name: "extract", detail: `${picked.length} sentence${picked.length === 1 ? "" : "s"}, verbatim`, ms: performance.now() - t });
-  return { hits: picked.map((x) => x.h), answer: `<p>${parts.join(" ")}</p>`, trace };
+  const byId = new Map(corpus.map((c, i) => [c.id, i]));
+  return {
+    hits: picked.map((x) => x.h),
+    answer: `<p>${parts.join(" ")}</p>`,
+    trace,
+    lit,
+    won: picked.map((x) => byId.get(x.h.p.id)!).filter((i) => i !== undefined),
+  };
 }
 
 function escapeHtml(s: string): string {

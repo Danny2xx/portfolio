@@ -356,6 +356,7 @@ export type Project = {
   href?: string;
   repo?: string;
   shot?: string;
+  thumb?: string;
   featured?: "xl" | "lg" | "md";
 };
 
@@ -392,7 +393,8 @@ export const projects: Project[] = [
     note: "Finalist, Unihack × BCU Innovation Fest 2026",
     href: "https://aquasense-lake.vercel.app/dashboard",
     repo: "https://github.com/Danny2xx/AQUASENSE-AI",
-    shot: "/shots/aquasense.png",
+    shot: "/shots/aquasense.jpg",
+    thumb: "/shots/thumb/aquasense.jpg",
     featured: "xl",
   },
   {
@@ -590,7 +592,7 @@ export const projects: Project[] = [
 ];
 
 /* ── Websites I've shipped ───────────────────────────────────────────────── */
-export type Website = { name: string; kind: string; url: string; image: string; alt: string };
+export type Website = { name: string; kind: string; url: string; image: string; thumb: string; alt: string };
 
 // TODO: confirm your role on hottake.
 export const websites: Website[] = [
@@ -599,6 +601,7 @@ export const websites: Website[] = [
     kind: "Build and maintenance",
     url: "https://www.carrilagency.com",
     image: "/shots/carril.jpg",
+    thumb: "/shots/thumb/carril.jpg",
     alt: "Carril Agency homepage with a dark navy launch-to-growth hero",
   },
   {
@@ -606,6 +609,7 @@ export const websites: Website[] = [
     kind: "Co-founder and CTO",
     url: "https://nuclii.co.uk",
     image: "/shots/nuclii.jpg",
+    thumb: "/shots/thumb/nuclii.jpg",
     alt: "Nuclii homepage introducing its local events and pop-ups platform",
   },
   {
@@ -613,6 +617,7 @@ export const websites: Website[] = [
     kind: "Markets product",
     url: "https://hottake.markets",
     image: "/shots/hottake.jpg",
+    thumb: "/shots/thumb/hottake.jpg",
     alt: "hottake markets holding page with the message The next take is loading",
   },
 ];
