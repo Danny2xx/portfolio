@@ -2,10 +2,14 @@
 // Profile head: who this is, how to reach him, and the Profile / Lab switch.
 // The two panels arrive as slots so this file owns the switching behaviour.
 import { profile, bio } from "../data/content";
+import Logo from "./Logo.astro";
 ---
 
 <header class="head">
-  <img class="avatar rise" style="--d: 0ms" src="/vector.png" alt={`Portrait of ${profile.name}`} width="56" height="56" />
+  <div class="head__top rise" style="--d: 0ms">
+    <img class="avatar" src="/vector.png" alt={`Portrait of ${profile.name}`} width="56" height="56" />
+    <a class="brand" href="/" aria-label={`${profile.name}, home`}><Logo size={20} /></a>
+  </div>
 
   <h1 class="who rise" style="--d: 70ms">
     {profile.name}
@@ -15,9 +19,15 @@ import { profile, bio } from "../data/content";
     </svg>
   </h1>
   <p class="role rise" style="--d: 120ms">{profile.title}</p>
-  <p class="bio rise" style="--d: 170ms">{bio}</p>
 
-  <nav class="dots rise" style="--d: 230ms" aria-label="Elsewhere">
+  <p class="status rise" style="--d: 150ms">
+    <span class="status__dot" aria-hidden="true"></span>{profile.status}
+    <span class="status__sep" aria-hidden="true">·</span>{profile.location}
+  </p>
+
+  <p class="bio rise" style="--d: 190ms">{bio}</p>
+
+  <nav class="dots rise" style="--d: 250ms" aria-label="Elsewhere">
     <a href={`mailto:${profile.email}`}>Email ↗</a><span class="sep">/</span>
     <a href={profile.links.linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><span class="sep">/</span>
     <a href={profile.links.github} target="_blank" rel="noreferrer">GitHub ↗</a>
@@ -29,20 +39,49 @@ import { profile, bio } from "../data/content";
     )}
   </nav>
 
-  <div class="switch rise" style="--d: 300ms">
+  <div class="switch rise" style="--d: 310ms">
     <div class="tabs" data-tabs data-on="profile" role="tablist" aria-label="Sections">
       <span class="tabs__pill" aria-hidden="true"></span>
       <button class="tab" type="button" role="tab" id="t-profile" aria-selected="true" aria-controls="p-profile">Profile</button>
       <button class="tab" type="button" role="tab" id="t-lab" aria-selected="false" aria-controls="p-lab">Lab</button>
     </div>
-    <a class="iconbtn" href={`mailto:${profile.email}`} aria-label={`Email ${profile.name}`}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
-    </a>
+    <button class="iconbtn copybtn" type="button" data-copy={profile.email} aria-label={`Copy email address, ${profile.email}`}>
+      <svg class="ic ic--a" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
+      <svg class="ic ic--b" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </button>
   </div>
 </header>
 
 <div id="p-profile" role="tabpanel" aria-labelledby="t-profile"><slot name="profile" /></div>
 <div id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden><slot name="lab" /></div>
+
+<style>
+  .head__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: grid; place-items: center; width: 36px; height: 36px; margin-right: -8px; color: var(--dim); transition: color 0.24s ease, transform 0.5s var(--ease); }
+  .brand:hover { color: var(--ink); transform: rotate(-7deg); }
+  /* under the settings button on phones it reads as a stray mark, and the dock
+     already carries the logo there */
+  @media (max-width: 700px) { .brand { display: none; } }
+
+  .status { display: flex; align-items: center; gap: 7px; margin-top: 8px; font-size: calc(13px * var(--ts)); color: var(--mid); }
+  .status__dot { width: 6px; height: 6px; border-radius: 50%; background: #3ecf8e; flex: none; }
+  .status__sep { color: var(--dim); }
+  @media (prefers-reduced-motion: no-preference) {
+    .status__dot { animation: breathe 2.6s ease-in-out infinite; }
+    @keyframes breathe {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(62, 207, 142, 0.5); }
+      60% { box-shadow: 0 0 0 5px rgba(62, 207, 142, 0); }
+    }
+  }
+
+  /* the copy button swaps its icon for a tick, and holds it for a beat */
+  .copybtn { position: relative; }
+  .copybtn .ic { grid-area: 1 / 1; transition: transform 0.36s var(--ease), opacity 0.22s ease; }
+  .copybtn .ic--b { opacity: 0; transform: scale(0.5) rotate(-25deg); color: #3ecf8e; }
+  .copybtn.is-done .ic--a { opacity: 0; transform: scale(0.5) rotate(20deg); }
+  .copybtn.is-done .ic--b { opacity: 1; transform: none; }
+  .copybtn.is-done { border-color: #3ecf8e; }
+</style>
 
 <script>
   const group = document.querySelector<HTMLElement>("[data-tabs]");
@@ -91,5 +130,27 @@ import { profile, bio } from "../data/content";
     });
 
     if (location.hash === "#lab") show(tabs[1]);
+  }
+
+  // copy the address rather than firing a mail client that may not exist
+  const copy = document.querySelector<HTMLButtonElement>("[data-copy]");
+  if (copy) {
+    let hold = 0;
+    copy.addEventListener("click", async () => {
+      const address = copy.dataset.copy!;
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch {
+        window.location.href = `mailto:${address}`;
+        return;
+      }
+      copy.classList.add("is-done");
+      copy.setAttribute("aria-label", "Email address copied");
+      window.clearTimeout(hold);
+      hold = window.setTimeout(() => {
+        copy.classList.remove("is-done");
+        copy.setAttribute("aria-label", `Copy email address, ${address}`);
+      }, 1800);
+    });
   }
 </script>

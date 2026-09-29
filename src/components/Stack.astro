@@ -1,0 +1,108 @@
+---
+// The full toolkit, grouped, with real brand marks where one exists.
+// Anything without a brand mark gets a mono monogram so the row still reads.
+import * as si from "simple-icons";
+import { stack } from "../data/content";
+
+const iconKey: Record<string, string> = {
+  Python: "siPython", TypeScript: "siTypescript", JavaScript: "siJavascript",
+  SQL: "siMysql", Java: "siOpenjdk", Bash: "siGnubash",
+  LangChain: "siLangchain", Ollama: "siOllama", spaCy: "siSpacy",
+  "sentence-transformers": "siHuggingface",
+  "scikit-learn": "siScikitlearn", PyTorch: "siPytorch",
+  "TensorFlow / Keras": "siTensorflow", Pandas: "siPandas", NumPy: "siNumpy",
+  OpenCV: "siOpencv", YOLOv8: "siUltralytics",
+  "Next.js": "siNextdotjs", React: "siReact", FastAPI: "siFastapi",
+  PostgreSQL: "siPostgresql", Supabase: "siSupabase", Docker: "siDocker",
+  "GitHub Actions": "siGithubactions", Vercel: "siVercel",
+};
+
+// dark brand colours would vanish on a #0f0f0f page, so they fall back to ink
+const lum = (hex: string) => {
+  const h = hex.replace("#", "");
+  const c = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+  const f = (v: number) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+};
+
+const groups = stack.map((g) => ({
+  label: g.group,
+  items: g.items.map((name) => {
+    const ic = (si as Record<string, any>)[iconKey[name] ?? ""];
+    if (!ic) return { name, path: null as string | null, colour: "var(--dim)" };
+    const hex = "#" + ic.hex;
+    return { name, path: ic.path as string, colour: lum(hex) < 0.14 ? "var(--ink)" : hex };
+  }),
+}));
+
+const mark = (s: string) => s.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
+---
+
+<div class="stk">
+  {groups.map((g, gi) => (
+    <div class="stk__g" style={`--i:${gi}`}>
+      <h3 class="stk__label">{g.label}</h3>
+      <ul class="stk__list" role="list">
+        {g.items.map((it) => (
+          <li class="stk__item" style={`--c:${it.colour}`}>
+            {it.path ? (
+              <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d={it.path} /></svg>
+            ) : (
+              <span class="stk__mono" aria-hidden="true">{mark(it.name)}</span>
+            )}
+            <span>{it.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .stk { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+  .stk__g { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+  .stk__label {
+    margin: 0; font-family: var(--type-mono); font-size: calc(11px * var(--ts));
+    font-weight: 400; text-transform: uppercase; letter-spacing: -0.1px; color: var(--dim);
+  }
+  .stk__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
+  .stk__item {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 9px 4px 7px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); font-size: calc(12.5px * var(--ts)); line-height: calc(18px * var(--ts));
+    transition: border-color 0.24s ease, transform 0.34s var(--ease);
+  }
+  .stk__item svg { flex: none; fill: var(--dim); transition: fill 0.3s ease, transform 0.34s var(--ease); }
+  .stk__mono {
+    flex: none; width: 13px; font-family: var(--type-mono); font-size: calc(8.5px * var(--ts));
+    color: var(--dim); text-align: center; letter-spacing: -0.4px;
+  }
+  @media (hover: hover) {
+    .stk__item:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+    .stk__item:hover svg { fill: var(--c); transform: scale(1.14); }
+  }
+  /* no hover on touch, so the marks take their colour as the group arrives */
+  .stk__g.is-lit .stk__item svg { fill: var(--c); }
+
+  @media (max-width: 560px) {
+    .stk__g { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+
+<script>
+  // Touch devices get the colour bloom on scroll instead of on hover.
+  if (window.matchMedia("(hover: none)").matches) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const g = e.target as HTMLElement;
+        g.querySelectorAll<SVGElement>(".stk__item svg").forEach((s, i) => {
+          s.style.transitionDelay = `${Math.min(i * 34, 420)}ms`;
+        });
+        g.classList.add("is-lit");
+        io.unobserve(g);
+      }
+    }, { threshold: 0.35 });
+    document.querySelectorAll<HTMLElement>(".stk__g").forEach((g) => io.observe(g));
+  }
+</script>

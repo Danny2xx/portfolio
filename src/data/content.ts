@@ -24,10 +24,23 @@ export const profile = {
 
 /* ── Profile head ────────────────────────────────────────────────────────── */
 export const bio =
-  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models and the products around them. Based in Birmingham, UK.";
+  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models, and the products people actually open. Finishing an MSc in Artificial Intelligence at Birmingham City University, with a paper on grounded enterprise agents accepted at ICACIN 2026. Based in Birmingham, UK.";
 
-export const whatIDo =
-  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards around them. From the data to the deployed product, I handle the whole path.";
+export const whatIDo: string[] = [
+  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards people use them through. From the data to the deployed product I handle the whole path: parsing and chunking, embeddings and rerankers, the evaluation that runs before any of it ships, then the interface someone actually opens.",
+  "The habit underneath all of it is measurement. I don't say a system works until there's a number that says so, and when the number is bad I put that on the page too. Half the value of this portfolio is the results that didn't go my way.",
+  "Before AI I spent years in full-stack web work, turning Figma files into things real users hit, so I'm comfortable owning the interface as well as the model. Four co-founded ventures taught me the rest: pricing, pitching, and shipping to a fixed date with nothing to spare.",
+];
+
+/* Capability lines, each with the system that proves it. If you can't point at
+   a repo, the line doesn't belong here.                                      */
+export const builds: { line: string; proof: string; slug: string }[] = [
+  { line: "Answers that cite the page they came from", proof: "DocSage", slug: "docsage" },
+  { line: "Models that hand over when they aren't sure", proof: "AccessOps COCO AI", slug: "accessops-coco-ai" },
+  { line: "Forecasts that flag a breach before it happens", proof: "AquaSense AI", slug: "aquasense-ai" },
+  { line: "Decisions a model can explain and defend", proof: "Credit-scoring bias audit", slug: "credit-bias-audit" },
+  { line: "A risk manager in front of every order", proof: "Multi-venue trading bot", slug: "trading-bot" },
+];
 
 /* ── The report ──────────────────────────────────────────────────────────────
    The homepage is a report on Daniel's own claims. Every row below is backed by

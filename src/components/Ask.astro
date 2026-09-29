@@ -1,0 +1,247 @@
+---
+/* ──────────────────────────────────────────────────────────────────────────
+   Ask this site.
+
+   A miniature of the retriever in DocSage, running over this page: BM25 and a
+   character-trigram vector space, fused with reciprocal rank fusion, then an
+   extractive answer that can only use sentences the site already contains.
+
+   No API, no model download, no network. If nothing scores above the floor it
+   says so instead of guessing, which is the whole point of the paper this is
+   named after.
+   ────────────────────────────────────────────────────────────────────────── */
+import { passages } from "../lib/passages";
+
+const examples = [
+  "has he shipped anything to production?",
+  "what does he know about retrieval?",
+  "has he ever measured a failure?",
+  "what has he won?",
+];
+---
+
+<section class="ask rise" style="--d: 360ms" id="ask">
+  <form class="ask__bar" data-ask-form autocomplete="off">
+    <span class="ask__tag" aria-hidden="true">ASK</span>
+    <input
+      class="ask__in"
+      type="search"
+      name="q"
+      data-ask-input
+      placeholder="ask this page about me"
+      aria-label="Ask this page about Daniel"
+      enterkeyhint="search"
+    />
+    <button class="ask__go" type="submit" aria-label="Search this page">
+      <svg class="ask__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M5 12h13M12.5 5.5 19 12l-6.5 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <span class="ask__spin" aria-hidden="true"></span>
+    </button>
+  </form>
+
+  <div class="ask__eg" data-ask-eg>
+    {examples.map((e) => <button class="ask__chip" type="button" data-eg={e}>{e}</button>)}
+  </div>
+
+  <output class="ask__out" data-ask-out hidden></output>
+</section>
+
+<script type="application/json" data-ask-index set:html={JSON.stringify(passages)}></script>
+
+<style>
+  .ask { margin-top: 20px; }
+  .ask__bar {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) 34px; align-items: center; gap: 9px;
+    padding: 0 6px 0 12px; min-height: 46px;
+    border: 1px solid var(--line-strong); border-radius: 12px; background: var(--card);
+    transition: border-color 0.24s ease, background-color 0.24s ease, box-shadow 0.3s var(--ease);
+  }
+  .ask__bar:focus-within {
+    border-color: var(--accent); background: var(--raise);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 18%, transparent);
+  }
+  .ask__tag {
+    font-family: var(--type-mono); font-size: calc(11px * var(--ts));
+    letter-spacing: 0.4px; color: var(--dim);
+  }
+  .ask__in {
+    min-width: 0; border: 0; background: none; color: var(--ink);
+    font: inherit; font-size: calc(14px * var(--ts)); padding: 12px 0;
+  }
+  .ask__in::placeholder { color: var(--dim); }
+  .ask__in:focus { outline: none; }
+  .ask__in::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  .ask__go {
+    position: relative; width: 34px; height: 34px; display: grid; place-items: center;
+    border: 0; border-radius: 9px; background: none; color: var(--mid); cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .ask__go::after { content: ""; position: absolute; inset: -5px; }
+  .ask__go:hover { color: var(--ink); background: var(--card); }
+  .ask__arrow { transition: transform 0.4s var(--ease), opacity 0.2s ease; }
+  .ask__bar:focus-within .ask__arrow { color: var(--accent); }
+  .ask__spin {
+    position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    border: 1.6px solid var(--line-strong); border-top-color: var(--accent);
+    opacity: 0; transition: opacity 0.18s ease;
+  }
+  .ask.is-working .ask__arrow { opacity: 0; transform: translateX(6px); }
+  .ask.is-working .ask__spin { opacity: 1; animation: ask-spin 0.62s linear infinite; }
+  @keyframes ask-spin { to { transform: rotate(360deg); } }
+
+  .ask__eg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .ask__chip {
+    padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px;
+    background: none; color: var(--mid); font: inherit; font-size: calc(12px * var(--ts));
+    cursor: pointer; transition: color 0.2s ease, border-color 0.2s ease, transform 0.3s var(--ease);
+  }
+  .ask__chip:hover { color: var(--ink); border-color: var(--line-strong); transform: translateY(-1px); }
+  .ask.is-answered .ask__eg { display: none; }
+
+  .ask__out { display: block; margin-top: 14px; }
+  .ask__out[hidden] { display: none; }
+</style>
+
+<style is:global>
+  /* the answer, built in the script */
+  .ans { border-top: 1px solid var(--line); padding-top: 12px; }
+  .ans__head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    font-family: var(--type-mono); font-size: calc(11px * var(--ts));
+    text-transform: uppercase; color: var(--dim); letter-spacing: -0.1px;
+  }
+  .ans__body { margin-top: 8px; max-width: 64ch; }
+  .ans__body p { margin: 0 0 8px; }
+  .ans__body p:last-child { margin-bottom: 0; }
+  .cite {
+    display: inline-block; min-width: 15px; margin-left: 3px; padding: 0 4px;
+    border-radius: 4px; background: var(--card); border: 1px solid var(--line);
+    font-family: var(--type-mono); font-size: calc(10.5px * var(--ts));
+    color: var(--mid); cursor: pointer; vertical-align: 1.5px;
+    transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+  }
+  .cite:hover, .cite:focus-visible { color: var(--ink); border-color: var(--accent); background: var(--raise); }
+  .ans__src { margin-top: 12px; display: flex; flex-direction: column; }
+  .ans__src a {
+    display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 8px;
+    padding: 7px 0; border-top: 1px solid var(--line);
+    font-size: calc(13px * var(--ts)); color: var(--mid);
+    transition: color 0.2s ease;
+  }
+  .ans__src a:hover { color: var(--ink); }
+  .ans__src .n { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--dim); }
+  .ans__src .w { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--dim); white-space: nowrap; }
+  .ans__foot {
+    margin-top: 10px; font-family: var(--type-mono); font-size: calc(11px * var(--ts));
+    color: var(--dim); font-variant-numeric: tabular-nums;
+  }
+  .ans__none { color: var(--mid); }
+
+  /* a cited row lights up when you follow its number */
+  .is-cited {
+    animation: cited 2.6s var(--ease);
+    border-radius: 8px;
+  }
+  @keyframes cited {
+    0% { background: color-mix(in oklab, var(--accent) 26%, transparent); box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 26%, transparent); }
+    70% { background: color-mix(in oklab, var(--accent) 12%, transparent); box-shadow: 0 0 0 7px color-mix(in oklab, var(--accent) 12%, transparent); }
+    100% { background: transparent; box-shadow: 0 0 0 7px transparent; }
+  }
+  :root[data-motion="reduced"] .is-cited { animation: none; outline: 2px solid var(--accent); outline-offset: 4px; }
+</style>
+
+<script>
+  import { search, type Hit } from "../lib/retrieve";
+  import type { Passage } from "../lib/passages";
+
+  const root = document.querySelector<HTMLElement>("#ask");
+  const form = document.querySelector<HTMLFormElement>("[data-ask-form]");
+  const input = document.querySelector<HTMLInputElement>("[data-ask-input]");
+  const out = document.querySelector<HTMLElement>("[data-ask-out]");
+  const raw = document.querySelector<HTMLScriptElement>("[data-ask-index]");
+
+  if (root && form && input && out && raw) {
+    const corpus: Passage[] = JSON.parse(raw.textContent || "[]");
+
+    const esc = (s: string) =>
+      s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+
+    const light = (id: string) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.remove("is-cited");
+      void el.offsetWidth; // restart the animation if it is already running
+      el.classList.add("is-cited");
+      window.setTimeout(() => el.classList.remove("is-cited"), 2600);
+    };
+
+    const render = (q: string, hits: Hit[], answer: string, ms: number) => {
+      if (hits.length === 0) {
+        out.innerHTML =
+          `<div class="ans"><div class="ans__head"><span>No answer</span><span>${ms.toFixed(1)}ms</span></div>` +
+          `<div class="ans__body"><p class="ans__none">Nothing on this page covers that. The retriever found no passage above the score floor, so there is nothing to quote. Try asking about his projects, his stack, his research or where he has worked.</p></div></div>`;
+        out.hidden = false;
+        root.classList.add("is-answered");
+        return;
+      }
+
+      const sources = hits
+        .map((h, i) => {
+          const href = h.p.href ? ` href="${esc(h.p.href)}"` : ` href="#${esc(h.p.id)}"`;
+          const ext = h.p.href && /^https?:/.test(h.p.href);
+          return (
+            `<a${href} data-cite-src="${esc(h.p.id)}"${ext ? ' target="_blank" rel="noreferrer"' : ""}>` +
+            `<span class="n">[${i + 1}]</span>` +
+            `<span>${esc(h.p.title)}</span>` +
+            `<span class="w">${esc(h.p.sec)}${ext ? " ↗" : ""}</span></a>`
+          );
+        })
+        .join("");
+
+      out.innerHTML =
+        `<div class="ans">` +
+        `<div class="ans__head"><span>Answer, from this page</span><span>${hits.length} passage${hits.length > 1 ? "s" : ""}</span></div>` +
+        `<div class="ans__body">${answer}</div>` +
+        `<div class="ans__src">${sources}</div>` +
+        `<div class="ans__foot">bm25 + trigram vectors, fused with rrf · ${corpus.length} passages · ${ms.toFixed(1)}ms · all local</div>` +
+        `</div>`;
+      out.hidden = false;
+      root.classList.add("is-answered");
+
+      out.querySelectorAll<HTMLElement>("[data-cite]").forEach((el) => {
+        el.addEventListener("click", () => light(el.dataset.cite!));
+      });
+      out.querySelectorAll<HTMLAnchorElement>("[data-cite-src]").forEach((el) => {
+        if (el.getAttribute("href")?.startsWith("#")) {
+          el.addEventListener("click", (e) => { e.preventDefault(); light(el.dataset.citeSrc!); });
+        }
+      });
+    };
+
+    const run = (q: string) => {
+      const query = q.trim();
+      if (!query) return;
+      root.classList.add("is-working");
+      // one frame so the spinner is visible even though the search is instant
+      requestAnimationFrame(() => {
+        const t0 = performance.now();
+        const { hits, answer } = search(query, corpus);
+        const ms = performance.now() - t0;
+        root.classList.remove("is-working");
+        render(query, hits, answer, ms);
+      });
+    };
+
+    form.addEventListener("submit", (e) => { e.preventDefault(); run(input.value); });
+    document.querySelectorAll<HTMLButtonElement>("[data-eg]").forEach((b) => {
+      b.addEventListener("click", () => { input.value = b.dataset.eg!; run(input.value); });
+    });
+    input.addEventListener("input", () => {
+      if (input.value.trim() === "") {
+        out.hidden = true;
+        root.classList.remove("is-answered");
+      }
+    });
+  }
+</script>

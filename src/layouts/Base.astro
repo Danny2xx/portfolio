@@ -61,5 +61,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
     <Settings />
     <slot />
     <Dock />
+
+    <script>
+      // The sticky label of the section you are actually in marks itself, so a
+      // long column always says where you are without a nav.
+      const labels = Array.from(document.querySelectorAll<HTMLElement>(".sec > .label"));
+      if (labels.length > 1 && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        let queued = false;
+        const mark = () => {
+          queued = false;
+          let current: HTMLElement | null = null;
+          for (const l of labels) {
+            const sec = l.parentElement!;
+            const r = sec.getBoundingClientRect();
+            if (r.top <= 72 && r.bottom > 96) current = l;
+          }
+          for (const l of labels) l.classList.toggle("is-on", l === current);
+        };
+        addEventListener("scroll", () => {
+          if (!queued) { queued = true; requestAnimationFrame(mark); }
+        }, { passive: true });
+        mark();
+      }
+    </script>
   </body>
 </html>

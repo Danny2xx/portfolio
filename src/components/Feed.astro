@@ -1,48 +1,64 @@
 ---
 // The Profile panel: everything as rows, in the order a hiring manager reads.
+// Row ids come from rid() in lib/passages.ts, because a citation from the Ask
+// box scrolls to the row it quoted and lights it up.
 import {
   whatIDo,
+  builds,
   experience,
   credentials,
   projects,
   publications,
   awards,
+  alsoRecognised,
+  journey,
+  howIWork,
+  ventures,
+  now,
   websites,
-  stack,
   testimonials,
 } from "../data/content";
+import { rid } from "../lib/passages";
+import Ask from "./Ask.astro";
+import Stack from "./Stack.astro";
 
 const initials = (s: string) =>
   s.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-
-// a few real brand colours; anything else takes the muted dot
-const hues: Record<string, string> = {
-  Python: "#3776ab", TypeScript: "#3178c6", JavaScript: "#f7df1e", PyTorch: "#ee4c2c",
-  "TensorFlow / Keras": "#ff6f00", "scikit-learn": "#f7931e", "Hugging Face": "#ffd21e",
-  LangChain: "#1c3c3c", FastAPI: "#009688", "Next.js": "#888888", React: "#61dafb",
-  Docker: "#2496ed", PostgreSQL: "#336791", Supabase: "#3ecf8e", Ollama: "#a1a1a1",
-  ChromaDB: "#ff6b6b", SQL: "#e38c00", Pandas: "#150458", NumPy: "#4d77cf", SHAP: "#7aa2ff",
-};
-const tools = stack.flatMap((g) => g.items).filter((t, i, a) => a.indexOf(t) === i).slice(0, 14);
 
 const linkFor = (p: (typeof projects)[number]) =>
   p.href ? "Visit site ↗" : p.repo ? "Source ↗" : "Read ↗";
 ---
 
-<section class="sec">
+<Ask />
+
+<section class="sec" id="s-whatido">
   <h2 class="label">What I do</h2>
-  <p class="rise" style="--d: 430ms">{whatIDo}</p>
+  {whatIDo.map((para, i) => (
+    <p class="para" id={rid("whatido", i)} style={`--i:${i}`}>{para}</p>
+  ))}
+  <div class="rows" style="margin-top:14px">
+    {builds.map((b, i) => (
+      <a class="row row--plain" id={rid("builds", b.slug)} href={`/work/${b.slug}`} style={`--i:${i + 3}`}>
+        <span>
+          <span class="t">{b.line}</span>
+          <span class="d">{b.proof}</span>
+        </span>
+        <span class="go">Proof ↗</span>
+      </a>
+    ))}
+  </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-experience">
   <h2 class="label">Experience</h2>
   <div class="rows">
     {experience.map((job, i) => (
-      <div class="row" style={`--i:${i}`}>
+      <div class="row" id={rid("exp", job.org)} style={`--i:${i}`}>
         <span class="tile" aria-hidden="true">{initials(job.org)}</span>
         <span>
-          <span class="t">{job.org}</span>
+          <span class="t">{job.org}{job.current && <span class="live" aria-label="current role"></span>}</span>
           <span class="d">{job.role}</span>
+          <span class="d note">{job.note}</span>
         </span>
         <span class="meta">{job.range}</span>
       </div>
@@ -50,11 +66,11 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-education">
   <h2 class="label">Education</h2>
   <div class="rows">
     {credentials.map((c, i) => (
-      <div class="row row--plain" style={`--i:${i}`}>
+      <div class="row row--plain" id={rid("edu", c.line)} style={`--i:${i}`}>
         <span>
           <span class="t">{c.line}</span>
           <span class="d">{c.detail}</span>
@@ -64,11 +80,11 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-work">
   <h2 class="label">Selected work</h2>
   <div class="rows">
     {projects.map((p, i) => (
-      <a class="row" href={`/work/${p.slug}`} style={`--i:${i}`}>
+      <a class="row" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`}>
         <span class="tile" aria-hidden="true">{initials(p.name)}</span>
         <span>
           <span class="t">{p.name}</span>
@@ -80,11 +96,11 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-research">
   <h2 class="label">Research</h2>
   <div class="rows">
     {publications.map((pub, i) => (
-      <a class="row" href={pub.pdf} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+      <a class="row" id={rid("research", pub.title)} href={pub.pdf} target="_blank" rel="noreferrer" style={`--i:${i}`}>
         <span class="tile" aria-hidden="true">PA</span>
         <span>
           <span class="t">{pub.title.split("?")[0]}?</span>
@@ -96,11 +112,11 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-recognition">
   <h2 class="label">Recognition</h2>
   <div class="rows">
     {awards.map((a, i) => (
-      <div class="row row--plain" style={`--i:${i}`}>
+      <div class="row row--plain" id={rid("award", a.event)} style={`--i:${i}`}>
         <span>
           <span class="t">{a.place}, {a.event}</span>
           {a.detail && <span class="d">{a.detail}</span>}
@@ -108,14 +124,76 @@ const linkFor = (p: (typeof projects)[number]) =>
         <span class="meta">{a.date}</span>
       </div>
     ))}
+    {alsoRecognised.map((a, i) => (
+      <div class="row row--plain" id={rid("also", a.what)} style={`--i:${i + awards.length}`}>
+        <span>
+          <span class="t" style="font-weight:400">{a.what}</span>
+          <span class="d">{a.detail}</span>
+        </span>
+      </div>
+    ))}
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-story">
+  <h2 class="label">Story</h2>
+  {journey.map((para, i) => (
+    <p class="para" id={rid("story", i)} style={`--i:${i}`}>{para}</p>
+  ))}
+</section>
+
+<section class="sec" id="s-how">
+  <h2 class="label">How I work</h2>
+  <div class="rows">
+    {howIWork.map((line, i) => {
+      const [head, ...rest] = line.split(/\.\s+/);
+      return (
+        <div class="row row--plain" id={rid("how", i)} style={`--i:${i}`}>
+          <span>
+            <span class="t">{head}.</span>
+            {rest.length > 0 && <span class="d">{rest.join(". ")}</span>}
+          </span>
+          <span class="meta">{String(i + 1).padStart(2, "0")}</span>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<section class="sec" id="s-ventures">
+  <h2 class="label">Ventures</h2>
+  <div class="rows">
+    {ventures.map((v, i) => (
+      <div class="row row--plain" id={rid("venture", v.role)} style={`--i:${i}`}>
+        <span>
+          <span class="t">{v.role}</span>
+          <span class="d">{v.detail}</span>
+        </span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="sec" id="s-now">
+  <h2 class="label">Right now</h2>
+  <div class="rows">
+    {now.items.map((n, i) => (
+      <div class="row row--plain" id={rid("now", n.label)} style={`--i:${i}`}>
+        <span>
+          <span class="t">{n.label}</span>
+          <span class="d">{n.text}</span>
+        </span>
+      </div>
+    ))}
+  </div>
+  <p class="d" style="margin-top:10px">Updated {now.updated}.</p>
+</section>
+
+<section class="sec" id="s-websites">
   <h2 class="label">Websites</h2>
   <div class="rows">
     {websites.map((w, i) => (
-      <a class="row" href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+      <a class="row" id={rid("site", w.name)} href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
         <span class="tile" aria-hidden="true">{initials(w.name)}</span>
         <span>
           <span class="t">{w.name}</span>
@@ -127,25 +205,19 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="s-stack">
   <h2 class="label">Stack</h2>
   <p class="d">The tools I work in every day, from the model to the interface.</p>
-  <div class="chips">
-    {tools.map((t) => (
-      <span class="chip">
-        <span class="chip__dot" style={`background:${hues[t] ?? "var(--dim)"}`} aria-hidden="true"></span>{t}
-      </span>
-    ))}
-  </div>
+  <Stack />
 </section>
 
 {testimonials.length > 0 && (
-  <section class="sec">
+  <section class="sec" id="s-recommendations">
     <h2 class="label">Recommendations</h2>
     {testimonials.map((t) => {
       const paragraphs = t.quote.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
       return (
-        <figure class="quote" style="margin:0">
+        <figure class="quote" id={rid("rec", t.name)} style="margin:0">
           <figcaption class="quote__by">
             <span class="quote__av" aria-hidden="true">
               {t.photo ? <img src={t.photo} alt="" width="26" height="26" /> : initials(t.name)}
@@ -165,3 +237,17 @@ const linkFor = (p: (typeof projects)[number]) =>
     })}
   </section>
 )}
+
+<style>
+  .para { margin: 0 0 10px; max-width: 64ch; }
+  .para:last-of-type { margin-bottom: 0; }
+  .note { margin-top: 5px; color: var(--dim); }
+  .live {
+    display: inline-block; width: 6px; height: 6px; margin-left: 7px;
+    border-radius: 50%; background: #3ecf8e; vertical-align: 1px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.82); } }
+  }
+</style>

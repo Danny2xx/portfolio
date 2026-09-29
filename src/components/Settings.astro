@@ -5,9 +5,12 @@
 
 <div class="set">
   <button id="set-btn" class="set__btn" type="button" aria-label="Accessibility settings" aria-expanded="false" aria-controls="set-panel">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+    <svg class="ic ic--sliders" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
       <path d="M4 7h11M4 12h7M4 17h13" stroke-linecap="round" />
       <circle cx="19" cy="7" r="2.3" /><circle cx="15" cy="12" r="2.3" /><circle cx="9" cy="17" r="2.3" />
+    </svg>
+    <svg class="ic ic--x" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+      <path d="m7 7 10 10M17 7 7 17" stroke-linecap="round" />
     </svg>
   </button>
 
@@ -21,7 +24,7 @@
       </button>
     </div>
 
-    <div class="set__row">
+    <div class="set__row" style="--r:0">
       <span>Text size</span>
       <span class="set__size">
         <button class="set__sz" type="button" data-ts="-" aria-label="Decrease text size">A−</button>
@@ -29,9 +32,9 @@
         <button class="set__sz" type="button" data-ts="+" aria-label="Increase text size">A+</button>
       </span>
     </div>
-    <div class="set__row"><span>High contrast</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="contrast"><span class="sw__dot"></span></button></div>
-    <div class="set__row"><span>Dyslexia-friendly font</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="font"><span class="sw__dot"></span></button></div>
-    <div class="set__row"><span>Reduce motion</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="motion"><span class="sw__dot"></span></button></div>
+    <div class="set__row" style="--r:1"><span>High contrast</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="contrast"><span class="sw__dot"></span></button></div>
+    <div class="set__row" style="--r:2"><span>Dyslexia-friendly font</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="font"><span class="sw__dot"></span></button></div>
+    <div class="set__row" style="--r:3"><span>Reduce motion</span><button class="sw" type="button" role="switch" aria-checked="false" data-toggle="motion"><span class="sw__dot"></span></button></div>
 
     <button class="set__reset" type="button" data-reset>Reset to defaults</button>
   </div>
@@ -42,14 +45,21 @@
   .set__btn {
     width: 44px; height: 44px; display: grid; place-items: center;
     border: 1px solid var(--line); border-radius: 12px; background: var(--card);
-    color: var(--mid); cursor: pointer; transition: color 0.18s ease, border-color 0.18s ease;
+    color: var(--mid); cursor: pointer;
+    transition: color 0.18s ease, border-color 0.18s ease, background-color 0.24s ease, transform 0.18s var(--ease);
   }
   .set__btn:hover { color: var(--ink); border-color: var(--line-strong); }
-  .set__btn[aria-expanded="true"] { color: var(--ink); border-color: var(--line-strong); }
+  .set__btn:active { transform: scale(0.94); }
+  .set__btn[aria-expanded="true"] { color: var(--ink); border-color: var(--line-strong); background: var(--raise); }
+  .set__btn .ic { grid-area: 1 / 1; transition: transform 0.42s var(--ease), opacity 0.22s ease; }
+  .set__btn .ic--x { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+  .set__btn[aria-expanded="true"] .ic--sliders { opacity: 0; transform: rotate(90deg) scale(0.6); }
+  .set__btn[aria-expanded="true"] .ic--x { opacity: 1; transform: none; }
 
   .set__scrim { display: none; }
   .set__panel {
     position: absolute; top: calc(100% + 10px); right: 0; width: 290px;
+    transform-origin: top right;
     padding: 4px 14px 14px; border: 1px solid var(--line-strong); border-radius: 16px;
     background: var(--raise); box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
   }
@@ -64,20 +74,39 @@
   .set__size { display: inline-flex; align-items: center; gap: 4px; }
   .set__sz { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--ink); font: inherit; cursor: pointer; }
   .set__sz:hover { border-color: var(--line-strong); }
-  .set__val { min-width: 4ch; text-align: center; font-size: calc(12px * var(--ts)); color: var(--mid); }
+  .set__val { min-width: 4ch; text-align: center; font-size: calc(12px * var(--ts)); color: var(--mid); transition: color 0.2s ease; }
+  .set__val.is-bump { color: var(--ink); animation: bump 0.34s var(--ease); }
+  @keyframes bump { 40% { transform: scale(1.18); } }
+  .set__sz:active { transform: scale(0.9); }
+  .set__sz { transition: border-color 0.18s ease, transform 0.16s var(--ease); }
 
   .sw { position: relative; width: 48px; height: 28px; padding: 0; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--card); cursor: pointer; transition: background-color 0.24s ease, border-color 0.24s ease; }
   .sw::after { content: ""; position: absolute; inset: -8px; }
   .sw__dot { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--dim); transition: transform 0.26s var(--ease), background-color 0.24s ease; }
   .sw[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
   .sw[aria-checked="true"] .sw__dot { transform: translateX(20px); background: var(--on-accent); }
+  .sw:active .sw__dot { width: 26px; }
+  .sw[aria-checked="true"]:active .sw__dot { transform: translateX(14px); }
+  .sw__dot { transition: transform 0.26s var(--ease), background-color 0.24s ease, width 0.18s var(--ease); }
 
   .set__reset { width: 100%; min-height: 40px; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--mid); font: inherit; font-size: calc(13px * var(--ts)); cursor: pointer; }
   .set__reset:hover { color: var(--ink); border-color: var(--line-strong); }
 
   @media (max-width: 700px) {
-    .set__panel { position: fixed; inset: auto 12px calc(72px + env(safe-area-inset-bottom, 0px)) 12px; width: auto; }
+    .set__panel { position: fixed; inset: auto 12px calc(72px + env(safe-area-inset-bottom, 0px)) 12px; width: auto; transform-origin: bottom center; }
     .set__scrim { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .set__panel:not([hidden]) { animation: set-in 0.34s var(--ease) backwards; }
+    @keyframes set-in { from { opacity: 0; transform: translateY(-6px) scale(0.96); } }
+    .set__scrim:not([hidden]) { animation: fade 0.24s ease backwards; }
+    @keyframes fade { from { opacity: 0; } }
+    .set__row { animation: rowin 0.34s var(--ease) backwards; animation-delay: calc(60ms + var(--r, 0) * 34ms); }
+    @keyframes rowin { from { opacity: 0; transform: translateY(5px); } }
+    @media (max-width: 700px) {
+      @keyframes set-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } }
+    }
   }
 </style>
 
@@ -119,7 +148,14 @@
         sw.setAttribute("aria-checked", String(on));
       });
       const ts = parseFloat(get("a11y-textscale") || "1");
-      panel.querySelector("[data-tsval]")!.textContent = Math.round(ts * 100) + "%";
+      const val = panel.querySelector<HTMLElement>("[data-tsval]")!;
+      const next = Math.round(ts * 100) + "%";
+      if (val.textContent !== next) {
+        val.textContent = next;
+        val.classList.remove("is-bump");
+        void val.offsetWidth;
+        val.classList.add("is-bump");
+      }
     };
 
     const valueFor = (t: string) => (t === "contrast" ? "high" : t === "font" ? "dyslexic" : "reduced");

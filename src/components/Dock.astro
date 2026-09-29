@@ -1,40 +1,119 @@
 ---
 import { profile } from "../data/content";
+import Logo from "./Logo.astro";
 ---
 
 <nav class="dock" aria-label="Quick actions" data-dock>
-  <a href="#top" aria-label="Back to top">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M6 10v9.5h12V10" /></svg>
+  <a class="dock__home" href="/" aria-label={`${profile.name}, home`}>
+    <Logo size={16} />
   </a>
-  <a href={`mailto:${profile.email}`} aria-label={`Email ${profile.name}`}>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
+  <span class="dock__div" aria-hidden="true"></span>
+  <a href="#top" aria-label="Back to top" data-top>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 19V6M6 11.5 12 5l6 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
   </a>
+  <button type="button" class="dock__copy" data-copy={profile.email} aria-label={`Copy email address, ${profile.email}`}>
+    <svg class="ic ic--a" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></svg>
+    <svg class="ic ic--b" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
   <a href={profile.links.github} target="_blank" rel="noreferrer" aria-label="GitHub">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49v-1.7c-2.78.62-3.37-1.22-3.37-1.22-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.57 2.34 1.12 2.91.85.09-.66.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9v2.82c0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" /></svg>
   </a>
+  {profile.cvUrl && (
+    <a class="dock__cv" href={profile.cvUrl} target="_blank" rel="noreferrer" aria-label="Résumé, PDF">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 3h7l4 4v14H7z" stroke-linejoin="round" /><path d="M14 3v4h4M9.5 13h5M9.5 16.5h5" stroke-linecap="round" /></svg>
+      <span>CV</span>
+    </a>
+  )}
   <span class="dock__div" aria-hidden="true"></span>
   <button type="button" class="dock-theme" aria-label="Switch colour theme">
-    <svg class="dock__sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5V5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round" /></svg>
-    <svg class="dock__moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke-linejoin="round" /></svg>
+    <svg class="ic dock__sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2.5V5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" stroke-linecap="round" /></svg>
+    <svg class="ic dock__moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z" stroke-linejoin="round" /></svg>
   </button>
 </nav>
 
 <style>
-  :global(:root[data-theme="dark"]) .dock__moon { display: none; }
-  :global(:root[data-theme="light"]) .dock__sun { display: none; }
+  .dock__home { color: var(--dim); transition: color 0.24s ease, transform 0.5s var(--ease); }
+  .dock__home:hover { color: var(--ink); transform: rotate(-8deg); }
+
+  /* both theme glyphs share a cell and trade places on a rotation */
+  .dock .ic { grid-area: 1 / 1; transition: transform 0.5s var(--ease), opacity 0.24s ease; }
+  :global(:root[data-theme="dark"]) .dock__moon { opacity: 0; transform: rotate(80deg) scale(0.5); }
+  :global(:root[data-theme="light"]) .dock__sun { opacity: 0; transform: rotate(-80deg) scale(0.5); }
+
+  .dock__copy .ic--b { opacity: 0; transform: scale(0.5) rotate(-25deg); color: #3ecf8e; }
+  .dock__copy.is-done .ic--a { opacity: 0; transform: scale(0.5) rotate(20deg); }
+  .dock__copy.is-done .ic--b { opacity: 1; transform: none; }
+
+  .dock__cv { width: auto !important; grid-auto-flow: column; gap: 6px; padding-inline: 11px; border-radius: 999px !important; }
+  .dock__cv span { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); letter-spacing: 0.2px; }
+
+  .dock a:active, .dock button:active { transform: scale(0.9); }
+  .dock a, .dock button { transition: color 0.18s ease, background-color 0.18s ease, transform 0.16s var(--ease); }
+
+  /* the arrow lifts out of the top of the button on its way home */
+  [data-top] svg { transition: transform 0.4s var(--ease); }
+  [data-top]:hover svg { transform: translateY(-2px); }
+
+  @media (max-width: 460px) {
+    .dock__cv span { display: none; }
+    .dock__cv { padding-inline: 0; width: 40px !important; }
+  }
 </style>
 
 <script>
   const dock = document.querySelector<HTMLElement>("[data-dock]");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const applyTheme = (theme: string) => {
+  const setTheme = (theme: string) => {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem("theme", theme); } catch {}
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#fbfbfa" : "#0f0f0f");
   };
+
+  // the new theme wipes across from the button rather than cutting
+  const wipe = (theme: string, from: HTMLElement | null) => {
+    const canView = !!document.startViewTransition && !reduce.matches;
+    if (!canView) { setTheme(theme); return; }
+    const r = from?.getBoundingClientRect();
+    const x = r ? r.left + r.width / 2 : window.innerWidth / 2;
+    const y = r ? r.top + r.height / 2 : window.innerHeight;
+    const reach = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const root = document.documentElement;
+    root.dataset.wiping = "1";
+    const t = document.startViewTransition(() => setTheme(theme));
+    t.ready
+      .then(() => {
+        root.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`] },
+          { duration: 620, easing: "cubic-bezier(.16,1,.3,1)", pseudoElement: "::view-transition-new(root)" },
+        );
+      })
+      .catch(() => {});
+    t.finished.finally(() => { delete root.dataset.wiping; }).catch(() => {});
+  };
+
+  const themeBtn = dock?.querySelector<HTMLButtonElement>(".dock-theme") ?? null;
   (window as any).__toggleTheme = () =>
-    applyTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
-  dock?.querySelector(".dock-theme")?.addEventListener("click", () => (window as any).__toggleTheme());
+    wipe(document.documentElement.dataset.theme === "light" ? "dark" : "light", themeBtn);
+  themeBtn?.addEventListener("click", () => (window as any).__toggleTheme());
+
+  // copying beats opening a mail client that may not be configured
+  const copy = dock?.querySelector<HTMLButtonElement>("[data-copy]");
+  if (copy) {
+    let hold = 0;
+    copy.addEventListener("click", async () => {
+      const address = copy.dataset.copy!;
+      try { await navigator.clipboard.writeText(address); }
+      catch { window.location.href = `mailto:${address}`; return; }
+      copy.classList.add("is-done");
+      copy.setAttribute("aria-label", "Email address copied");
+      window.clearTimeout(hold);
+      hold = window.setTimeout(() => {
+        copy.classList.remove("is-done");
+        copy.setAttribute("aria-label", `Copy email address, ${address}`);
+      }, 1800);
+    });
+  }
 
   // it steps aside while you read down, and comes back when you stop
   if (dock) {
@@ -45,8 +124,9 @@ import { profile } from "../data/content";
       queued = false;
       const y = window.scrollY;
       const atEnd = window.innerHeight + y >= document.body.scrollHeight - 60;
-      if (y > last + 6 && y > 180 && !atEnd) dock.classList.add("is-tucked");
-      else if (y < last - 6 || atEnd) dock.classList.remove("is-tucked");
+      const open = !!document.querySelector('[aria-expanded="true"]');
+      if (!open && y > last + 6 && y > 180 && !atEnd) dock.classList.add("is-tucked");
+      else if (y < last - 6 || atEnd || open) dock.classList.remove("is-tucked");
       last = y;
     };
     window.addEventListener("scroll", () => {
