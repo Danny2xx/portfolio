@@ -104,7 +104,6 @@ import Ask from "./Ask.astro";
         const panel = document.getElementById(tab.getAttribute("aria-controls")!);
         if (!panel) return;
         panel.hidden = !on;
-        panel.style.viewTransitionName = on ? "panel" : "";
         if (on && !reduce.matches) {
           panel.classList.remove("is-swapping");
           void panel.offsetWidth;
@@ -127,9 +126,7 @@ import Ask from "./Ask.astro";
     for (const tab of tabs) {
       tab.addEventListener("click", () => {
         if (tab.getAttribute("aria-selected") === "true") return;
-        const run = () => show(tab);
-        if (document.startViewTransition && !reduce.matches) document.startViewTransition(run);
-        else run();
+        show(tab);
       });
     }
 

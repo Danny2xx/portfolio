@@ -64,3 +64,34 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
   .demo__stage { margin-top: 14px; }
   @media (prefers-reduced-motion: reduce) { .demo { animation: none; } }
 </style>
+
+<script>
+  // Opening the Lab means loading React and two demos, and the tokenizer's
+  // vocab is another 2MB on top. Start all of it the moment someone looks at
+  // the tab, so the click itself only has to mount.
+  const lab = document.getElementById("t-lab");
+  if (lab) {
+    let started = false;
+    const warm = () => {
+      if (started) return;
+      started = true;
+      // Astro puts the island's own module and its renderer on the element
+      const seen = new Set<string>();
+      document.querySelectorAll("#p-lab astro-island").forEach((el) => {
+        for (const attr of ["component-url", "renderer-url"]) {
+          const href = el.getAttribute(attr);
+          if (!href || seen.has(href)) continue;
+          seen.add(href);
+          const l = document.createElement("link");
+          l.rel = "modulepreload";
+          l.href = href;
+          document.head.appendChild(l);
+        }
+      });
+      import("gpt-tokenizer").catch(() => {});
+    };
+    lab.addEventListener("pointerenter", warm, { once: true, passive: true });
+    lab.addEventListener("focus", warm, { once: true });
+    lab.addEventListener("touchstart", warm, { once: true, passive: true });
+  }
+</script>

@@ -1,8 +1,13 @@
-import { useMemo, useState } from "react";
-import { encode, decode } from "gpt-tokenizer";
+import { useEffect, useMemo, useState } from "react";
 
 /* Real cl100k_base BPE tokenizer (GPT-3.5/4), running entirely client-side.
-   No API: the vocab ships with the bundle. An honest look at how an LLM sees text. */
+   No API: the vocab ships with the bundle. An honest look at how an LLM sees text.
+
+   The vocab is ~2MB, and importing it at the top of this file meant the browser
+   had to parse all of it before the Lab tab could paint: a 73ms frame on a
+   mid-range phone. It loads on its own now, just after the panel is up. */
+
+type Codec = { encode: (s: string) => number[]; decode: (ids: number[]) => string };
 
 const DEFAULT = "Tokenizers split unbelievably long words into smaller pieces.";
 
@@ -14,15 +19,25 @@ function display(piece: string) {
 export default function Tokenizer() {
   const [text, setText] = useState(DEFAULT);
   const [showIds, setShowIds] = useState(false);
+  const [codec, setCodec] = useState<Codec | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    import("gpt-tokenizer")
+      .then((m) => { if (alive) setCodec({ encode: m.encode, decode: m.decode }); })
+      .catch(() => { if (alive) setFailed(true); });
+    return () => { alive = false; };
+  }, []);
 
   const tokens = useMemo(() => {
-    if (!text) return [] as { id: number; piece: string }[];
+    if (!text || !codec) return [] as { id: number; piece: string }[];
     try {
-      return encode(text).map((id) => ({ id, piece: decode([id]) }));
+      return codec.encode(text).map((id) => ({ id, piece: codec.decode([id]) }));
     } catch {
       return [];
     }
-  }, [text]);
+  }, [text, codec]);
 
   const chars = text.length;
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -41,7 +56,11 @@ export default function Tokenizer() {
       />
 
       <div className="tok__viz" aria-hidden="true">
-        {tokens.length === 0 && <span className="tok__empty">Tokens appear here</span>}
+        {tokens.length === 0 && (
+          <span className="tok__empty">
+            {failed ? "The vocab could not load." : codec ? "Tokens appear here" : "Loading cl100k_base…"}
+          </span>
+        )}
         {tokens.map((t, i) => (
           <span key={i} className={`tok__t c${i % 4}`} title={`#${t.id}`}>
             {showIds ? t.id : display(t.piece)}

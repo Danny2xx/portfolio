@@ -96,6 +96,18 @@ Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax de
 - **The text-size control only works because every px `font-size` and `line-height` is
   `calc(Npx * var(--ts))`.** Add a raw px size and that part of the page stops scaling.
 - **Theme + a11y pre-paint** in `Base`; the toggle lives in `Dock` (`window.__toggleTheme`).
+- **The panel swap is CSS, not a View Transition.** A VT on a ~2100px panel was
+  rasterising two full-height snapshots and cost the whole of a 66ms frame on a
+  4x-throttled phone; the same swap is 17ms without it. The crossfade it bought is two
+  keyframes (`.is-swapping`). Don't put it back. The theme wipe still uses a VT, because a
+  circular reveal of a whole new theme has no CSS equivalent, and it is a deliberate one-off.
+- **The tokenizer's vocab loads dynamically.** `import { encode } from "gpt-tokenizer"` at the
+  top of `Tokenizer.tsx` put 2MB in the island's chunk, so the Lab tab could not paint until it
+  had parsed. It is a dynamic import inside an effect now, and the component renders a loading
+  state until it lands. Keep it that way: a static import silently costs 70ms on tab open.
+- **Hovering the Lab tab warms it.** `LabPanel.astro` reads `component-url` / `renderer-url`
+  off the `<astro-island>` elements and modulepreloads them, and starts the vocab fetch. Cold
+  open 116ms, warmed 36ms, and 17ms every open after that.
 - **The dock always comes back.** The tuck-on-scroll-down has a settle timer for exactly this
   reason; an earlier version hid it for the whole of a downward scroll.
 - **Design tokens are `--type-sans` / `--type-mono`.** Tailwind owns `--font-*`; reusing those
@@ -150,6 +162,11 @@ computed colours run through a contrast ratio. Always `npm run build`.
 Last measured (2026-09-29, production): no horizontal overflow at 1280 or 390 on `/`,
 `/work/*` or `/writing`; secondary text at **5.34:1 dark / 6.17:1 light**; every interactive
 target past 24px; text size scales 85% to 130% without overflow.
+
+Worst frame on a 4x CPU-throttled phone at 390px: Profile/Work/About swap **17.4ms**, Lab
+first open **36.1ms** (one React mount), Lab thereafter **17.4ms**, theme wipe **31.2ms**,
+first Ask query **5.5ms**. If a swap regresses, the first suspect is something re-introducing
+a View Transition or a static import into an island.
 
 ## Outstanding (needs Daniel)
 

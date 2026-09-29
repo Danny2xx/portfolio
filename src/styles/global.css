@@ -308,9 +308,11 @@ a.row:hover .tile { border-color: var(--line-strong); transform: scale(1.06) rot
   :root[data-wiping] ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
   :root[data-wiping]::view-transition-group(root) { z-index: auto; }
 
-  ::view-transition-old(panel) { animation: panel-out 0.18s ease forwards; }
-  ::view-transition-new(panel) { animation: panel-in 0.3s var(--ease) forwards; }
-  @keyframes panel-out { to { opacity: 0; transform: translateY(-4px); } }
+  /* The panel swap used to run through a View Transition. On a mid-range
+     phone that meant rasterising two ~2100px snapshots, and it was the whole
+     of a 66ms frame: without it the same swap costs 17ms. The crossfade it
+     was buying is two CSS keyframes, so that is what it is now. */
+  .is-swapping { animation: panel-in 0.3s var(--ease) backwards; }
   @keyframes panel-in { from { opacity: 0; transform: translateY(6px); } }
 }
 @media (prefers-reduced-motion: reduce) {
