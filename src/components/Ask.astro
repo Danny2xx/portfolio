@@ -255,11 +255,18 @@ const examples = [
     const light = (id: string) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "center" });
-      el.classList.remove("is-cited");
-      void el.offsetWidth; // restart the animation if it is already running
-      el.classList.add("is-cited");
-      window.setTimeout(() => el.classList.remove("is-cited"), 2600);
+      // the row may live under a different tab, so switch to it first
+      const panel = el.closest<HTMLElement>('[role="tabpanel"]');
+      const swapped = panel ? (window as any).__showPanel?.(panel.id) : false;
+      const go = () => {
+        el.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "center" });
+        el.classList.remove("is-cited");
+        void el.offsetWidth; // restart the animation if it is already running
+        el.classList.add("is-cited");
+        window.setTimeout(() => el.classList.remove("is-cited"), 2600);
+      };
+      if (swapped) window.setTimeout(go, 220);
+      else go();
     };
 
     const renderTrace = (stages: Stage[]) => {

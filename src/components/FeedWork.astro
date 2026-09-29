@@ -1,0 +1,112 @@
+---
+// Work panel: the systems, the paper, the recognition, the live sites.
+import {
+  projects,
+  publications,
+  awards,
+  alsoRecognised,
+  websites,
+} from "../data/content";
+import { rid } from "../lib/passages";
+import { initials } from "../lib/text";
+
+const linkFor = (p: (typeof projects)[number]) =>
+  p.href ? "Visit site ↗" : p.repo ? "Source ↗" : "Read ↗";
+---
+
+<section class="sec" id="s-work">
+  <h2 class="label">Selected work</h2>
+  <div class="rows">
+    {projects.map((p, i) => (
+      <a class="row" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">{initials(p.name)}</span>
+        <span>
+          <span class="t">{p.name}</span>
+          <span class="d">{p.tagline}</span>
+        </span>
+        <span class="go">{linkFor(p)}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="sec" id="s-research">
+  <h2 class="label">Research</h2>
+  <div class="rows">
+    {publications.map((pub, i) => (
+      <a class="row" id={rid("research", pub.title)} href={pub.pdf} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">PA</span>
+        <span>
+          <span class="t">{pub.title.split("?")[0]}?</span>
+          <span class="d">{pub.venue}, {pub.status.toLowerCase()}. With {pub.affiliations}.</span>
+        </span>
+        <span class="go">Read paper ↗</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="sec" id="s-recognition" data-clampable>
+  <h2 class="label">Recognition</h2>
+  <div class="rows">
+    {awards.map((a, i) => (
+      <div class="row row--plain" id={rid("award", a.event)} style={`--i:${i}`}>
+        <span>
+          <span class="t">{a.place}, {a.event}</span>
+          {a.detail && <span class="d clamp">{a.detail}</span>}
+        </span>
+        <span class="meta">{a.date}</span>
+      </div>
+    ))}
+  </div>
+  <button class="morebtn" type="button" data-clamp aria-expanded="false" style="margin-right:16px">
+    <span>Full detail</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <button class="morebtn" type="button" data-more="also" aria-expanded="false" aria-controls="fold-also">
+    <span>{alsoRecognised.length} more</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="fold" id="fold-also">
+    <div class="rows" style="padding-top:2px">
+      {alsoRecognised.map((a, i) => (
+        <div class="row row--plain" id={rid("also", a.what)} style={`--i:${i}`}>
+          <span>
+            <span class="t" style="font-weight:400">{a.what}</span>
+            <span class="d">{a.detail}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s-websites">
+  <h2 class="label">Websites</h2>
+  <div class="rows">
+    {websites.map((w, i) => (
+      <a class="row" id={rid("site", w.name)} href={w.url} target="_blank" rel="noreferrer" style={`--i:${i}`}>
+        <span class="tile" aria-hidden="true">{initials(w.name)}</span>
+        <span>
+          <span class="t">{w.name}</span>
+          <span class="d">{w.kind}</span>
+        </span>
+        <span class="go">Visit ↗</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .para { margin: 0 0 10px; max-width: 64ch; }
+  .para:last-of-type { margin-bottom: 0; }
+  .note { margin-top: 5px; color: var(--dim); }
+  .live {
+    display: inline-block; width: 6px; height: 6px; margin-left: 7px;
+    border-radius: 50%; background: #3ecf8e; vertical-align: 1px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.82); } }
+  }
+</style>

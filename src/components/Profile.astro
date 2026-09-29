@@ -3,6 +3,7 @@
 // The two panels arrive as slots so this file owns the switching behaviour.
 import { profile, bio } from "../data/content";
 import Logo from "./Logo.astro";
+import Ask from "./Ask.astro";
 ---
 
 <header class="head">
@@ -40,9 +41,11 @@ import Logo from "./Logo.astro";
   </nav>
 
   <div class="switch rise" style="--d: 310ms">
-    <div class="tabs" data-tabs data-on="profile" role="tablist" aria-label="Sections">
+    <div class="tabs" data-tabs style="--n:4; --k:0" role="tablist" aria-label="Sections">
       <span class="tabs__pill" aria-hidden="true"></span>
       <button class="tab" type="button" role="tab" id="t-profile" aria-selected="true" aria-controls="p-profile">Profile</button>
+      <button class="tab" type="button" role="tab" id="t-work" aria-selected="false" aria-controls="p-work">Work</button>
+      <button class="tab" type="button" role="tab" id="t-about" aria-selected="false" aria-controls="p-about">About</button>
       <button class="tab" type="button" role="tab" id="t-lab" aria-selected="false" aria-controls="p-lab">Lab</button>
     </div>
     <button class="iconbtn copybtn" type="button" data-copy={profile.email} aria-label={`Copy email address, ${profile.email}`}>
@@ -52,7 +55,11 @@ import Logo from "./Logo.astro";
   </div>
 </header>
 
+<Ask />
+
 <div id="p-profile" role="tabpanel" aria-labelledby="t-profile"><slot name="profile" /></div>
+<div id="p-work" role="tabpanel" aria-labelledby="t-work" hidden><slot name="work" /></div>
+<div id="p-about" role="tabpanel" aria-labelledby="t-about" hidden><slot name="about" /></div>
 <div id="p-lab" role="tabpanel" aria-labelledby="t-lab" hidden><slot name="lab" /></div>
 
 <style>
@@ -89,12 +96,13 @@ import Logo from "./Logo.astro";
     const tabs = Array.from(group.querySelectorAll<HTMLButtonElement>(".tab"));
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const show = (target: HTMLButtonElement) => {
-      for (const tab of tabs) {
+    const show = (target: HTMLButtonElement, push = true) => {
+      tabs.forEach((tab, i) => {
         const on = tab === target;
         tab.setAttribute("aria-selected", String(on));
+        if (on) group.style.setProperty("--k", String(i));
         const panel = document.getElementById(tab.getAttribute("aria-controls")!);
-        if (!panel) continue;
+        if (!panel) return;
         panel.hidden = !on;
         panel.style.viewTransitionName = on ? "panel" : "";
         if (on && !reduce.matches) {
@@ -102,9 +110,18 @@ import Logo from "./Logo.astro";
           void panel.offsetWidth;
           panel.classList.add("is-swapping");
         }
-      }
-      group.dataset.on = target.id === "t-lab" ? "lab" : "profile";
-      try { history.replaceState(null, "", target.id === "t-lab" ? "#lab" : "#profile"); } catch {}
+      });
+      const name = target.id.replace("t-", "");
+      group.dataset.on = name;
+      if (push) { try { history.replaceState(null, "", `#${name}`); } catch {} }
+    };
+
+    // Ask uses this to jump to the panel holding the row it just cited.
+    (window as any).__showPanel = (panelId: string) => {
+      const tab = tabs.find((t) => t.getAttribute("aria-controls") === panelId);
+      if (!tab || tab.getAttribute("aria-selected") === "true") return false;
+      show(tab);
+      return true;
     };
 
     for (const tab of tabs) {
@@ -129,7 +146,8 @@ import Logo from "./Logo.astro";
       tabs[j].click();
     });
 
-    if (location.hash === "#lab") show(tabs[1]);
+    const fromHash = tabs.find((t) => `#${t.id.replace("t-", "")}` === location.hash);
+    if (fromHash) show(fromHash, false);
   }
 
   // copy the address rather than firing a mail client that may not exist

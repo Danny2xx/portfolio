@@ -34,11 +34,16 @@ No backend, no env vars, and **nothing loads from third parties at runtime**. Ke
 One 600px column. The home page is a profile with two tabs; everything else is a sub-page in the
 same system.
 
-- `/` → `Profile` (head + tabs) wrapping `Feed` (the Profile panel) and `LabPanel` (the Lab panel),
-  then `Footer`. `Settings` and `Dock` come from `Base`. There is no header and no hero.
-  The Feed opens with `Ask` and runs thirteen sections: What I do, Experience, Education,
-  Selected work, Research, Recognition, Story, How I work, Ventures, Right now, Websites,
-  Stack, Recommendations.
+- `/` → `Profile` (head + a four-tab switcher + `Ask`) wrapping four panels, then `Footer`.
+  `Settings` and `Dock` come from `Base`. There is no header and no hero.
+  - **Profile** (default): What I do, Experience, Education, Recommendations — `FeedProfile`
+  - **Work**: Selected work, Research, Recognition, Websites — `FeedWork`
+  - **About**: Story, How I work, Ventures, Right now, Stack — `FeedAbout`
+  - **Lab**: the two demos and the notes — `LabPanel`
+
+  Thirteen sections in one scroll was the right content and the wrong shape: Daniel said twice
+  that an employer would be bored before reading it. Splitting it four ways takes the landing
+  page from 5215px to 2174px without dropping a line. **Don't merge them back.**
 - `/work/<slug>` → generated from `projects` in `content.ts` (9 pages). What it is, how it works
   (numbered pipeline rows), measured facts + caveat, engineering decisions, stack chips, the case
   study if one matches by name, and a link to the next project.
@@ -60,12 +65,13 @@ Rows, not cards. The measurements come from aaezekiel.co, read with `getComputed
 
 ```
 Base.astro        every page: pre-paint theme + a11y, SEO, skip link, Settings, slot, Dock.
-Profile.astro     profile head (avatar, name + tick, role, bio, mono link row) and the
-                  Profile/Lab tab pair. Owns the pill, the view-transition panel swap, roving
-                  arrow keys and the #lab hash. Panels arrive via slot="profile" / slot="lab".
-Feed.astro        the Profile panel, thirteen sections of rows, all from content.ts. Every
-                  row carries id={rid(...)} from lib/passages.ts, because an Ask citation
-                  scrolls to that id and lights it.
+Profile.astro     profile head (avatar, logo, name + tick, role, status, bio, mono link row),
+                  the four-tab switcher and Ask. Owns the sliding pill (--n tabs, --k index),
+                  the view-transition panel swap, roving arrow keys, the #profile/#work/#about
+                  /#lab hashes, and window.__showPanel() for Ask. Panels arrive as slots.
+FeedProfile/      the three content panels, all rows, all from content.ts. Every row carries
+FeedWork/         id={rid(...)} from lib/passages.ts, because an Ask citation scrolls to that
+FeedAbout.astro   id and lights it, switching tabs first if the row is on another panel.
 Ask.astro         "Ask this site": the search box, the answer, the citations. Inlines the
                   corpus as JSON and calls lib/retrieve.ts. See DESIGN.md.
 Stack.astro       40 tools in six groups with real simple-icons brand marks.
@@ -95,8 +101,12 @@ Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax de
 - **Design tokens are `--type-sans` / `--type-mono`.** Tailwind owns `--font-*`; reusing those
   names makes the variable reference itself and the font silently falls back.
 - **Ask row ids come from `rid()` in `lib/passages.ts`, used by both sides.** Change how a row
-  is keyed in `Feed.astro` without changing `passages.ts` and every citation stops scrolling
+  is keyed in a Feed panel without changing `passages.ts` and every citation stops scrolling
   anywhere. There is no runtime error when this breaks, so check it by clicking a citation.
+- **Ask lives above the panels**, so it searches all four tabs. `light()` calls
+  `window.__showPanel()` and waits 220ms for the swap before it scrolls.
+- **Query expansion keys are plain words, stemmed at load.** Writing the stems by hand is how
+  half of them silently stopped matching (`retriev` vs the real token `retrieval`).
 - **The Ask corpus is generated from `content.ts` only.** Never write copy into
   `passages.ts`: the answers are extractive, so anything added there becomes something the
   site "says" about Daniel without appearing on the page.

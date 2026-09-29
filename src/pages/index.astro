@@ -1,7 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
 import Profile from "../components/Profile.astro";
-import Feed from "../components/Feed.astro";
+import FeedProfile from "../components/FeedProfile.astro";
+import FeedWork from "../components/FeedWork.astro";
+import FeedAbout from "../components/FeedAbout.astro";
 import LabPanel from "../components/LabPanel.astro";
 import Footer from "../components/Footer.astro";
 ---
@@ -10,7 +12,9 @@ import Footer from "../components/Footer.astro";
   <main id="main" class="col" style="padding-block: 44px 132px">
     <span id="top"></span>
     <Profile>
-      <Feed slot="profile" />
+      <FeedProfile slot="profile" />
+      <FeedWork slot="work" />
+      <FeedAbout slot="about" />
       <LabPanel slot="lab" />
     </Profile>
     <Footer />

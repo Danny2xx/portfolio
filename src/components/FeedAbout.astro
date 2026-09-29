@@ -1,0 +1,101 @@
+---
+// About panel: the route in, the working habits, the ventures, the toolkit.
+import {
+  journey,
+  howIWork,
+  ventures,
+  now,
+} from "../data/content";
+import { rid } from "../lib/passages";
+import { initials } from "../lib/text";
+import Stack from "./Stack.astro";
+---
+
+<section class="sec" id="s-story">
+  <h2 class="label">Story</h2>
+  {journey.slice(0, 2).map((para, i) => (
+    <p class="para" id={rid("story", i)} style={`--i:${i}`}>{para}</p>
+  ))}
+  <button class="morebtn" type="button" data-more="story" aria-expanded="false" aria-controls="fold-story">
+    <span>Keep reading</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="fold" id="fold-story">
+    <div>
+      {journey.slice(2).map((para, i) => (
+        <p class="para" id={rid("story", i + 2)} style="margin-top:10px">{para}</p>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="s-how">
+  <h2 class="label">How I work</h2>
+  <div class="rows">
+    {howIWork.map((line, i) => {
+      const [head, ...rest] = line.split(/\.\s+/);
+      return (
+        <div class="row row--plain" id={rid("how", i)} style={`--i:${i}`}>
+          <span>
+            <span class="t">{head}.</span>
+            {rest.length > 0 && <span class="d">{rest.join(". ")}</span>}
+          </span>
+          <span class="meta">{String(i + 1).padStart(2, "0")}</span>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<section class="sec" id="s-ventures" data-clampable>
+  <h2 class="label">Ventures</h2>
+  <div class="rows">
+    {ventures.map((v, i) => (
+      <div class="row row--plain" id={rid("venture", v.role)} style={`--i:${i}`}>
+        <span>
+          <span class="t">{v.role}</span>
+          <span class="d clamp">{v.detail}</span>
+        </span>
+      </div>
+    ))}
+  </div>
+  <button class="morebtn" type="button" data-clamp aria-expanded="false">
+    <span>Full detail</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+</section>
+
+<section class="sec" id="s-now">
+  <h2 class="label">Right now</h2>
+  <div class="rows">
+    {now.items.map((n, i) => (
+      <div class="row row--plain" id={rid("now", n.label)} style={`--i:${i}`}>
+        <span>
+          <span class="t">{n.label}</span>
+          <span class="d">{n.text}</span>
+        </span>
+      </div>
+    ))}
+  </div>
+  <p class="d" style="margin-top:10px">Updated {now.updated}.</p>
+</section>
+
+<section class="sec" id="s-stack">
+  <h2 class="label">Stack</h2>
+  <p class="d">The tools I work in every day, from the model to the interface.</p>
+  <Stack />
+</section>
+
+<style>
+  .para { margin: 0 0 10px; max-width: 64ch; }
+  .para:last-of-type { margin-bottom: 0; }
+  .note { margin-top: 5px; color: var(--dim); }
+  .live {
+    display: inline-block; width: 6px; height: 6px; margin-left: 7px;
+    border-radius: 50%; background: #3ecf8e; vertical-align: 1px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live { animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.82); } }
+  }
+</style>

@@ -24,7 +24,7 @@ export const profile = {
 
 /* ── Profile head ────────────────────────────────────────────────────────── */
 export const bio =
-  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models, and the products people actually open. Finishing an MSc in Artificial Intelligence at Birmingham City University, with a paper on grounded enterprise agents accepted at ICACIN 2026. Based in Birmingham, UK.";
+  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models, and the products people actually open. MSc AI at Birmingham City University, with a paper accepted at ICACIN 2026.";
 
 export const whatIDo: string[] = [
   "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards people use them through. Data to deployed product, I handle the whole path.",

@@ -6,10 +6,13 @@ changes stay on-system.
 
 ## The idea: one column, read like a document
 
-The whole site is a 600px column. A profile head, a Profile / Lab tab pair, then sections of rows
+The whole site is a 600px column. A profile head, a search box, four tabs, then sections of rows
 under sticky mono labels. No hero, no card grid, no section headings competing with the content.
-A hiring manager should be able to scan the whole person in one scroll and open the one project
-they care about.
+
+**Four tabs, not one scroll.** Everything in one column was honest and unreadable: a recruiter
+landed on 5215px of prose. Profile / Work / About / Lab splits it into four ~2000px reads, and
+the landing tab answers the only question they have in the first minute, which is whether this
+person can do the job. Nothing was cut to get there; long prose folds instead.
 
 Every earlier direction failed the same way: it decorated. A masked hero reveal, mixed-size cards,
 a timeline rail and an evidence report all made the page *about the layout*. The rows do the
@@ -94,9 +97,10 @@ answers in under 3ms after the first query builds the index.
 
 - **Profile head** (`Profile.astro`): avatar, name with a verified tick, role, two-line bio, and a
   mono `EMAIL / LINKEDIN / GITHUB / CV` row. Everything a recruiter needs is above the fold.
-- **Profile / Lab tabs** (`Profile.astro`): a pill that slides under the active tab, with the panel
-  swap running through `document.startViewTransition` when the browser has it. Arrow keys move
-  between tabs; `#lab` in the URL opens the Lab directly.
+- **The four tabs** (`Profile.astro`): a pill that slides under the active tab (`--n` tabs, `--k`
+  index), with the panel swap running through `document.startViewTransition` when the browser has
+  it. Arrow keys move between tabs; `#work`, `#about` and `#lab` open one directly. A citation
+  from Ask switches tab before it scrolls.
 - **Sticky labels**: the one piece of chrome that earns its place. They give a 3000px page a
   table of contents without a nav.
 - **Rows** (`Feed.astro`): experience, education, work, research, recognition, websites. A row is a
