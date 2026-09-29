@@ -27,8 +27,8 @@ export const bio =
   "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models, and the products people actually open. Finishing an MSc in Artificial Intelligence at Birmingham City University, with a paper on grounded enterprise agents accepted at ICACIN 2026. Based in Birmingham, UK.";
 
 export const whatIDo: string[] = [
-  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards people use them through. From the data to the deployed product I handle the whole path: parsing and chunking, embeddings and rerankers, the evaluation that runs before any of it ships, then the interface someone actually opens.",
-  "The habit underneath all of it is measurement. I don't say a system works until there's a number that says so, and when the number is bad I put that on the page too. Half the value of this portfolio is the results that didn't go my way.",
+  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards people use them through. Data to deployed product, I handle the whole path.",
+  "The rest of that path: parsing and chunking, embeddings and rerankers, the evaluation that runs before any of it ships, then the interface someone actually opens. The habit underneath all of it is measurement. I don't say a system works until there's a number that says so, and when the number is bad I put that on the page too. Half the value of this portfolio is the results that didn't go my way.",
   "Before AI I spent years in full-stack web work, turning Figma files into things real users hit, so I'm comfortable owning the interface as well as the model. Four co-founded ventures taught me the rest: pricing, pitching, and shipping to a fixed date with nothing to spare.",
 ];
 
@@ -169,8 +169,9 @@ export const claims: Claim[] = [
 
 /* ── My journey (About) ──────────────────────────────────────────────────── */
 export const journey: string[] = [
-  "I started in full-stack web development: client websites, Figma files turned into responsive interfaces, and the analytics and performance work that comes with shipping to real users.",
+  "I started as a software engineer. Full-stack web products for clients: Figma files turned into responsive interfaces, then the APIs, the database work, the performance budgets and the analytics that come with shipping to people who actually use the thing.",
   "Then I moved toward data and AI. Data science at 10Analytics, a mentored programme at Amdari, then applied AI/ML engineering at Carril Agency: LLM tools, RAG systems and NLP pipelines that turn live data into something useful.",
+  "The software engineering never went away, it just got more load-bearing. My most recent internship was AI and software engineering on a multi-venue trading bot: platform architecture, market data ingestion, a strategy framework and a backtester, with containers, CI, type checking, metrics and a secret scanner standing in front of every commit.",
   "Now I'm finishing an MSc in Artificial Intelligence at Birmingham City University. With classmates and Beeswift, a Birmingham manufacturer, I co-authored a paper on evaluating grounded enterprise agents that was accepted at ICACIN 2026.",
   "Alongside the engineering I've co-founded four ventures, three of them operating businesses. That's where I learned to price, pitch and ship to a fixed deadline with limited resources.",
 ];
@@ -329,7 +330,10 @@ export const stack: { group: string; items: string[] }[] = [
   { group: "ML and data", items: ["scikit-learn", "XGBoost", "LightGBM", "PyTorch", "TensorFlow / Keras", "Pandas", "NumPy"] },
   { group: "Explainable AI", items: ["SHAP", "LIME", "Captum", "Integrated Gradients"] },
   { group: "Computer vision", items: ["OpenCV", "YOLOv8", "MobileNetV2", "ResNet", "Grad-CAM"] },
-  { group: "Product and infra", items: ["Next.js", "React", "FastAPI", "PostgreSQL", "Supabase", "Docker", "GitHub Actions", "Vercel"] },
+  { group: "Product and infra", items: ["Next.js", "React", "Astro", "FastAPI", "PostgreSQL", "SQLAlchemy", "Supabase", "Redis"] },
+  // Ops, from the trading bot repo: compose files, a CI workflow, pre-commit
+  // with a secret scanner, a Prometheus target and Caddy in front of prod.
+  { group: "Ops and delivery", items: ["Docker", "Docker Compose", "GitHub Actions", "pre-commit", "Gitleaks", "pytest", "Ruff", "Black", "mypy", "Prometheus", "Caddy", "Vercel", "Git"] },
 ];
 
 /* ── Projects ────────────────────────────────────────────────────────────────

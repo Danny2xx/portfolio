@@ -22,16 +22,19 @@ const examples = [
 
 <section class="ask rise" style="--d: 360ms" id="ask">
   <form class="ask__bar" data-ask-form autocomplete="off">
-    <span class="ask__tag" aria-hidden="true">ASK</span>
-    <input
-      class="ask__in"
-      type="search"
-      name="q"
-      data-ask-input
-      placeholder="ask this page about me"
-      aria-label="Ask this page about Daniel"
-      enterkeyhint="search"
-    />
+    <span class="ask__tag" aria-hidden="true"><span data-ask-tag>ASK</span></span>
+    <span class="ask__field">
+      <input
+        class="ask__in"
+        type="search"
+        name="q"
+        data-ask-input
+        placeholder="ask this page about me"
+        aria-label="Ask this page about Daniel"
+        enterkeyhint="search"
+      />
+      <span class="ask__ghost" data-ask-ghost aria-hidden="true"></span>
+    </span>
     <button class="ask__go" type="submit" aria-label="Search this page">
       <svg class="ask__arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M5 12h13M12.5 5.5 19 12l-6.5 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
       <span class="ask__spin" aria-hidden="true"></span>
@@ -42,6 +45,7 @@ const examples = [
     {examples.map((e) => <button class="ask__chip" type="button" data-eg={e}>{e}</button>)}
   </div>
 
+  <div class="ask__trace" data-ask-trace hidden aria-hidden="true"></div>
   <output class="ask__out" data-ask-out hidden></output>
 </section>
 
@@ -61,13 +65,33 @@ const examples = [
   }
   .ask__tag {
     font-family: var(--type-mono); font-size: calc(11px * var(--ts));
-    letter-spacing: 0.4px; color: var(--dim);
+    letter-spacing: 0.4px; color: var(--mid); font-variant-numeric: tabular-nums;
+    min-width: 3.2ch; transition: color 0.24s ease;
   }
+  .ask__bar:focus-within .ask__tag { color: var(--accent); }
   .ask__in {
     min-width: 0; border: 0; background: none; color: var(--ink);
     font: inherit; font-size: calc(14px * var(--ts)); padding: 12px 0;
   }
-  .ask__in::placeholder { color: var(--dim); }
+  .ask__in::placeholder { color: transparent; }
+
+  /* the placeholder types itself, so the box suggests what it can answer */
+  .ask__field { position: relative; display: grid; min-width: 0; }
+  .ask__ghost {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    pointer-events: none;
+    font-size: calc(14px * var(--ts)); color: var(--mid); white-space: nowrap;
+    overflow: hidden;
+  }
+  .ask__ghost::after {
+    content: ""; display: inline-block; width: 1px; height: 1em; margin-left: 1px;
+    background: var(--accent); vertical-align: -2px;
+  }
+  .ask.is-typed .ask__ghost { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ask__ghost::after { animation: caret 1.05s steps(1) infinite; }
+    @keyframes caret { 50% { opacity: 0; } }
+  }
   .ask__in:focus { outline: none; }
   .ask__in::-webkit-search-cancel-button { -webkit-appearance: none; }
 
@@ -98,17 +122,46 @@ const examples = [
   .ask__chip:hover { color: var(--ink); border-color: var(--line-strong); transform: translateY(-1px); }
   .ask.is-answered .ask__eg { display: none; }
 
+  /* the retriever shows its work: real stages, real counts, real timings */
+  .ask__trace { margin-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+  .ask__trace[hidden] { display: none; }
+
   .ask__out { display: block; margin-top: 14px; }
   .ask__out[hidden] { display: none; }
 </style>
 
 <style is:global>
+  .stg {
+    display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+    padding: 3px 0; font-family: var(--type-mono); font-size: calc(10.5px * var(--ts));
+    color: var(--mid); font-variant-numeric: tabular-nums;
+  }
+  .stg__n { color: var(--mid); text-transform: uppercase; letter-spacing: -0.1px; }
+  .stg__d { position: relative; padding-left: 10px; }
+  .stg__d::before {
+    content: ""; position: absolute; left: 0; top: 50%; width: 3px; height: 3px;
+    margin-top: -1.5px; border-radius: 50%; background: var(--accent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stg { animation: stg-in 0.34s var(--ease) backwards; animation-delay: calc(var(--s) * 62ms); }
+    @keyframes stg-in { from { opacity: 0; transform: translateX(-6px); } }
+    .stg__d::before { animation: stg-dot 0.5s var(--ease) backwards; animation-delay: calc(var(--s) * 62ms); }
+    @keyframes stg-dot { from { transform: scale(3.4); opacity: 0; } }
+  }
+
+  /* a row the current answer quoted keeps a marker while the answer is up */
+  .is-source { position: relative; }
+  .is-source::before {
+    content: ""; position: absolute; left: calc(-1 * var(--pad) + 6px); top: 6px; bottom: 6px;
+    width: 2px; border-radius: 2px; background: var(--accent); opacity: 0.55;
+  }
+
   /* the answer, built in the script */
   .ans { border-top: 1px solid var(--line); padding-top: 12px; }
   .ans__head {
     display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
     font-family: var(--type-mono); font-size: calc(11px * var(--ts));
-    text-transform: uppercase; color: var(--dim); letter-spacing: -0.1px;
+    text-transform: uppercase; color: var(--mid); letter-spacing: -0.1px;
   }
   .ans__body { margin-top: 8px; max-width: 64ch; }
   .ans__body p { margin: 0 0 8px; }
@@ -129,11 +182,11 @@ const examples = [
     transition: color 0.2s ease;
   }
   .ans__src a:hover { color: var(--ink); }
-  .ans__src .n { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--dim); }
-  .ans__src .w { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--dim); white-space: nowrap; }
+  .ans__src .n { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--mid); }
+  .ans__src .w { font-family: var(--type-mono); font-size: calc(11px * var(--ts)); color: var(--mid); white-space: nowrap; }
   .ans__foot {
     margin-top: 10px; font-family: var(--type-mono); font-size: calc(11px * var(--ts));
-    color: var(--dim); font-variant-numeric: tabular-nums;
+    color: var(--mid); font-variant-numeric: tabular-nums;
   }
   .ans__none { color: var(--mid); }
 
@@ -151,32 +204,81 @@ const examples = [
 </style>
 
 <script>
-  import { search, type Hit } from "../lib/retrieve";
+  import { search, countMatches, type Hit, type Stage } from "../lib/retrieve";
   import type { Passage } from "../lib/passages";
 
   const root = document.querySelector<HTMLElement>("#ask");
   const form = document.querySelector<HTMLFormElement>("[data-ask-form]");
   const input = document.querySelector<HTMLInputElement>("[data-ask-input]");
   const out = document.querySelector<HTMLElement>("[data-ask-out]");
+  const traceEl = document.querySelector<HTMLElement>("[data-ask-trace]");
+  const tag = document.querySelector<HTMLElement>("[data-ask-tag]");
+  const ghost = document.querySelector<HTMLElement>("[data-ask-ghost]");
   const raw = document.querySelector<HTMLScriptElement>("[data-ask-index]");
 
-  if (root && form && input && out && raw) {
+  if (root && form && input && out && traceEl && tag && ghost && raw) {
     const corpus: Passage[] = JSON.parse(raw.textContent || "[]");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const esc = (s: string) =>
       s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
 
+    /* ── the placeholder types itself through the example questions ──────── */
+    const prompts = Array.from(document.querySelectorAll<HTMLElement>("[data-eg]")).map((b) => b.dataset.eg!);
+    let typing = 0;
+    const typeLoop = async () => {
+      if (reduce.matches) { ghost.textContent = prompts[0] ?? ""; return; }
+      let i = 0;
+      for (;;) {
+        const line = prompts[i % prompts.length];
+        for (let n = 1; n <= line.length; n++) {
+          if (typing) return;
+          ghost.textContent = line.slice(0, n);
+          await new Promise((r) => setTimeout(r, 34));
+        }
+        await new Promise((r) => setTimeout(r, 1900));
+        for (let n = line.length; n >= 0; n--) {
+          if (typing) return;
+          ghost.textContent = line.slice(0, n);
+          await new Promise((r) => setTimeout(r, 16));
+        }
+        i++;
+      }
+    };
+    const stopTyping = () => { typing = 1; root.classList.add("is-typed"); };
+
+    /* ── clear the markers the last answer left in the page ──────────────── */
+    const clearSources = () => {
+      document.querySelectorAll(".is-source").forEach((el) => el.classList.remove("is-source"));
+    };
+
     const light = (id: string) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "center" });
       el.classList.remove("is-cited");
       void el.offsetWidth; // restart the animation if it is already running
       el.classList.add("is-cited");
       window.setTimeout(() => el.classList.remove("is-cited"), 2600);
     };
 
-    const render = (q: string, hits: Hit[], answer: string, ms: number) => {
+    const renderTrace = (stages: Stage[]) => {
+      if (stages.length === 0) { traceEl.hidden = true; return; }
+      traceEl.innerHTML = stages
+        .map(
+          (st, i) =>
+            `<div class="stg" style="--s:${i}">` +
+            `<span class="stg__n">${esc(st.name)}</span>` +
+            `<span class="stg__d">${esc(st.detail)}</span>` +
+            `<span>${st.ms < 0.1 ? "<0.1" : st.ms.toFixed(1)}ms</span></div>`,
+        )
+        .join("");
+      traceEl.hidden = false;
+    };
+
+    const render = (hits: Hit[], answer: string, ms: number) => {
+      clearSources();
+
       if (hits.length === 0) {
         out.innerHTML =
           `<div class="ans"><div class="ans__head"><span>No answer</span><span>${ms.toFixed(1)}ms</span></div>` +
@@ -188,8 +290,8 @@ const examples = [
 
       const sources = hits
         .map((h, i) => {
+          const ext = !!h.p.href && /^https?:/.test(h.p.href);
           const href = h.p.href ? ` href="${esc(h.p.href)}"` : ` href="#${esc(h.p.id)}"`;
-          const ext = h.p.href && /^https?:/.test(h.p.href);
           return (
             `<a${href} data-cite-src="${esc(h.p.id)}"${ext ? ' target="_blank" rel="noreferrer"' : ""}>` +
             `<span class="n">[${i + 1}]</span>` +
@@ -201,13 +303,19 @@ const examples = [
 
       out.innerHTML =
         `<div class="ans">` +
-        `<div class="ans__head"><span>Answer, from this page</span><span>${hits.length} passage${hits.length > 1 ? "s" : ""}</span></div>` +
+        `<div class="ans__head"><span>Answer, quoted from this page</span><span>${hits.length} passage${hits.length > 1 ? "s" : ""}</span></div>` +
         `<div class="ans__body">${answer}</div>` +
         `<div class="ans__src">${sources}</div>` +
-        `<div class="ans__foot">bm25 + trigram vectors, fused with rrf · ${corpus.length} passages · ${ms.toFixed(1)}ms · all local</div>` +
+        `<div class="ans__foot">nothing generated · every sentence above is already on this page</div>` +
         `</div>`;
       out.hidden = false;
       root.classList.add("is-answered");
+
+      // mark the quoted rows in the page, so they are findable while you scroll
+      for (const h of hits) {
+        const el = document.getElementById(h.p.id);
+        if (el && !h.p.href?.startsWith("http")) el.classList.add("is-source");
+      }
 
       out.querySelectorAll<HTMLElement>("[data-cite]").forEach((el) => {
         el.addEventListener("click", () => light(el.dataset.cite!));
@@ -222,14 +330,16 @@ const examples = [
     const run = (q: string) => {
       const query = q.trim();
       if (!query) return;
+      stopTyping();
       root.classList.add("is-working");
-      // one frame so the spinner is visible even though the search is instant
+      // one frame so the spinner registers, even though the search is instant
       requestAnimationFrame(() => {
         const t0 = performance.now();
-        const { hits, answer } = search(query, corpus);
+        const { hits, answer, trace } = search(query, corpus);
         const ms = performance.now() - t0;
         root.classList.remove("is-working");
-        render(query, hits, answer, ms);
+        renderTrace([...trace, { name: "total", detail: `${corpus.length} passages, all local`, ms }]);
+        render(hits, answer, ms);
       });
     };
 
@@ -237,11 +347,30 @@ const examples = [
     document.querySelectorAll<HTMLButtonElement>("[data-eg]").forEach((b) => {
       b.addEventListener("click", () => { input.value = b.dataset.eg!; run(input.value); });
     });
+
+    // the tag counts live, so you can see the corpus reacting before you submit
+    let debounce = 0;
     input.addEventListener("input", () => {
-      if (input.value.trim() === "") {
-        out.hidden = true;
-        root.classList.remove("is-answered");
-      }
+      if (input.value.trim() !== "") stopTyping();
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => {
+        const q = input.value.trim();
+        if (q === "") {
+          tag.textContent = "ASK";
+          out.hidden = true;
+          traceEl.hidden = true;
+          root.classList.remove("is-answered", "is-typed");
+          clearSources();
+          typing = 0;
+          typeLoop();
+          return;
+        }
+        const n = countMatches(q, corpus);
+        tag.textContent = n === 0 ? "—" : String(n);
+      }, 90);
     });
+    input.addEventListener("focus", stopTyping);
+
+    typeLoop();
   }
 </script>

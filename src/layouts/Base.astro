@@ -63,6 +63,34 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
     <Dock />
 
     <script>
+      // Progressive disclosure: the page stays short, nothing is thrown away.
+      for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-more]")) {
+        const fold = document.getElementById(btn.getAttribute("aria-controls") || "");
+        if (!fold) continue;
+        const label = btn.querySelector("span")!;
+        const closed = label.textContent || "More";
+        btn.addEventListener("click", () => {
+          const open = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", String(!open));
+          fold.classList.toggle("is-open", !open);
+          label.textContent = open ? closed : "Less";
+        });
+      }
+
+      // One toggle per section unclamps every clamped line inside it.
+      for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-clamp]")) {
+        const sec = btn.closest(".sec");
+        if (!sec) continue;
+        const label = btn.querySelector("span")!;
+        const closed = label.textContent || "Full detail";
+        btn.addEventListener("click", () => {
+          const open = btn.getAttribute("aria-expanded") === "true";
+          btn.setAttribute("aria-expanded", String(!open));
+          sec.classList.toggle("is-open", !open);
+          label.textContent = open ? closed : "Less";
+        });
+      }
+
       // The sticky label of the section you are actually in marks itself, so a
       // long column always says where you are without a nav.
       const labels = Array.from(document.querySelectorAll<HTMLElement>(".sec > .label"));

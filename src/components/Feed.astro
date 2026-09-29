@@ -33,9 +33,18 @@ const linkFor = (p: (typeof projects)[number]) =>
 
 <section class="sec" id="s-whatido">
   <h2 class="label">What I do</h2>
-  {whatIDo.map((para, i) => (
-    <p class="para" id={rid("whatido", i)} style={`--i:${i}`}>{para}</p>
-  ))}
+  <p class="para" id={rid("whatido", 0)}>{whatIDo[0]}</p>
+  <button class="morebtn" type="button" data-more="whatido" aria-expanded="false" aria-controls="fold-whatido">
+    <span>More</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="fold" id="fold-whatido">
+    <div>
+      {whatIDo.slice(1).map((para, i) => (
+        <p class="para" id={rid("whatido", i + 1)} style="margin-top:10px">{para}</p>
+      ))}
+    </div>
+  </div>
   <div class="rows" style="margin-top:14px">
     {builds.map((b, i) => (
       <a class="row row--plain" id={rid("builds", b.slug)} href={`/work/${b.slug}`} style={`--i:${i + 3}`}>
@@ -49,7 +58,7 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec" id="s-experience">
+<section class="sec" id="s-experience" data-clampable>
   <h2 class="label">Experience</h2>
   <div class="rows">
     {experience.map((job, i) => (
@@ -58,12 +67,16 @@ const linkFor = (p: (typeof projects)[number]) =>
         <span>
           <span class="t">{job.org}{job.current && <span class="live" aria-label="current role"></span>}</span>
           <span class="d">{job.role}</span>
-          <span class="d note">{job.note}</span>
+          <span class="d note clamp">{job.note}</span>
         </span>
         <span class="meta">{job.range}</span>
       </div>
     ))}
   </div>
+  <button class="morebtn" type="button" data-clamp aria-expanded="false">
+    <span>Full detail</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
 </section>
 
 <section class="sec" id="s-education">
@@ -112,34 +125,57 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec" id="s-recognition">
+<section class="sec" id="s-recognition" data-clampable>
   <h2 class="label">Recognition</h2>
   <div class="rows">
     {awards.map((a, i) => (
       <div class="row row--plain" id={rid("award", a.event)} style={`--i:${i}`}>
         <span>
           <span class="t">{a.place}, {a.event}</span>
-          {a.detail && <span class="d">{a.detail}</span>}
+          {a.detail && <span class="d clamp">{a.detail}</span>}
         </span>
         <span class="meta">{a.date}</span>
       </div>
     ))}
-    {alsoRecognised.map((a, i) => (
-      <div class="row row--plain" id={rid("also", a.what)} style={`--i:${i + awards.length}`}>
-        <span>
-          <span class="t" style="font-weight:400">{a.what}</span>
-          <span class="d">{a.detail}</span>
-        </span>
-      </div>
-    ))}
+  </div>
+  <button class="morebtn" type="button" data-clamp aria-expanded="false" style="margin-right:16px">
+    <span>Full detail</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <button class="morebtn" type="button" data-more="also" aria-expanded="false" aria-controls="fold-also">
+    <span>{alsoRecognised.length} more</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="fold" id="fold-also">
+    <div class="rows" style="padding-top:2px">
+      {alsoRecognised.map((a, i) => (
+        <div class="row row--plain" id={rid("also", a.what)} style={`--i:${i}`}>
+          <span>
+            <span class="t" style="font-weight:400">{a.what}</span>
+            <span class="d">{a.detail}</span>
+          </span>
+        </div>
+      ))}
+    </div>
   </div>
 </section>
 
 <section class="sec" id="s-story">
   <h2 class="label">Story</h2>
-  {journey.map((para, i) => (
+  {journey.slice(0, 2).map((para, i) => (
     <p class="para" id={rid("story", i)} style={`--i:${i}`}>{para}</p>
   ))}
+  <button class="morebtn" type="button" data-more="story" aria-expanded="false" aria-controls="fold-story">
+    <span>Keep reading</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
+  <div class="fold" id="fold-story">
+    <div>
+      {journey.slice(2).map((para, i) => (
+        <p class="para" id={rid("story", i + 2)} style="margin-top:10px">{para}</p>
+      ))}
+    </div>
+  </div>
 </section>
 
 <section class="sec" id="s-how">
@@ -160,18 +196,22 @@ const linkFor = (p: (typeof projects)[number]) =>
   </div>
 </section>
 
-<section class="sec" id="s-ventures">
+<section class="sec" id="s-ventures" data-clampable>
   <h2 class="label">Ventures</h2>
   <div class="rows">
     {ventures.map((v, i) => (
       <div class="row row--plain" id={rid("venture", v.role)} style={`--i:${i}`}>
         <span>
           <span class="t">{v.role}</span>
-          <span class="d">{v.detail}</span>
+          <span class="d clamp">{v.detail}</span>
         </span>
       </div>
     ))}
   </div>
+  <button class="morebtn" type="button" data-clamp aria-expanded="false">
+    <span>Full detail</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </button>
 </section>
 
 <section class="sec" id="s-now">
@@ -230,7 +270,22 @@ const linkFor = (p: (typeof projects)[number]) =>
             </span>
           </figcaption>
           <blockquote class="quote__text" style="margin:0">
-            {paragraphs.map((p, i) => <p style={i ? "margin-top:8px" : ""}>{i === 0 ? `"${p}` : p}{i === paragraphs.length - 1 ? '"' : ""}</p>)}
+            <p>{`"${paragraphs[0]}`}{paragraphs.length === 1 ? '"' : ""}</p>
+            {paragraphs.length > 1 && (
+              <>
+                <button class="morebtn" type="button" data-more={`rec-${initials(t.name)}`} aria-expanded="false" aria-controls={`fold-rec-${initials(t.name)}`}>
+                  <span>Read the rest</span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </button>
+                <div class="fold" id={`fold-rec-${initials(t.name)}`}>
+                  <div>
+                    {paragraphs.slice(1).map((p, i) => (
+                      <p style="margin-top:8px">{p}{i === paragraphs.length - 2 ? '"' : ""}</p>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </blockquote>
         </figure>
       );

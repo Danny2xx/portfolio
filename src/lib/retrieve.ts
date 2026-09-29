@@ -10,6 +10,8 @@
 import type { Passage } from "./passages";
 
 export type Hit = { p: Passage; score: number; bm25Rank: number; vecRank: number };
+export type Stage = { name: string; detail: string; ms: number };
+export type Result = { hits: Hit[]; answer: string; trace: Stage[] };
 
 const STOP = new Set([
   "a", "an", "the", "and", "or", "but", "if", "of", "at", "by", "for", "with", "about", "into",
@@ -40,52 +42,82 @@ function stem(w: string): string {
 
 /* Query expansion. A recruiter asks "has he shipped anything?"; the page says
    "live", "deployed", "Vercel". These are the bridges, and only the query side
-   is expanded, so the corpus stays exactly what the site says. */
-const EXPAND: Record<string, string[]> = {
-  ship: ["deploy", "live", "production", "vercel", "launch", "releas"],
-  product: ["deploy", "live", "vercel", "ship"],
-  deploy: ["live", "vercel", "production", "ship"],
+   is expanded, so the corpus stays exactly what the site says.
+
+   Written in plain words and stemmed at load, because writing the stems by hand
+   is how half of them silently stopped matching. */
+const EXPAND_WORDS: Record<string, string[]> = {
+  ship: ["deploy", "live", "production", "vercel", "launch", "release", "shipped"],
+  shipped: ["deploy", "live", "production", "vercel", "launch"],
+  production: ["deploy", "live", "vercel", "ship", "prod"],
+  deploy: ["live", "vercel", "production", "ship", "docker", "cloud"],
+  deployment: ["deploy", "live", "vercel", "docker"],
   live: ["deploy", "production", "vercel"],
-  win: ["award", "place", "winner", "hackathon", "prize", "finalist", "recogni"],
-  won: ["award", "place", "winner", "hackathon", "prize", "finalist", "recogni"],
+  win: ["award", "place", "winner", "hackathon", "prize", "finalist", "recognition"],
+  won: ["award", "place", "winner", "hackathon", "prize", "finalist", "recognition"],
   award: ["place", "winner", "hackathon", "prize", "finalist"],
-  fail: ["caveat", "untested", "not", "improv", "wrong", "miss", "bad"],
-  failur: ["caveat", "untested", "improv", "wrong", "miss"],
-  measur: ["metric", "eval", "score", "benchmark", "test", "result", "number"],
-  eval: ["measur", "metric", "score", "test", "ragas", "benchmark"],
-  metric: ["measur", "score", "result", "number"],
-  recommend: ["testimoni", "reference", "say", "vouch"],
-  reference: ["recommend", "testimoni"],
-  job: ["role", "engineer", "intern", "work", "employ"],
+  prize: ["award", "place", "winner", "hackathon"],
+  fail: ["caveat", "untested", "not", "wrong", "miss", "bad", "didn"],
+  failure: ["caveat", "untested", "wrong", "miss", "bad"],
+  measure: ["metric", "evaluation", "score", "benchmark", "test", "result", "number"],
+  measured: ["metric", "evaluation", "score", "benchmark", "result"],
+  evaluation: ["measure", "metric", "score", "test", "ragas", "benchmark"],
+  metric: ["measure", "score", "result", "number", "prometheus"],
+  test: ["pytest", "coverage", "ci", "evaluation"],
+  recommend: ["testimonial", "reference", "says", "vouch", "recommendation"],
+  recommendation: ["testimonial", "reference", "says", "recommend"],
+  reference: ["recommend", "testimonial"],
+  job: ["role", "engineer", "intern", "work", "employment"],
   work: ["role", "engineer", "job", "project", "build"],
-  experienc: ["role", "job", "engineer", "intern", "work"],
-  studi: ["msc", "bsc", "university", "degre", "educ"],
-  educ: ["msc", "bsc", "university", "degre"],
-  degre: ["msc", "bsc", "university"],
-  paper: ["publicat", "icacin", "research", "author"],
-  research: ["paper", "icacin", "publicat"],
-  rag: ["retriev", "bm25", "chromadb", "embed", "rerank", "vector"],
-  retriev: ["rag", "bm25", "vector", "embed", "rerank", "chromadb", "faiss"],
-  llm: ["model", "gpt", "llama", "ollama", "openai", "languag"],
-  team: ["collabor", "four", "peopl", "hackathon", "co-found"],
-  lead: ["led", "own", "role", "cto", "found"],
+  experience: ["role", "job", "engineer", "intern", "work"],
+  study: ["msc", "bsc", "university", "degree", "education"],
+  studies: ["msc", "bsc", "university", "degree", "education"],
+  education: ["msc", "bsc", "university", "degree", "certification"],
+  degree: ["msc", "bsc", "university"],
+  paper: ["publication", "icacin", "research", "author"],
+  research: ["paper", "icacin", "publication"],
+  rag: ["retrieval", "bm25", "chromadb", "embedding", "rerank", "vector", "faiss"],
+  retrieval: ["rag", "bm25", "vector", "embedding", "rerank", "chromadb", "faiss"],
+  retrieve: ["rag", "bm25", "vector", "embedding", "rerank"],
+  llm: ["model", "gpt", "llama", "ollama", "openai", "language"],
+  team: ["collaborate", "four", "people", "hackathon", "founder"],
+  lead: ["led", "own", "role", "cto", "founder"],
   contact: ["email", "linkedin", "reach"],
-  hire: ["open", "full-tim", "role", "avail"],
-  avail: ["open", "full-tim", "role", "hire"],
-  fairnes: ["bias", "shap", "lime", "explain"],
-  bias: ["fair", "shap", "lime", "audit"],
-  explain: ["shap", "lime", "interpret", "captum", "grad-cam"],
-  cloud: ["vercel", "docker", "gcp", "run", "deploy", "supabas"],
-  frontend: ["react", "next.j", "astro", "interfac", "ui", "web"],
-  backend: ["fastapi", "api", "postgresql", "server"],
-  vision: ["opencv", "yolov8", "imag", "resnet", "mobilenetv2"],
-  startup: ["ventur", "found", "co-found", "busines"],
-  busines: ["ventur", "found", "co-found", "price", "pitch"],
+  hire: ["open", "full-time", "role", "available"],
+  hiring: ["open", "full-time", "role", "available"],
+  available: ["open", "full-time", "role", "hire"],
+  fairness: ["bias", "shap", "lime", "explainable"],
+  bias: ["fair", "shap", "lime", "audit", "fairness"],
+  explain: ["shap", "lime", "interpret", "captum", "grad-cam", "explainable"],
+  explainable: ["shap", "lime", "interpret", "captum", "grad-cam"],
+  devops: ["docker", "ci", "github", "prometheus", "compose", "caddy", "ops"],
+  ops: ["docker", "ci", "github", "prometheus", "compose", "caddy", "deploy"],
+  mlops: ["docker", "ci", "prometheus", "pipeline", "deploy", "evaluation"],
+  ci: ["github", "actions", "pytest", "ruff", "mypy", "pre-commit"],
+  cloud: ["vercel", "docker", "supabase", "deploy"],
+  frontend: ["react", "next.js", "astro", "interface", "web"],
+  backend: ["fastapi", "api", "postgresql", "sqlalchemy", "server"],
+  vision: ["opencv", "yolov8", "image", "resnet", "mobilenetv2"],
+  startup: ["venture", "founder", "co-founder", "business"],
+  business: ["venture", "founder", "co-founder", "price", "pitch"],
+  security: ["gitleaks", "secret", "pre-commit", "private"],
 };
+
+/* stem both sides once, so a key can never drift from what tokenize() produces */
+const EXPAND: Map<string, string[]> = (() => {
+  const m = new Map<string, string[]>();
+  for (const [word, list] of Object.entries(EXPAND_WORDS)) {
+    const key = tokenize(word)[0];
+    if (!key) continue;
+    const vals = list.flatMap((v) => tokenize(v));
+    m.set(key, [...new Set([...(m.get(key) ?? []), ...vals])]);
+  }
+  return m;
+})();
 
 function expand(tokens: string[]): string[] {
   const out = new Set(tokens);
-  for (const t of tokens) for (const e of EXPAND[t] ?? []) out.add(e);
+  for (const t of tokens) for (const e of EXPAND.get(t) ?? []) out.add(e);
   return [...out];
 }
 
@@ -203,17 +235,51 @@ function bestSentence(p: Passage, qSet: Set<string>): { text: string; overlap: n
   return { text: best, overlap: bestHit };
 }
 
-export function search(query: string, corpus: Passage[], topK = 3): { hits: Hit[]; answer: string } {
+/** how many passages share any term with the query, for the live counter */
+export function countMatches(query: string, corpus: Passage[]): number {
+  const ix = indexOf(corpus);
+  const q = expand(tokenize(query));
+  if (q.length === 0) return 0;
+  let n = 0;
+  for (const d of ix.docs) if (q.some((t) => d.tf.has(t))) n++;
+  return n;
+}
+
+function indexOf(corpus: Passage[]): Index {
   let ix = cache.get(corpus as unknown as object);
   if (!ix) { ix = build(corpus); cache.set(corpus as unknown as object, ix); }
+  return ix;
+}
+
+export function search(query: string, corpus: Passage[], topK = 3): Result {
+  const t0 = performance.now();
+  const ix = indexOf(corpus);
 
   const asked = tokenize(query);
-  if (asked.length === 0) return { hits: [], answer: "" };
+  if (asked.length === 0) return { hits: [], answer: "", trace: [] };
   const qTokens = expand(asked);
+  const trace: Stage[] = [
+    { name: "tokenise", detail: `${asked.length} term${asked.length === 1 ? "" : "s"} → ${qTokens.length} expanded`, ms: performance.now() - t0 },
+  ];
 
-  const lexRanks = ranks(bm25(qTokens, ix));
+  let t = performance.now();
+  const lexScores = bm25(qTokens, ix);
+  const lexRanks = ranks(lexScores);
+  trace.push({
+    name: "bm25",
+    detail: `${ix.docs.length} passages · ${lexScores.filter((v) => v > 0).length} matched`,
+    ms: performance.now() - t,
+  });
+
+  t = performance.now();
   const qTri = trigrams(query);
-  const vecRanks = ranks(ix.docs.map((d) => cosine(qTri, d.tri)));
+  const vecScores = ix.docs.map((d) => cosine(qTri, d.tri));
+  const vecRanks = ranks(vecScores);
+  trace.push({
+    name: "trigram",
+    detail: `cosine · top ${vecScores.filter((v) => v > 0.02).length} above 0.02`,
+    ms: performance.now() - t,
+  });
 
   const fused = corpus.map((p, i) => {
     const a = lexRanks[i] === Infinity ? 0 : 1 / (RRF_K + lexRanks[i]);
@@ -222,8 +288,12 @@ export function search(query: string, corpus: Passage[], topK = 3): { hits: Hit[
   });
 
   // a trigram match alone is not evidence: it will happily match any long passage
+  t = performance.now();
   const lexical = fused.filter((f) => f.bm25Rank !== Infinity && f.bm25Rank <= LEX_MAX);
-  if (lexical.length === 0) return { hits: [], answer: "" };
+  if (lexical.length === 0) {
+    trace.push({ name: "rrf", detail: "nothing cleared the floor", ms: performance.now() - t });
+    return { hits: [], answer: "", trace };
+  }
   lexical.sort((a, b) => b.score - a.score || a.bm25Rank - b.bm25Rank);
 
   const best = lexical[0].score;
@@ -239,8 +309,10 @@ export function search(query: string, corpus: Passage[], topK = 3): { hits: Hit[
     perSection.set(f.p.sec, n + 1);
     hits.push(f);
   }
-  if (hits.length === 0) return { hits: [], answer: "" };
+  trace.push({ name: "rrf", detail: `fused · ${qualified.length} cleared · ${hits.length} kept`, ms: performance.now() - t });
+  if (hits.length === 0) return { hits: [], answer: "", trace };
 
+  t = performance.now();
   const qSet = new Set(qTokens);
   const picked = hits
     .map((h) => ({ h, s: bestSentence(h.p, qSet) }))
@@ -252,7 +324,8 @@ export function search(query: string, corpus: Passage[], topK = 3): { hits: Hit[
     return `${escapeHtml(text)}<button class="cite" type="button" data-cite="${escapeAttr(x.h.p.id)}" aria-label="Show source ${i + 1}">${i + 1}</button>`;
   });
 
-  return { hits: picked.map((x) => x.h), answer: `<p>${parts.join(" ")}</p>` };
+  trace.push({ name: "extract", detail: `${picked.length} sentence${picked.length === 1 ? "" : "s"}, verbatim`, ms: performance.now() - t });
+  return { hits: picked.map((x) => x.h), answer: `<p>${parts.join(" ")}</p>`, trace };
 }
 
 function escapeHtml(s: string): string {

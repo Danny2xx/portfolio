@@ -12,9 +12,11 @@ const iconKey: Record<string, string> = {
   "scikit-learn": "siScikitlearn", PyTorch: "siPytorch",
   "TensorFlow / Keras": "siTensorflow", Pandas: "siPandas", NumPy: "siNumpy",
   OpenCV: "siOpencv", YOLOv8: "siUltralytics",
-  "Next.js": "siNextdotjs", React: "siReact", FastAPI: "siFastapi",
-  PostgreSQL: "siPostgresql", Supabase: "siSupabase", Docker: "siDocker",
-  "GitHub Actions": "siGithubactions", Vercel: "siVercel",
+  "Next.js": "siNextdotjs", React: "siReact", Astro: "siAstro", FastAPI: "siFastapi",
+  PostgreSQL: "siPostgresql", SQLAlchemy: "siSqlalchemy", Supabase: "siSupabase", Redis: "siRedis",
+  Docker: "siDocker", "Docker Compose": "siDocker", "GitHub Actions": "siGithubactions",
+  "pre-commit": "siPrecommit", pytest: "siPytest", Ruff: "siRuff",
+  Prometheus: "siPrometheus", Caddy: "siCaddy", Vercel: "siVercel", Git: "siGit",
 };
 
 // dark brand colours would vanish on a #0f0f0f page, so they fall back to ink
@@ -39,7 +41,7 @@ const mark = (s: string) => s.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase(
 ---
 
 <div class="stk">
-  {groups.map((g, gi) => (
+  {groups.slice(0, 3).map((g, gi) => (
     <div class="stk__g" style={`--i:${gi}`}>
       <h3 class="stk__label">{g.label}</h3>
       <ul class="stk__list" role="list">
@@ -58,12 +60,39 @@ const mark = (s: string) => s.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase(
   ))}
 </div>
 
+<button class="morebtn" type="button" data-more="stack" aria-expanded="false" aria-controls="fold-stack">
+  <span>{groups.slice(3).reduce((n, g) => n + g.items.length, 0)} more, in {groups.length - 3} groups</span>
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+</button>
+
+<div class="fold" id="fold-stack">
+  <div class="stk" style="padding-top:14px">
+    {groups.slice(3).map((g, gi) => (
+      <div class="stk__g" style={`--i:${gi}`}>
+        <h3 class="stk__label">{g.label}</h3>
+        <ul class="stk__list" role="list">
+          {g.items.map((it) => (
+            <li class="stk__item" style={`--c:${it.colour}`}>
+              {it.path ? (
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d={it.path} /></svg>
+              ) : (
+                <span class="stk__mono" aria-hidden="true">{mark(it.name)}</span>
+              )}
+              <span>{it.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</div>
+
 <style>
   .stk { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
   .stk__g { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: baseline; }
   .stk__label {
     margin: 0; font-family: var(--type-mono); font-size: calc(11px * var(--ts));
-    font-weight: 400; text-transform: uppercase; letter-spacing: -0.1px; color: var(--dim);
+    font-weight: 400; text-transform: uppercase; letter-spacing: -0.1px; color: var(--mid);
   }
   .stk__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
   .stk__item {
