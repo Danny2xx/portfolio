@@ -143,11 +143,31 @@ A repo audit found the old copy overstated things. The site now follows the code
 Metrics in `projects[].facts` are copied from each repo's own report files. Don't add numbers
 that aren't in a repo, and keep `caveat` where the data is simulated.
 
+## The share card
+
+`public/og.png` (1200x630) is rendered from **`src/pages/og-card.astro`**, a real page so the
+card uses the site's own tokens and fonts, with the actual corpus map behind it. Regenerate it
+after any change to the name, role, status or that line of copy:
+
+```bash
+npm run build && npx serve dist -l 5199
+# headless Chrome at 1200x630, deviceScaleFactor 2, screenshot /og-card, then
+# sips -Z 1200 og-raw.png --out public/og.png
+```
+
+`/og-card` is noindex and disallowed in `robots.txt`. Project pages with a `shot` use it as
+their own `og:image`; everything else falls back to the card. `og:image:width/height/type` are
+only emitted for the default card, because the screenshots are a different size and format.
+
+**The canonical host is `www`.** The apex 308-redirects, and most social scrapers will not
+follow a redirect for an image, so `astro.config.mjs` `site`, the meta tags and the sitemap all
+use `https://www.danieliyalekhue.com`.
+
 ## Assets (`public/`)
 
 `cv/daniel-iyalekhue-cv.pdf` · `papers/icacin-2026-substrate-or-architecture.pdf` +
 `papers/icacin-2026-page1.jpg` (cover rendered from page 1 with PDFKit) · `awards/*` ·
-`shots/{aquasense,carril,nuclii,hottake}` · `vector.png` · `favicon.svg`. Loose personal files in
+`og.png` · `robots.txt` · `shots/{aquasense,carril,nuclii,hottake}.jpg` + `shots/thumb/*` · `vector.png` · `favicon.svg`. Loose personal files in
 the repo root are gitignored and must not be published.
 
 ## Verifying UI
@@ -188,7 +208,6 @@ a View Transition or a static import into an island.
 9. **AccessOps backend (paused):** deploy `~/Documents/accessops-coco-ai/webapp/backend` to Cloud
    Run (`gcloud auth login` needed), then update that repo's `webapp/frontend/vercel.json` rewrite
    and add `href` to the project here.
-10. Optional: an og:image for link previews.
 
 ## Conventions
 

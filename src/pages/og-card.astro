@@ -1,0 +1,107 @@
+---
+/* ──────────────────────────────────────────────────────────────────────────
+   The source of the social share card.
+
+   Rendered at 1200x630 by headless Chrome and saved to public/og.png (see
+   HANDOFF.md). It is a real page rather than a mockup so the card uses the
+   site's own tokens and fonts, and so it can be regenerated whenever the
+   content changes. Not linked from anywhere, and noindex.
+   ────────────────────────────────────────────────────────────────────────── */
+import "../styles/global.css";
+import { profile, bio } from "../data/content";
+import { layout, passages } from "../lib/passages";
+import Logo from "../components/Logo.astro";
+
+// the same points the Ask box draws, at their measured positions
+const W = 1200;
+const H = 630;
+const pts = layout.map(([x, y]) => [W * 0.42 + x * (W * 0.64), 70 + y * (H - 150)]);
+// a handful stand out, as if a query had just landed
+const litIdx = new Set([4, 9, 15, 21, 27, 33, 38, 44, 51]);
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Share card source</title>
+  </head>
+  <body class="card">
+    <svg class="card__field" width={W} height={H} aria-hidden="true">
+      {pts.map(([x, y], i) => (
+        <circle cx={x} cy={y} r={litIdx.has(i) ? 5 : 3} class={litIdx.has(i) ? "lit" : "pt"} />
+      ))}
+    </svg>
+
+    <div class="card__in">
+      <div class="card__top">
+        <img class="card__av" src="/vector.png" alt="" width="108" height="108" />
+        <span class="card__mark"><Logo size={34} /></span>
+      </div>
+
+      <h1 class="card__name">{profile.name}</h1>
+      <p class="card__role">{profile.title}</p>
+
+      <p class="card__line">
+        Retrieval that cites its sources, models that hand over when they aren't
+        sure, and the products around them.
+      </p>
+
+      <div class="card__foot">
+        <span class="card__status"><i></i>{profile.status}</span>
+        <span class="card__sep">·</span>
+        <span>{profile.location}</span>
+        <span class="card__url">danieliyalekhue.com</span>
+      </div>
+    </div>
+
+    <style define:vars={{ w: `${W}px`, h: `${H}px` }}>
+      html, body { margin: 0; padding: 0; }
+      .card {
+        position: relative; width: var(--w); height: var(--h);
+        overflow: hidden; background: var(--bg); color: var(--ink);
+        font-family: var(--type-sans);
+      }
+      /* the map sits behind the right half and fades out before the copy */
+      .card__field {
+        position: absolute; inset: 0;
+        -webkit-mask-image: linear-gradient(to right, transparent 34%, #000 56%, #000 92%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 34%, #000 56%, #000 92%, transparent 100%);
+      }
+      .card__field .pt { fill: var(--mid); opacity: 0.3; }
+      .card__field .lit { fill: var(--accent); opacity: 0.85; }
+
+      .card__in {
+        position: relative; height: 100%; box-sizing: border-box;
+        padding: 60px 72px 56px; display: flex; flex-direction: column;
+      }
+      .card__top { display: flex; align-items: center; justify-content: space-between; }
+      .card__av {
+        width: 108px; height: 108px; flex: none; border-radius: 50%;
+        object-fit: cover; object-position: center 28%;
+        background: var(--card); display: block;
+      }
+      .card__mark { color: var(--mid); display: grid; place-items: center; }
+
+      .card__name {
+        margin: 34px 0 0; font-size: 64px; line-height: 1.02;
+        letter-spacing: -2.2px; font-weight: 600;
+      }
+      .card__role { margin: 12px 0 0; font-size: 28px; color: var(--mid); letter-spacing: -0.4px; }
+      .card__line {
+        margin: 24px 0 0; max-width: 30ch; font-size: 27px; line-height: 1.44;
+        letter-spacing: -0.4px; color: #cfcfcf;
+      }
+
+      .card__foot {
+        margin-top: auto; display: flex; align-items: center; gap: 14px;
+        font-family: var(--type-mono); font-size: 20px; color: var(--mid);
+      }
+      .card__status { display: inline-flex; align-items: center; gap: 10px; }
+      .card__status i { width: 10px; height: 10px; border-radius: 50%; background: #3ecf8e; }
+      .card__sep { color: var(--dim); }
+      .card__url { margin-left: auto; color: var(--ink); }
+    </style>
+  </body>
+</html>

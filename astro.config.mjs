@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://danieliyalekhue.com',
+  site: 'https://www.danieliyalekhue.com',
   devToolbar: { enabled: false },
   integrations: [react()],
   vite: {

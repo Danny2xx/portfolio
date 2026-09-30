@@ -17,7 +17,7 @@ const study = studies.find((s) => s.data.project === p.name);
 const Content = study ? (await render(study)).Content : null;
 ---
 
-<Base title={`${p.name} · ${profile.name}`} description={p.tagline}>
+<Base title={`${p.name} · ${profile.name}`} description={p.tagline} image={p.shot ?? "/og.png"}>
   <main id="main" class="col page">
     <span id="top"></span>
 

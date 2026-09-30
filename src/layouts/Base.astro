@@ -7,14 +7,22 @@ import Dock from "../components/Dock.astro";
 interface Props {
   title?: string;
   description?: string;
+  /** a page-specific share image, e.g. a project screenshot */
+  image?: string;
 }
 
 const {
   title = `${profile.name} · ${profile.title}`,
   description = "Daniel Iyalekhue, AI / ML engineer in Birmingham. Retrieval, evaluation, models and the products around them. Co-author of an ICACIN 2026 paper.",
+  image = "/og.png",
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyalekhue.com");
+const site = Astro.site ?? new URL("https://www.danieliyalekhue.com");
+const canonical = new URL(Astro.url.pathname, site);
+// social scrapers need an absolute URL, and most will not follow a redirect
+const ogImage = new URL(image, site);
+// only the default card has known dimensions, and only it is a PNG
+const isDefaultCard = image === "/og.png";
 ---
 
 <!doctype html>
@@ -30,9 +38,26 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://danieliyale
     <meta name="theme-color" content="#0f0f0f" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    {isDefaultCard && (
+      <>
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+      </>
+    )}
+    <meta property="og:image:alt" content={`${profile.name}, ${profile.title}`} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={`${profile.name}, ${profile.title}`} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
