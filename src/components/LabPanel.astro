@@ -3,6 +3,8 @@ import { getCollection } from "astro:content";
 import { labIntro } from "../data/content";
 import Tokenizer from "./Tokenizer.tsx";
 import TemperatureLab from "./TemperatureLab.tsx";
+import BiasLab from "./BiasLab.tsx";
+import RiskLab from "./RiskLab.tsx";
 
 const notes = (await getCollection("writing", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
@@ -16,6 +18,24 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
 
   <div class="demo" style="--i:0">
     <div class="demo__head">
+      <span class="t">Why the model said no</span>
+      <span class="meta">shap-style</span>
+    </div>
+    <p class="d">A credit decision, with the contribution of every feature behind it. Then drop age from the model and watch the bias stay, which is the finding from the audit.</p>
+    <div class="demo__stage"><BiasLab client:visible /></div>
+  </div>
+
+  <div class="demo" style="--i:1">
+    <div class="demo__head">
+      <span class="t">The order that doesn't get sent</span>
+      <span class="meta">risk manager</span>
+    </div>
+    <p class="d">Compose a trade and watch one gate decide. Same checks, in the same order, as the trading bot.</p>
+    <div class="demo__stage"><RiskLab client:visible /></div>
+  </div>
+
+  <div class="demo" style="--i:2">
+    <div class="demo__head">
       <span class="t">How a language model reads text</span>
       <span class="meta">cl100k_base</span>
     </div>
@@ -23,7 +43,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { year: "numeric", month:
     <div class="demo__stage"><Tokenizer client:visible /></div>
   </div>
 
-  <div class="demo" style="--i:1">
+  <div class="demo" style="--i:3">
     <div class="demo__head">
       <span class="t">Sampling temperature</span>
       <span class="meta">softmax</span>

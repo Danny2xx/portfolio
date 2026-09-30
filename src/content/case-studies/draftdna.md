@@ -30,14 +30,22 @@ The draft returns as structured JSON, not prose, which lets the app do three thi
 
 There's a mock mode that drives the whole application end to end with no API key, so the interface can be built and demoed without burning tokens. Useful, and the reason for the warning below.
 
-<!-- TODO (Daniel): mock mode fills the quality and authenticity report with random values. That's
-     fine for development, but if you demo this to anyone, either gate that panel behind a real
-     run or say out loud that those numbers are placeholders. -->
+**A caveat that matters if you see this demoed.** Mock mode is the default, and in mock mode
+the quality and authenticity panel is filled with random values. It is fine for developing the
+interface and it is meaningless as a result. Any number on that panel that did not come from a
+real run against real sources is a placeholder, and I would rather say that here than have
+someone read it as an evaluation.
 
 ## Where it is now
 
 One substantive commit, and the source embeddings use ChromaDB's default model rather than one picked for academic prose. That's the first thing worth benchmarking, because retrieval quality sets the ceiling on everything above it.
 
-<!-- TODO (Daniel): run ten real assignments through it and record how many citations you'd accept
-     as-is. Even "41 of 50 held up" would make this page far stronger than any description of the
-     architecture. -->
+### The evaluation that is missing
+
+The structural argument is strong: the model cannot cite a paper that is not in the index,
+because it has no mechanism for referring to one. What is not established is how *useful* the
+citations are when they are real.
+
+The measurement is obvious and has not been done: run a set of real assignments through it and
+record how many citations hold up as-is. "41 of 50 held up" would say more about this system
+than any description of its architecture, including this one.

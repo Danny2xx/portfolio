@@ -14,8 +14,10 @@ A plant discharging wastewater has consent limits it must stay under. The usual 
 
 Half an hour of warning changes what an operator can do about it. That's the whole product.
 
-<!-- TODO (Daniel): one line on what you owned here. The repo has four contributors and a
-     recruiter who checks will ask. Better answered up front than avoided. -->
+**On authorship.** This was a team build: the repository has four contributors and the work
+started as a hackathon project. Everything described below is what the code does, not a claim
+about who wrote which part, and the project is listed on this site as a team project for that
+reason.
 
 ## What the plant sends
 

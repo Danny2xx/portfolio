@@ -24,22 +24,24 @@ export const profile = {
 
 /* ── Profile head ────────────────────────────────────────────────────────── */
 export const bio =
-  "Hey, I'm Daniel. I build AI systems end to end: retrieval, evaluation, models, and the products people actually open. MSc AI at Birmingham City University, with a paper accepted at ICACIN 2026.";
+  "Hey, I'm Daniel. I build machine learning systems end to end, from the data to the product people actually open. MSc AI at Birmingham City University, with a paper accepted at ICACIN 2026.";
 
 export const whatIDo: string[] = [
-  "I build retrieval systems that cite their sources, models that know when to hand over to a person, and the APIs and dashboards people use them through. Data to deployed product, I handle the whole path.",
-  "The rest of that path: parsing and chunking, embeddings and rerankers, the evaluation that runs before any of it ships, then the interface someone actually opens. The habit underneath all of it is measurement. I don't say a system works until there's a number that says so, and when the number is bad I put that on the page too. Half the value of this portfolio is the results that didn't go my way.",
+  "I build machine learning systems end to end. Forecasting, computer vision, tabular models and the explanations behind them, retrieval, and the APIs and dashboards people use them through.",
+  "The rest of that path: cleaning and labelling the data, choosing the model that fits rather than the one that impresses, the evaluation that runs before any of it ships, then the interface someone actually opens. I have shipped all of it, including the parts nobody demos.",
+  "The habit underneath it is measurement. I don't say a system works until there's a number that says so, and when the number is bad I put that on the page too. Half the value of this portfolio is the results that didn't go my way.",
   "Before AI I spent years in full-stack web work, turning Figma files into things real users hit, so I'm comfortable owning the interface as well as the model. Four co-founded ventures taught me the rest: pricing, pitching, and shipping to a fixed date with nothing to spare.",
-];
+]
 
 /* Capability lines, each with the system that proves it. If you can't point at
    a repo, the line doesn't belong here.                                      */
-export const builds: { line: string; proof: string; slug: string }[] = [
-  { line: "Answers that cite the page they came from", proof: "DocSage", slug: "docsage" },
-  { line: "Models that hand over when they aren't sure", proof: "AccessOps COCO AI", slug: "accessops-coco-ai" },
-  { line: "Forecasts that flag a breach before it happens", proof: "AquaSense AI", slug: "aquasense-ai" },
-  { line: "Decisions a model can explain and defend", proof: "Credit-scoring bias audit", slug: "credit-bias-audit" },
-  { line: "A risk manager in front of every order", proof: "Multi-venue trading bot", slug: "trading-bot" },
+export const builds: { line: string; proof: string; slug: string; field: string }[] = [
+  { field: "Forecasting", line: "Flags a permit breach before the reading arrives", proof: "AquaSense AI", slug: "aquasense-ai" },
+  { field: "Computer vision", line: "Captions every image, and knows which ones to hand over", proof: "AccessOps COCO AI", slug: "accessops-coco-ai" },
+  { field: "Explainable ML", line: "Decisions a regulator can audit, including the unfair ones", proof: "Credit-scoring bias audit", slug: "credit-bias-audit" },
+  { field: "Systems", line: "A risk manager in front of every order", proof: "Multi-venue trading bot", slug: "trading-bot" },
+  { field: "Retrieval", line: "Answers that cite the page they came from", proof: "DocSage", slug: "docsage" },
+  { field: "Recommenders", line: "Picks the model is never allowed to make", proof: "AURAFIND", slug: "aurafind" },
 ];
 
 /* ── The report ──────────────────────────────────────────────────────────────
@@ -711,7 +713,7 @@ export const websites: Website[] = [
 
 /* ── Lab ─────────────────────────────────────────────────────────────────── */
 export const labIntro =
-  "Two small demos of how language models work. Both run in your browser, with no API calls.";
+  "Four things I build, running here rather than described. Explainability, risk, and two on how language models actually work. No API calls: all of it runs in your browser.";
 
 /* ── Education (About) ───────────────────────────────────────────────────── */
 export const credentials: { line: string; detail: string }[] = [
@@ -728,38 +730,44 @@ export const ventures: { role: string; detail: string }[] = [
   {
     role: "Co-founder, Hillsville Farms, Hillsville Prime and 4Wheels.ng",
     detail:
-      "Took each from concept to an operating business, including a dealership model that marketed partner-owned inventory, so it never had to hold stock.",
+      "Took each from concept to an operating business, including a dealership model that marketed partner-owned inventory so it never had to hold stock. Three businesses taught me the same lesson three times: the constraint is almost never the technology.",
   },
   {
     role: "Co-founder and CTO, Nuclii",
-    detail: "Took the venture through the BCU STEAM Hatchery accelerator, from customer validation to pitching.",
+    detail:
+      "Took the venture through the BCU STEAM Hatchery accelerator, from customer validation to pitching. One of eight picked to pitch.",
   },
   {
     role: "Relay, through BSEEN",
-    detail: "A hyperlocal student delivery marketplace, worked through validation, pricing and trust.",
+    detail:
+      "A hyperlocal student delivery marketplace. Worked through validation, pricing and trust, and learned that a marketplace with trust unsolved is not a marketplace.",
   },
-];
+]
 
 /* ── Right now (About) ───────────────────────────────────────────────────── */
 export const now = {
   updated: "September 2026",
-  // Keep these additive: the hero already covers the MSc and the job search.
+  // Keep these additive and specific: a "now" page full of verbs nobody can
+  // check is worse than no now page.
   items: [
-    { label: "Shipping", text: "LLM reporting pipelines at Carril, over live ad and analytics data." },
-    { label: "Learning", text: "Agent evaluation, and measuring retrieval quality with RAGAS." },
-    { label: "Writing", text: "Occasional notes on what I'm building." },
+    { label: "Shipping", text: "LLM reporting pipelines at Carril, over live Google Ads, Meta and GA4 data." },
+    { label: "Finishing", text: "The MSc, and the camera-ready for the ICACIN paper with Beeswift." },
+    { label: "Learning", text: "Agent evaluation, and measuring retrieval quality with RAGAS rather than by reading outputs." },
+    { label: "Reading", text: "Papers on reward hacking, after an RL run on AccessOps quietly optimised the metric instead of the task." },
+    { label: "Writing", text: "Notes on things that went wrong, because those are the ones worth writing down." },
   ],
 };
 
 export const currently =
-  "Engineer, researcher and co-founder. The short version of how I got here, and how I work.";
+  "Engineer, researcher and co-founder. How I got here, how I work, and what I'm in the middle of.";
 
 export const howIWork: string[] = [
-  "Ship the whole thing. Model, evaluation, interface, deployment.",
-  "Make it explainable. If I can't say why it works, it isn't done.",
-  "Measure before I claim anything. Evals over vibes.",
-  "Report what didn't work. A failed experiment is still a result.",
-];
+  "Ship the whole thing. Model, evaluation, interface, deployment. The interesting problems live in the seams between those, and you only find them if you own all four.",
+  "Make it explainable. If I can't say why it works, it isn't done. A credit model that can't defend a rejection is a liability, not a feature.",
+  "Measure before I claim anything. Evals over vibes. A number I didn't record is a number I'm inventing later.",
+  "Report what didn't work. A failed experiment is still a result, and the reinforcement-learning run that didn't beat the baseline is on this site for that reason.",
+  "Build the boring half first. The risk manager before the strategies, the schema before the AI. That order is the only one that survives contact with real money or real users.",
+]
 
 /* ── Recommendations (real, attributed words only; never write one for someone) ─
    `photo`: LinkedIn photos can't be pulled automatically (login wall, expiring

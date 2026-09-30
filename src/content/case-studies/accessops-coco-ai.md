@@ -55,9 +55,25 @@ I kept these in the report instead of quietly dropping them.
 
 **The attention ablation collapsed.** 0.0001. That number doesn't mean attention is a bad idea, it means my experiment was broken, and saying so is more useful than omitting the row.
 
-<!-- TODO (Daniel): two or three sentences on WHY you think RL didn't help. Reward hacking?
-     BLEU as a poor reward signal? Only one epoch? This is the question an interviewer will
-     push on, and a real answer here is the strongest thing on the page. -->
+### Why the reinforcement learning didn't help
+
+Self-critical sequence training optimises the metric directly, so the honest reading of a
+result that goes backwards is that the metric was the wrong target.
+
+BLEU-4 rewards four-word overlap with the references. A caption can raise that by drifting
+toward the safe phrasings that appear across the whole corpus, which is the opposite of what
+an alt-text system needs: the specific detail that makes a particular image describable. The
+supervised model was already near the published Show, Attend and Tell baseline, so there was
+little headroom left that BLEU could see, and what SCST found was phrasing rather than
+accuracy.
+
+The other two candidates are ordinary. A greedy-decode baseline gives a high-variance reward
+signal at this batch size, and the run was short. Separating those from reward hacking would
+take an ablation that has not been done.
+
+What I would do next is change the reward rather than the algorithm: CIDEr weights the terms
+that distinguish an image instead of the ones every caption shares, which is closer to what
+the task is actually for.
 
 ## Where it breaks
 

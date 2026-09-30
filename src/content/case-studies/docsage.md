@@ -31,8 +31,11 @@ A cross-encoder then rescores the merged candidates and keeps the best five. Fus
 
 Nothing leaves the machine: embeddings, reranking and generation all run locally.
 
-<!-- TODO (Daniel): one line on why local matters to you here. Cost per document? Confidential
-     files? Working on a train? Pick the real reason. -->
+Local is not a preference here, it is what makes the tool usable at all. The documents worth
+asking questions of are contracts, compliance reports and unpublished papers, and those are
+exactly the documents nobody is allowed to paste into a hosted model. A per-document API cost
+also turns "index everything and see" into a decision, which is the wrong shape for a research
+tool.
 
 ## Why it refuses
 
@@ -42,8 +45,17 @@ The prompt tells the model to say the documents don't cover it rather than fill 
 
 There are no saved evaluation results. `scripts/evaluate.py` measures latency but nothing has been recorded, so there's no honest number to put on this page yet.
 
-<!-- TODO (Daniel): run it, and add three figures: median answer latency, the largest document
-     you've indexed, and how many of 20 test questions it refused correctly. That last one is the
-     number that proves the paragraph above. -->
+### What isn't measured yet
+
+There are no saved evaluation results. `scripts/evaluate.py` measures latency but nothing has
+been recorded, so there is no honest number to put on this page for answer time or for the
+size of the largest document indexed.
+
+The number that matters most is also missing: of a set of questions the documents genuinely do
+not answer, how many does it refuse. The refusal behaviour is the claim this whole system rests
+on, and right now it is an argument from design rather than a measurement.
+
+Two loose ends worth fixing while in there: `rank_bm25` and `pdfplumber` are imported but
+missing from `requirements.txt`, so a clean install will not run.
 
 Two loose ends worth fixing while you're in there: `rank_bm25` and `pdfplumber` are imported but missing from `requirements.txt`, so a clean install won't run.

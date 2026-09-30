@@ -75,8 +75,14 @@ FeedAbout.astro   id and lights it, switching tabs first if the row is on anothe
 Ask.astro         "Ask this site": the search box, the answer, the citations. Inlines the
                   corpus as JSON and calls lib/retrieve.ts. See DESIGN.md.
 Stack.astro       40 tools in six groups with real simple-icons brand marks.
-LabPanel.astro    the Lab panel: Tokenizer and TemperatureLab as client:visible islands, plus
-                  Notes rows from the writing collection.
+LabPanel.astro    the Lab panel: four client:visible islands plus Notes from the writing
+                  collection. BiasLab and RiskLab lead, because they are the two that are
+                  not about LLMs and the site was reading as retrieval-only.
+BiasLab.tsx       a working miniature of the credit audit. Calibrated so the synthetic
+                  population reproduces the real finding: 0.72 disparate impact with age in
+                  the model, 0.79 with it out, still failing. If you touch the weights or the
+                  population, re-run the calibration, because the whole point is that number.
+RiskLab.tsx       the trading bot's risk gate. The checks and their order are the repo's.
 Dock.astro        floating bottom pill: top, email, GitHub, theme toggle. Owns
                   window.__toggleTheme. Tucks on scroll down; a 620ms settle timer always
                   brings it back, so it can never sit permanently on top of content.
@@ -203,7 +209,9 @@ a View Transition or a static import into an island.
    Technology Ltd".
 5. **The public CV includes his phone number.**
 6. **Paper PDF** is the camera-ready copy; confirm the publisher allows self-hosting.
-7. **Case studies.** All 9 projects have one in `src/content/case-studies/`, matched to a project
+7. **Case studies.** All 9 projects have one, and there are no open `<!-- TODO -->` prompts
+   left: the analysis ones were written from code, and the three about authorship say what the
+   commit record shows rather than claiming a role. All 9 in `src/content/case-studies/`, matched to a project
    by the `project` frontmatter field == the project's `name`, rendered at the bottom of its page.
    Each carries a few `<!-- TODO -->` prompts for the things only Daniel can answer (why RL
    failed on AccessOps, his role on the AquaSense team and the trading bot, what he'd do about

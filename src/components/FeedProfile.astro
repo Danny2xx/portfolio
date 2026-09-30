@@ -27,10 +27,11 @@ import { initials } from "../lib/text";
   </div>
   <div class="rows" style="margin-top:14px">
     {builds.map((b, i) => (
-      <a class="row row--plain" id={rid("builds", b.slug)} href={`/work/${b.slug}`} style={`--i:${i + 3}`}>
+      <a class="row" id={rid("builds", b.slug)} href={`/work/${b.slug}`} style={`--i:${i + 3}`}>
+        <span class="tile" aria-hidden="true">{b.field.slice(0, 2).toUpperCase()}</span>
         <span>
           <span class="t">{b.line}</span>
-          <span class="d">{b.proof}</span>
+          <span class="d"><b class="field">{b.field}</b> · {b.proof}</span>
         </span>
         <span class="go">Proof ↗</span>
       </a>
@@ -116,6 +117,8 @@ import { initials } from "../lib/text";
 )}
 
 <style>
+  .field { color: var(--mid); font-weight: 500; }
+
   .para { margin: 0 0 10px; max-width: 64ch; }
   .para:last-of-type { margin-bottom: 0; }
   .note { margin-top: 5px; color: var(--dim); }

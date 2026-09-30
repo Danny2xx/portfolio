@@ -8,8 +8,10 @@ stack: ["Python", "web3.py", "CCXT", "FastAPI", "TimescaleDB", "Prometheus"]
 draft: false
 ---
 
-<!-- TODO (Daniel): this was a team repo and most commits are under another name. One line here
-     saying which parts you owned. Everything below describes the system, not its authorship. -->
+**On authorship.** This was an internship on a team repository, and most of the commits are
+under another developer's name. What follows describes the system, not who wrote each part of
+it, which is why this project is listed on the site as R&D engineering on the prototype rather
+than anything stronger.
 
 Most trading bots are written in the exciting order: strategy first, risk controls bolted on once real money is involved. That order is how accounts die, because the safety layer arrives after the habits have formed around not having one.
 

@@ -39,6 +39,15 @@ A saved run against a third-party repository came back with 41 issues and a secu
 
 But the weights are a judgement call, not a calibrated scale. The scores rank codebases consistently against each other and against their own history. A 76 has no meaning outside this tool, and the chunk cap means a very large repository is sampled rather than read exhaustively.
 
-<!-- TODO (Daniel): the most interesting thing RepoLens caught on a real repo, in two sentences.
-     Ideally something the static analysers alone would have missed, since that's the evidence
-     the LLM layer earns its place. -->
+### What the layering is for
+
+The case for the LLM layer is the class of finding the analysers cannot express. `gitleaks`
+matches patterns that look like secrets, `bandit` matches known-dangerous calls, `ruff` matches
+style and a set of correctness rules. None of them can read a function and notice that its
+error path leaves a resource open, or that a check exists but is applied to the wrong variable.
+That is the gap the review pass is aimed at.
+
+Whether it earns its place in practice is not something I can evidence from this repository.
+No before-and-after comparison is recorded, so the honest version is: the scoring is
+deterministic either way, and the LLM layer is a hypothesis with a sound design rather than a
+measured improvement.

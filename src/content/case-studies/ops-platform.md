@@ -54,8 +54,10 @@ There are no tests. For a system that does arithmetic on money, that is the firs
 
 And the AI in "AI manufacturing platform" does not exist yet. There is no price prediction, no risk flagging, no document extraction. Phase one exists so that when those arrive they have a table of consistently-priced quotes to learn from instead of a spreadsheet.
 
-<!-- TODO (Daniel): is this still live with the client, or parked? And if it went further than
-     this repo shows, say so here, because the code is all a reader can see. -->
+**On what is visible.** The repository is the whole of what a reader can check, and this
+write-up is deliberately limited to it. Phase one is what exists in the code: the schema, the
+money handling, the API and a set of UI scaffolds. Anything beyond that is not described here
+because it is not verifiable here.
 
 ## Why it is on this site at all
 

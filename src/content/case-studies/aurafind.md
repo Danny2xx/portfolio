@@ -44,6 +44,12 @@ Partly that makes it genuinely demoable. Mostly it keeps the non-AI path honest:
 
 The weights were chosen by hand and the catalogue is 100 fragrances assembled for the build. Both are fine for a prototype and neither is evidence of anything.
 
-<!-- TODO (Daniel): if this ever goes in front of people, log which of the four picks gets clicked.
-     Thirty sessions would tell you whether the weights are sensible, and "tuned the weights from
-     real click data" is a much better sentence than anything above. -->
+### The evaluation that is missing
+
+The weights in the scoring function are reasoned, not fitted. Nobody has clicked on anything,
+so there is no evidence that "best overall" is the pick a person would have chosen.
+
+The fix is small and specific: log which of the four cards gets opened, and after about thirty
+sessions the ranking either agrees with people or it does not. Until that exists this is a
+system with a defensible design and no proof, and saying so is more useful than implying
+otherwise.
