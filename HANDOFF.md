@@ -110,6 +110,11 @@ Tokenizer.tsx     real cl100k_base BPE in-browser. TemperatureLab.tsx softmax de
   open 116ms, warmed 36ms, and 17ms every open after that.
 - **The dock always comes back.** The tuck-on-scroll-down has a settle timer for exactly this
   reason; an earlier version hid it for the whole of a downward scroll.
+- **`useCase` is what a project is for; `facts` is what it measured.** `guarantees` are
+  behaviours the code makes true by construction, which is why five projects with no recorded
+  metrics still have something concrete to show. Never move a number into `guarantees`, and
+  never put anything in `useCase` that isn't in the repo: it is the answer to "there is no
+  screenshot", so it has to be the part that is true.
 - **Design tokens are `--type-sans` / `--type-mono`.** Tailwind owns `--font-*`; reusing those
   names makes the variable reference itself and the font silently falls back.
 - **Ask row ids come from `rid()` in `lib/passages.ts`, used by both sides.** Change how a row
@@ -198,9 +203,8 @@ a View Transition or a static import into an island.
    Technology Ltd".
 5. **The public CV includes his phone number.**
 6. **Paper PDF** is the camera-ready copy; confirm the publisher allows self-hosting.
-7. **Case studies.** 8 of the 9 projects have one in `src/content/case-studies/` (OPS Platform
-   doesn't: it's a scaffold and a write-up would be padding). They render at the bottom of the
-   matching project page, matched by the `project` frontmatter field == the project's `name`.
+7. **Case studies.** All 9 projects have one in `src/content/case-studies/`, matched to a project
+   by the `project` frontmatter field == the project's `name`, rendered at the bottom of its page.
    Each carries a few `<!-- TODO -->` prompts for the things only Daniel can answer (why RL
    failed on AccessOps, his role on the AquaSense team and the trading bot, what he'd do about
    the age bias finding, real DocSage latency). Everything outside those comments is from code.

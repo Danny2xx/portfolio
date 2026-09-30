@@ -340,6 +340,11 @@ export const stack: { group: string; items: string[] }[] = [
    `featured` puts a project in the large grid ("xl" | "lg" | "md"); the rest
    appear in the "More projects" index. Every project gets /work/<slug>.      */
 export type Step = { label: string; detail?: string };
+
+/* The situation a system exists for, and what it guarantees in that situation.
+   `guarantees` are behaviours the code makes true by construction, not measured
+   results: those live in `facts`. Never put a number here that isn't in a repo. */
+export type UseCase = { situation: string; guarantees: string[] };
 export type Project = {
   slug: string;
   name: string;
@@ -349,6 +354,7 @@ export type Project = {
   blurb: string;
   pipeline: Step[];
   highlights?: string[];
+  useCase?: UseCase;
   facts?: { label: string; value: string }[];
   caveat?: string;
   stack: string[];
@@ -369,6 +375,15 @@ export const projects: Project[] = [
     tagline: "Forecasts pollutant levels 30 minutes ahead and flags breach risk before it happens.",
     blurb:
       "A compliance monitor for a food-processing plant's wastewater. It replays 5-minute sensor readings as a live stream, forecasts COD, BOD, TSS, ammonia and pH 30 minutes ahead, predicts breach risk, and turns the result into alerts, reports, drought context and data-quality views.",
+    useCase: {
+      situation:
+        "A food-processing plant discharges wastewater under a permit. The operator needs to know, before it happens, whether the next few hours will breach a limit.",
+      guarantees: [
+        "Forecasts pollutant levels 30 minutes ahead and flags breach risk before the reading arrives.",
+        "Soft sensors estimate COD, BOD and TSS from cheap live probes instead of waiting for a lab result.",
+        "Every number on the dashboard is traceable to a reading, and the data is simulated, which the page says.",
+      ],
+    },
     pipeline: [
       { label: "Sensor stream", detail: "8,640 simulated 5-minute readings replayed live" },
       { label: "Feature pipeline", detail: "Lag and rolling features over a 120-minute buffer" },
@@ -405,6 +420,15 @@ export const projects: Project[] = [
     tagline: "Writes alt-text for images, and sends the captions it's unsure about to a person.",
     blurb:
       "A CNN+LSTM captioning model trained on MS COCO 2017 and improved stage by stage, from a scratch baseline through transfer learning to AdamW fine-tuning with beam search. A confidence policy decides which captions go straight out and which go to human review.",
+    useCase: {
+      situation:
+        "An organisation has thousands of images with no alt text and a legal obligation to describe them. Most can be captioned automatically; some cannot be captioned safely at all.",
+      guarantees: [
+        "Writes a caption for every image, and scores its own confidence in each one.",
+        "Routes the captions it is least sure about to a person instead of publishing them.",
+        "Reinforcement-learning fine-tuning is reported even though it did not help, because it is a result.",
+      ],
+    },
     pipeline: [
       { label: "COCO 2017", detail: "118,287 training images, 591,753 captions" },
       { label: "Image encoder", detail: "MobileNetV2, 1,280-dimension features" },
@@ -434,6 +458,15 @@ export const projects: Project[] = [
     tagline: "Ask questions of your PDFs and get answers that cite the page they came from.",
     blurb:
       "A local-first PDF question-answering system. It parses text, tables and scanned pages, retrieves with a hybrid of vector search and BM25, reranks with a cross-encoder, and streams an answer from a local model with inline citations and page numbers.",
+    useCase: {
+      situation:
+        "A 90-page contract, a compliance report or a paper. Someone needs an answer they can check, not an answer that sounds right.",
+      guarantees: [
+        "Every claim in an answer carries its source and its page number.",
+        "Says the documents do not cover it rather than filling the gap.",
+        "Nothing leaves the machine: parsing, embedding, reranking and generation all run locally.",
+      ],
+    },
     pipeline: [
       { label: "Parsing", detail: "PyMuPDF text, pdfplumber tables, Tesseract OCR" },
       { label: "Chunking", detail: "800 characters, 150 overlap, tables kept whole" },
@@ -457,6 +490,15 @@ export const projects: Project[] = [
     tagline: "Drafts academic work that only cites the sources you approved.",
     blurb:
       "It learns a writer's style from samples, reads the brief, rubric and approved sources, and drafts sections whose citations are tagged by confidence, alongside a list of claims the sources don't support. Reference lists in Harvard, APA 7 or IEEE, with DOCX and PDF export.",
+    useCase: {
+      situation:
+        "A student or researcher drafting referenced work, where an invented citation is worse than no citation at all.",
+      guarantees: [
+        "The model can only cite chunks retrieved from sources the writer uploaded.",
+        "Retrieval is filtered per project, so one assignment's reading list cannot leak into another's.",
+        "Citations are tagged high, medium or low confidence, and unsupported claims are listed separately.",
+      ],
+    },
     pipeline: [
       { label: "Uploads", detail: "Samples, brief, rubric and sources parsed" },
       { label: "Chunking", detail: "500 words, 50 overlap" },
@@ -482,6 +524,15 @@ export const projects: Project[] = [
     tagline: "A paper-trading bot on Base where every order passes a risk manager with a kill switch.",
     blurb:
       "An R&D trading bot for WETH/USDC and cbBTC/USDC on Base, routing through Aerodrome with a Uniswap v3 fallback. Rule-based, moving-average and ML strategies share one interface, every order passes risk checks, fills are simulated with fees and slippage, and swaps were tested on the Base Sepolia testnet.",
+    useCase: {
+      situation:
+        "A trading system on Base, where a bad order is not a bug report, it is money gone, and there is nobody to call afterwards.",
+      guarantees: [
+        "Every order from every strategy passes one risk manager: position size, exposure, drawdown, daily loss, capital.",
+        "A global kill switch sits in the code path, not in a config file, with a test covering it.",
+        "Paper-only on synthetic data. No live capital, which the findings document recommends explicitly.",
+      ],
+    },
     pipeline: [
       { label: "Market data", detail: "DEX Screener, on-chain pool reads, CCXT" },
       { label: "Market state", detail: "One shared shape, optional TimescaleDB" },
@@ -505,6 +556,15 @@ export const projects: Project[] = [
     tagline: "Audits a codebase with static analysis and a local LLM, without letting the LLM set the score.",
     blurb:
       "Upload a codebase ZIP and it detects the stack, runs npm audit, ESLint, tsc, ruff, bandit and gitleaks, sends code chunks to a local qwen2.5-coder model for review, then merges and deduplicates findings into deterministic readiness scores and a Markdown report.",
+    useCase: {
+      situation:
+        "An engineer wants a codebase audited, including code belonging to an employer that cannot be uploaded anywhere.",
+      guarantees: [
+        "The model proposes findings; a fixed scoring function decides the number, so two runs of the same repo agree.",
+        "Standard analysers do the work they are good at: npm audit, ESLint, tsc, ruff, bandit, gitleaks.",
+        "Everything runs on the machine, which is the only version of this tool you can point at code you do not own.",
+      ],
+    },
     pipeline: [
       { label: "Safe extraction", detail: "Zip-slip check and upload size limit" },
       { label: "Stack detection", detail: "File scan across languages and frameworks" },
@@ -528,6 +588,15 @@ export const projects: Project[] = [
     tagline: "An XGBoost credit model explained with SHAP and LIME, then checked for bias across age, sex and nationality.",
     blurb:
       "A credit-risk classifier on the UCI German Credit dataset, explained globally and per applicant with SHAP and LIME, then audited for disparate impact, error rates and risk scores across age, sex and foreign-worker groups.",
+    useCase: {
+      situation:
+        "A lender declines an applicant. A regulator, or the applicant, asks why, and the model said so is not an answer.",
+      guarantees: [
+        "Every decision is explained per-applicant with SHAP, and locally with LIME.",
+        "Fairness is measured across age, sex and nationality, not assumed.",
+        "The audit reports a failure: applicants aged 18 to 25 fail the 80% rule at 0.72.",
+      ],
+    },
     pipeline: [
       { label: "German Credit data", detail: "1,000 applicants, 20 features" },
       { label: "Balancing", detail: "Stratified split, SMOTE on training data only" },
@@ -555,6 +624,15 @@ export const projects: Project[] = [
     tagline: "Describe a scent in plain words and get ranked matches, with the reasons shown.",
     blurb:
       "Plain-language requests become structured preferences, then a catalogue is scored out of 100 on budget, notes, style, occasion, season and performance, and grouped into best overall, budget, premium and hidden-gem picks, each with its reasons.",
+    useCase: {
+      situation:
+        "Someone describes what they want in plain English and a budget, and wants to know why they were shown what they were shown.",
+      guarantees: [
+        "The model only turns a sentence into structured preferences; it never sees the catalogue.",
+        "A transparent scoring function over real rows picks the products, so it cannot recommend one that does not exist.",
+        "Every pick shows the reasons behind its score, because the weights are fixed and legible.",
+      ],
+    },
     pipeline: [
       { label: "Request", detail: "A description in plain language" },
       { label: "Preferences", detail: "gpt-4.1-mini with a JSON schema, or a rule-based fallback" },
@@ -576,6 +654,15 @@ export const projects: Project[] = [
     tagline: "The data and quoting foundation for a UK precision-engineering operations platform.",
     blurb:
       "Phase one of a planned AI manufacturing platform: a normalised PostgreSQL schema seeded with customers, materials, labour rates, RFQs and quotes, a FastAPI API, a quote calculator with exact decimal money handling, and a Next.js B2B dashboard.",
+    useCase: {
+      situation:
+        "A precision engineering shop quotes by hand and cannot say what its win rate is, or what it made on the work it won.",
+      guarantees: [
+        "Money is Decimal end to end, rounded explicitly at each step, never a float.",
+        "Each quote stores material, labour, overhead, margin and total separately, so it can be analysed later.",
+        "Win rate, pipeline value and accepted value fall out of the schema as single aggregate queries.",
+      ],
+    },
     pipeline: [
       { label: "Seed data", detail: "CSV loaders into PostgreSQL" },
       { label: "Schema", detail: "SQLAlchemy models, Alembic migrations" },

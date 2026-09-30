@@ -18,7 +18,7 @@ const linkFor = (p: (typeof projects)[number]) =>
   <h2 class="label">Selected work</h2>
   <div class="rows">
     {projects.map((p, i) => (
-      <a class="row" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`} data-prefetch>
+      <a class="row work" id={rid("work", p.slug)} href={`/work/${p.slug}`} style={`--i:${i}`} data-prefetch>
         {p.thumb ? (
           <span class="tile tile--shot" aria-hidden="true"><img src={p.thumb} alt="" width="400" height="250" loading="lazy" decoding="async" /></span>
         ) : (
@@ -27,6 +27,7 @@ const linkFor = (p: (typeof projects)[number]) =>
         <span>
           <span class="t">{p.name}</span>
           <span class="d">{p.tagline}</span>
+          {p.useCase && <span class="d work__for"><b>For</b> {p.useCase.situation}</span>}
         </span>
         <span class="go">{linkFor(p)}</span>
       </a>
@@ -103,6 +104,19 @@ const linkFor = (p: (typeof projects)[number]) =>
 </section>
 
 <style>
+  /* the use case is one hover away, so the list stays scannable */
+  .work__for {
+    display: block; margin-top: 6px; color: var(--dim);
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 0.4s var(--ease), opacity 0.3s ease, margin-top 0.4s var(--ease);
+  }
+  .work__for b { color: var(--mid); font-weight: 500; }
+  .work:hover .work__for, .work:focus-visible .work__for { max-height: 92px; opacity: 1; }
+  @media (hover: none) {
+    .work__for { max-height: none; opacity: 1; }
+  }
+  :root[data-motion="reduced"] .work__for { transition: none; }
+
   .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
   .card { display: block; }
   .card__shot {

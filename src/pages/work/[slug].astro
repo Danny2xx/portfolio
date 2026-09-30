@@ -47,6 +47,18 @@ const Content = study ? (await render(study)).Content : null;
       </figure>
     )}
 
+    {p.useCase && (
+      <section class="sec">
+        <h2 class="label">What it's for</h2>
+        <p class="situation">{p.useCase.situation}</p>
+        <ul class="guar">
+          {p.useCase.guarantees.map((g, i) => (
+            <li style={`--i:${i}`}><span aria-hidden="true">→</span>{g}</li>
+          ))}
+        </ul>
+      </section>
+    )}
+
     <section class="sec">
       <h2 class="label">What it is</h2>
       <p>{p.blurb}</p>
@@ -125,6 +137,17 @@ const Content = study ? (await render(study)).Content : null;
 </Base>
 
 <style>
+  /* ── what it's for ───────────────────────────────────────────────────── */
+  .situation { margin: 0; max-width: 62ch; color: var(--ink); }
+  .guar { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; }
+  .guar li {
+    display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start;
+    padding: 8px 0; border-bottom: 1px solid var(--line);
+    font-size: calc(13.5px * var(--ts)); line-height: calc(19px * var(--ts)); color: var(--mid);
+  }
+  .guar li:last-child { border-bottom: 0; }
+  .guar li span { color: var(--accent); font-family: var(--type-mono); }
+
   /* ── the pipeline as a trace ─────────────────────────────────────────── */
   .trace { position: relative; margin-top: 6px; padding-left: 22px; }
   .trace__track, .trace__rail {
